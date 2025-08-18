@@ -4,31 +4,36 @@ const validCredentials = {
     "Movil2": "MovilAcciona2025"
 };
 
-// Coordenadas iniciales para Aeropuerto AMB (SCL) [-33.3931, -70.7858]
-const INITIAL_COORDS = [-33.3931, -70.7858]; 
+// Coordenadas iniciales (Aeropuerto SCL)
+const INITIAL_COORDS = [-33.3931, -70.7858];
 const INITIAL_ZOOM = 15;
 
-// Elementos del DOM
+// Variables globales
 let map;
 let currentMarker;
 let watchId;
 
-// Verificar autenticación al cargar la página
+// Cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', function() {
-    if (window.location.pathname.includes('index.html') || window.location.pathname === '/') {
-        const storedUser = localStorage.getItem('currentUser');
-        if (!storedUser) {
-            redirectToLogin();
-        } else {
-            initApp(storedUser);
-        }
-    } else if (window.location.pathname.includes('login.html')) {
-        setupLoginForm();
+    if (window.location.pathname.endsWith('index.html') || window.location.pathname === '/') {
+        checkAuth();
+    } else if (window.location.pathname.endsWith('login.html')) {
+        setupLogin();
     }
 });
 
-// Configurar el formulario de login
-function setupLoginForm() {
+// Verificar autenticación
+function checkAuth() {
+    const user = localStorage.getItem('currentUser');
+    if (!user) {
+        window.location.href = 'login.html';
+    } else {
+        initApp(user);
+    }
+}
+
+// Configurar login
+function setupLogin() {
     document.getElementById('loginForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const username = document.getElementById('username').value;
@@ -43,7 +48,7 @@ function setupLoginForm() {
     });
 }
 
-// Inicializar la aplicación
+// Inicializar aplicación
 function initApp(username) {
     document.getElementById('current-user').textContent = username;
     document.getElementById('logout-btn').addEventListener('click', logout);
@@ -51,18 +56,17 @@ function initApp(username) {
     startTracking(username);
 }
 
-// Inicializar el mapa con OpenStreetMap
+// Inicializar mapa
 function initMap() {
     map = L.map('map').setView(INITIAL_COORDS, INITIAL_ZOOM);
     
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        maxZoom: 19
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
 
-    // Marcador inicial en el aeropuerto
+    // Marcador inicial en aeropuerto
     currentMarker = L.marker(INITIAL_COORDS, {
-        title: 'Aeropuerto AMB (SCL)'
+        title: 'Aeropuerto SCL'
     }).addTo(map)
     .bindPopup('Aeropuerto Arturo Merino Benítez');
 }
@@ -72,7 +76,7 @@ function startTracking(username) {
     if (navigator.geolocation) {
         watchId = navigator.geolocation.watchPosition(
             (position) => updatePosition(position, username),
-            handleGeolocationError,
+            (error) => handleGeolocationError(error),
             { 
                 enableHighAccuracy: true,
                 maximumAge: 10000,
@@ -84,23 +88,21 @@ function startTracking(username) {
     }
 }
 
-// Actualizar posición en el mapa
+// Actualizar posición en mapa
 function updatePosition(position, username) {
     const coords = {
         lat: position.coords.latitude,
         lng: position.coords.longitude
     };
     
-    // Actualizar vista del mapa
+    // Mover vista del mapa
     map.setView([coords.lat, coords.lng], map.getZoom());
     
-    // Actualizar o crear marcador
+    // Actualizar marcador
     if (currentMarker) {
         currentMarker.setLatLng([coords.lat, coords.lng]);
     } else {
-        currentMarker = L.marker([coords.lat, coords.lng], {
-            title: `Posición de ${username}`
-        }).addTo(map);
+        currentMarker = L.marker([coords.lat, coords.lng]).addTo(map);
     }
     
     // Actualizar popup
@@ -109,28 +111,28 @@ function updatePosition(position, username) {
             <b>${username}</b><br>
             Lat: ${coords.lat.toFixed(6)}<br>
             Lng: ${coords.lng.toFixed(6)}<br>
-            Exactitud: ${position.coords.accuracy.toFixed(1)} metros
+            Precisión: ${position.coords.accuracy.toFixed(1)} metros
         `)
         .openPopup();
 }
 
 // Manejar errores de geolocalización
 function handleGeolocationError(error) {
-    let message = '';
+    let message = 'Error de GPS: ';
     switch(error.code) {
         case error.PERMISSION_DENIED:
-            message = 'Permiso de ubicación denegado';
+            message += 'Permiso denegado';
             break;
         case error.POSITION_UNAVAILABLE:
-            message = 'Información de ubicación no disponible';
+            message += 'Ubicación no disponible';
             break;
         case error.TIMEOUT:
-            message = 'Tiempo de espera agotado';
+            message += 'Tiempo de espera agotado';
             break;
         default:
-            message = `Error desconocido: ${error.message}`;
+            message += `Error desconocido (${error.code})`;
     }
-    alert(`Error de GPS: ${message}`);
+    alert(message);
 }
 
 // Cerrar sesión
@@ -139,10 +141,5 @@ function logout() {
         navigator.geolocation.clearWatch(watchId);
     }
     localStorage.removeItem('currentUser');
-    redirectToLogin();
-}
-
-// Redirigir a login
-function redirectToLogin() {
     window.location.href = 'login.html';
 }
