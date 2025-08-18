@@ -21,16 +21,48 @@
             height: 100vh;
             z-index: 1;
         }
+        /* Panel deslizante */
         .control-panel {
             position: fixed;
             top: 15px;
-            right: 15px;
+            right: 0;
             background: rgba(255,255,255,0.95);
             padding: 15px;
-            border-radius: 12px;
+            border-radius: 12px 0 0 12px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             z-index: 1000;
             width: 280px;
+            transform: translateX(265px);
+            transition: transform 0.3s ease;
+        }
+        .control-panel.visible {
+            transform: translateX(0);
+        }
+        .toggle-panel {
+            position: absolute;
+            left: -25px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.9);
+            border: none;
+            width: 25px;
+            height: 60px;
+            border-radius: 8px 0 0 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: -3px 0 5px rgba(0,0,0,0.1);
+        }
+        .toggle-panel:hover {
+            background: #f8f9fa;
+        }
+        .toggle-icon {
+            font-size: 16px;
+            transition: transform 0.3s;
+        }
+        .control-panel.visible .toggle-icon {
+            transform: rotate(180deg);
         }
         .vehicle-card {
             margin-bottom: 12px;
@@ -88,7 +120,11 @@
 <body>
     <div id="map"></div>
     
-    <div class="control-panel">
+    <div class="control-panel" id="controlPanel">
+        <button class="toggle-panel" id="togglePanel">
+            <span class="toggle-icon">◄</span>
+        </button>
+        
         <h3 style="margin-top:0;color:#2c3e50;">🚗 Flota Acciona</h3>
         
         <div class="vehicle-card">
@@ -153,7 +189,7 @@
             }
             
             initMap();
-            document.getElementById('logoutBtn').addEventListener('click', logout);
+            setupUI();
             
             // Iniciar seguimiento según tipo de usuario
             if (!auth.isViewer) {
@@ -177,29 +213,26 @@
                 .openPopup();
         }
         
+        function setupUI() {
+            // Botón de logout
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+            
+            // Toggle del panel
+            const panel = document.getElementById('controlPanel');
+            document.getElementById('togglePanel').addEventListener('click', function() {
+                panel.classList.toggle('visible');
+            });
+            
+            // Mostrar panel por defecto en pantallas grandes
+            if (window.innerWidth > 768) {
+                panel.classList.add('visible');
+            }
+        }
+        
         function startGPSTracking(mobileId) {
             // Simulación para demo (en producción usar GPS real)
             simulateGPS(mobileId);
             setInterval(() => simulateGPS(mobileId), 10000);
-            
-            /* Código para GPS real:
-            if (navigator.geolocation) {
-                navigator.geolocation.watchPosition(
-                    position => {
-                        const coords = [position.coords.latitude, position.coords.longitude];
-                        updateMobilePosition(mobileId, coords);
-                    },
-                    error => {
-                        console.error('Error GPS:', error);
-                        simulateGPS(mobileId);
-                    },
-                    { enableHighAccuracy: true }
-                );
-            } else {
-                alert('GPS no soportado');
-                simulateGPS(mobileId);
-            }
-            */
         }
         
         function startMonitoring() {
