@@ -2,30 +2,26 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tracker GPS - Aeropuerto SCL</title>
-    <!-- Leaflet CSS (¡usa esta URL exacta!) -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-        crossorigin=""/>
-    <!-- Tu CSS local -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GPS Aeropuerto SCL</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Contenedor del mapa (DEBE tener altura definida) -->
-    <div id="map"></div>
-    
-    <!-- Panel de usuario (visible) -->
-    <div id="user-info">
-        <p>Usuario: <span id="current-user"></span></p>
-        <button id="logout-btn">Cerrar Sesión</button>
+    <!-- Contenedor principal para móvil -->
+    <div class="mobile-container">
+        <!-- Mapa rectangular centrado -->
+        <div id="map"></div>
+        
+        <!-- Panel de usuario -->
+        <div id="user-info">
+            <p>Usuario: <span id="current-user"></span></p>
+            <button id="logout-btn">Cerrar Sesión</button>
+        </div>
     </div>
 
-    <!-- Leaflet JS (¡antes de tu script.js!) -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-        crossorigin=""></script>
-    <!-- Tu JavaScript -->
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
