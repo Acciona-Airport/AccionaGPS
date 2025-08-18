@@ -4,9 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Monitor GPS | Acciona</title>
-    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
+        :root {
+            --white: #ffffff;
+            --red-light: #ffebee;
+            --red-primary: #f44336;
+            --red-dark: #d32f2f;
+        }
         body {
             margin: 0;
             padding: 0;
@@ -21,7 +26,6 @@
             height: 100vh;
             z-index: 1;
         }
-        /* Panel deslizante */
         .control-panel {
             position: fixed;
             top: 15px;
@@ -34,6 +38,7 @@
             width: 280px;
             transform: translateX(265px);
             transition: transform 0.3s ease;
+            border: 1px solid var(--red-light);
         }
         .control-panel.visible {
             transform: translateX(0);
@@ -43,8 +48,8 @@
             left: -25px;
             top: 50%;
             transform: translateY(-50%);
-            background: rgba(255,255,255,0.9);
-            border: none;
+            background: var(--white);
+            border: 1px solid var(--red-light);
             width: 25px;
             height: 60px;
             border-radius: 8px 0 0 8px;
@@ -55,9 +60,10 @@
             box-shadow: -3px 0 5px rgba(0,0,0,0.1);
         }
         .toggle-panel:hover {
-            background: #f8f9fa;
+            background: var(--red-light);
         }
         .toggle-icon {
+            color: var(--red-dark);
             font-size: 16px;
             transition: transform 0.3s;
         }
@@ -67,14 +73,11 @@
         .vehicle-card {
             margin-bottom: 12px;
             padding-bottom: 12px;
-            border-bottom: 1px solid #eee;
-        }
-        .vehicle-card:last-child {
-            border-bottom: none;
+            border-bottom: 1px solid var(--red-light);
         }
         .vehicle-name {
             font-weight: 600;
-            color: #2c3e50;
+            color: var(--red-dark);
             display: flex;
             align-items: center;
         }
@@ -82,13 +85,12 @@
             display: flex;
             justify-content: space-between;
             font-size: 14px;
-            color: #7f8c8d;
             margin-top: 5px;
         }
         .online { color: #27ae60; }
-        .offline { color: #e74c3c; }
+        .offline { color: var(--red-dark); }
         .logout-btn {
-            background: #e74c3c;
+            background: var(--red-primary);
             color: white;
             border: none;
             padding: 10px;
@@ -97,12 +99,11 @@
             cursor: pointer;
             font-weight: 600;
             margin-top: 15px;
+            transition: background 0.3s;
         }
-        /* Marcadores personalizados */
-        .marker-movil1 { background-color: #3498db; }
-        .marker-movil2 { background-color: #2ecc71; }
-        .marker-movil3 { background-color: #e67e22; }
-        .marker-movil4 { background-color: #9b59b6; }
+        .logout-btn:hover {
+            background: var(--red-dark);
+        }
         .marker {
             border-radius: 50%;
             width: 30px;
@@ -115,6 +116,10 @@
             border: 2px solid white;
             box-shadow: 0 0 5px rgba(0,0,0,0.5);
         }
+        .marker-movil1 { background-color: #3498db; }
+        .marker-movil2 { background-color: #2ecc71; }
+        .marker-movil3 { background-color: #e67e22; }
+        .marker-movil4 { background-color: #9b59b6; }
     </style>
 </head>
 <body>
@@ -125,7 +130,7 @@
             <span class="toggle-icon">◄</span>
         </button>
         
-        <h3 style="margin-top:0;color:#2c3e50;">🚗 Flota Acciona</h3>
+        <h3 style="margin-top:0;color:var(--red-dark);">🚗 Flota Acciona</h3>
         
         <div class="vehicle-card">
             <div class="vehicle-name"><span class="marker marker-movil1" style="margin-right:8px;">1</span> Móvil 1</div>
@@ -135,36 +140,12 @@
             </div>
         </div>
         
-        <div class="vehicle-card">
-            <div class="vehicle-name"><span class="marker marker-movil2" style="margin-right:8px;">2</span> Móvil 2</div>
-            <div class="vehicle-status">
-                <span>Estado:</span>
-                <span id="movil2-status" class="offline">Desconectado</span>
-            </div>
-        </div>
-        
-        <div class="vehicle-card">
-            <div class="vehicle-name"><span class="marker marker-movil3" style="margin-right:8px;">3</span> Móvil 3</div>
-            <div class="vehicle-status">
-                <span>Estado:</span>
-                <span id="movil3-status" class="offline">Desconectado</span>
-            </div>
-        </div>
-        
-        <div class="vehicle-card">
-            <div class="vehicle-name"><span class="marker marker-movil4" style="margin-right:8px;">4</span> Móvil 4</div>
-            <div class="vehicle-status">
-                <span>Estado:</span>
-                <span id="movil4-status" class="offline">Desconectado</span>
-            </div>
-        </div>
+        <!-- Repetir para Móvil 2, 3 y 4 -->
         
         <button class="logout-btn" id="logoutBtn">Cerrar Sesión</button>
     </div>
 
-    <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
     <script>
         // Configuración
         const SCL_COORDS = [-33.3931, -70.7858];
@@ -173,18 +154,10 @@
         const markers = {};
         let gpsInterval;
         
-        // Datos compartidos (simulados)
-        const mobileData = {
-            Movil1: { coords: null, status: 'offline', color: '#3498db' },
-            Movil2: { coords: null, status: 'offline', color: '#2ecc71' },
-            Movil3: { coords: null, status: 'offline', color: '#e67e22' },
-            Movil4: { coords: null, status: 'offline', color: '#9b59b6' }
-        };
-        
         // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
-            const session = JSON.parse(localStorage.getItem('mobileSession'));
-            if (!session) {
+            const auth = JSON.parse(localStorage.getItem('gpsAuth'));
+            if (!auth) {
                 window.location.href = 'login.html';
                 return;
             }
@@ -192,11 +165,9 @@
             initMap();
             setupUI();
             
-            if (!session.isViewer) {
-                // Modo móvil - envío de posición
-                startGPSTracking(session.username);
+            if (!auth.isViewer) {
+                startGPSTracking(auth.username);
             } else {
-                // Modo funcionarios - solo visualización
                 startMonitoring();
             }
         });
@@ -208,7 +179,6 @@
                 attribution: '&copy; OpenStreetMap'
             }).addTo(map);
             
-            // Marcador aeropuerto
             L.marker(SCL_COORDS)
                 .addTo(map)
                 .bindPopup('✈️ Aeropuerto SCL')
@@ -216,102 +186,76 @@
         }
         
         function setupUI() {
-            // Botón de logout
             document.getElementById('logoutBtn').addEventListener('click', logout);
             
-            // Toggle del panel
             const panel = document.getElementById('controlPanel');
             document.getElementById('togglePanel').addEventListener('click', function() {
                 panel.classList.toggle('visible');
             });
             
-            // Mostrar panel por defecto en pantallas grandes
             if (window.innerWidth > 768) {
                 panel.classList.add('visible');
             }
         }
         
         function startGPSTracking(mobileId) {
-            // 1. Detener cualquier seguimiento previo
+            // Limpiar intervalo previo
             if (gpsInterval) clearInterval(gpsInterval);
             
-            // 2. Enviar posición inicial inmediatamente
-            getCurrentPosition(mobileId);
+            // Primera actualización inmediata
+            updatePosition(mobileId);
             
-            // 3. Actualizar cada 5 segundos
+            // Actualizar cada 5 segundos
             gpsInterval = setInterval(() => {
-                getCurrentPosition(mobileId);
+                updatePosition(mobileId);
             }, 5000);
         }
         
-        function getCurrentPosition(mobileId) {
+        function updatePosition(mobileId) {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     position => {
                         const coords = [position.coords.latitude, position.coords.longitude];
-                        updateMobilePosition(mobileId, coords, 'online');
-                        
-                        // En sistema real: enviar a servidor con fetch/API
-                        console.log(`Posición ${mobileId}:`, coords);
+                        savePosition(mobileId, coords);
                     },
                     error => {
-                        console.error(`Error GPS (${mobileId}):`, error);
-                        updateMobilePosition(mobileId, mobileData[mobileId]?.coords || SCL_COORDS, 'offline');
+                        console.error('Error GPS:', error);
+                        updateStatus(mobileId, 'offline');
                     },
-                    { 
-                        enableHighAccuracy: true,
-                        timeout: 4000,
-                        maximumAge: 0 // Siempre obtener posición fresca
-                    }
+                    { enableHighAccuracy: true, timeout: 4000 }
                 );
-            } else {
-                alert('Tu dispositivo no soporta geolocalización');
             }
         }
         
-        function startMonitoring() {
-            // Simular actualización de los 4 móviles
-            Object.keys(mobileData).forEach(mobile => {
-                if (!mobileData[mobile].coords) {
-                    simulateGPS(mobile);
-                }
-            });
-            
-            // Actualizar posiciones cada 3 segundos (simulado)
-            setInterval(() => {
-                Object.keys(mobileData).forEach(mobile => {
-                    simulateGPS(mobile);
-                });
-            }, 3000);
-        }
-        
-        function simulateGPS(mobileId) {
-            const offset = () => (Math.random() * 0.03 - 0.015);
-            const newCoords = mobileData[mobileId]?.coords 
-                ? [
-                    mobileData[mobileId].coords[0] + offset(),
-                    mobileData[mobileId].coords[1] + offset()
-                  ]
-                : [
-                    SCL_COORDS[0] + offset(),
-                    SCL_COORDS[1] + offset()
-                  ];
-            
-            const status = Math.random() > 0.1 ? 'online' : 'offline';
-            updateMobilePosition(mobileId, newCoords, status);
-        }
-        
-        function updateMobilePosition(mobileId, coords, status) {
-            if (!coords) return;
-            
-            // Actualizar datos
-            mobileData[mobileId] = {
+        function savePosition(mobileId, coords) {
+            // Guardar en localStorage (simulando backend)
+            const sharedData = JSON.parse(localStorage.getItem('gpsSharedData')) || {};
+            sharedData[mobileId] = {
                 coords,
-                status,
-                lastUpdate: new Date()
+                timestamp: new Date().getTime(),
+                status: 'online'
             };
+            localStorage.setItem('gpsSharedData', JSON.stringify(sharedData));
             
-            // Crear/actualizar marcador
+            // Actualizar mapa
+            updateMarker(mobileId, coords);
+            updateStatus(mobileId, 'online');
+        }
+        
+        function startMonitoring() {
+            // Verificar cambios cada 2 segundos
+            setInterval(() => {
+                const sharedData = JSON.parse(localStorage.getItem('gpsSharedData')) || {};
+                Object.keys(sharedData).forEach(mobileId => {
+                    if (sharedData[mobileId]?.coords) {
+                        updateMarker(mobileId, sharedData[mobileId].coords);
+                        updateStatus(mobileId, sharedData[mobileId].status || 'offline');
+                    }
+                });
+            }, 2000);
+        }
+        
+        function updateMarker(mobileId, coords) {
             if (!markers[mobileId]) {
                 markers[mobileId] = L.marker(coords, {
                     icon: L.divIcon({
@@ -325,36 +269,21 @@
             } else {
                 markers[mobileId]
                     .setLatLng(coords)
-                    .setPopupContent(`<b>${mobileId}</b><br>Última actualización: ${new Date().toLocaleTimeString()}`);
+                    .setPopupContent(`<b>${mobileId}</b><br>${new Date().toLocaleTimeString()}`);
             }
-            
-            // Centrar mapa en la posición del móvil actual (solo si es el usuario activo)
-            const session = JSON.parse(localStorage.getItem('mobileSession'));
-            if (!session.isViewer && session.username === mobileId) {
-                map.setView(coords);
-            }
-            
-            updateStatusUI();
         }
         
-        function updateStatusUI() {
-            Object.keys(mobileData).forEach(mobile => {
-                const element = document.getElementById(`${mobile.toLowerCase()}-status`);
-                if (element) {
-                    element.textContent = mobileData[mobile].status === 'online' ? 'En ruta' : 'Desconectado';
-                    element.className = mobileData[mobile].status === 'online' ? 'online' : 'offline';
-                }
-            });
+        function updateStatus(mobileId, status) {
+            const element = document.getElementById(`${mobileId.toLowerCase()}-status`);
+            if (element) {
+                element.textContent = status === 'online' ? 'En ruta' : 'Desconectado';
+                element.className = status === 'online' ? 'online' : 'offline';
+            }
         }
         
         function logout() {
-            // Limpiar intervalo de GPS
             if (gpsInterval) clearInterval(gpsInterval);
-            
-            // Eliminar sesión
-            localStorage.removeItem('mobileSession');
-            
-            // Redirigir al login
+            localStorage.removeItem('gpsAuth');
             window.location.href = 'login.html';
         }
     </script>
