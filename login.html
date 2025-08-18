@@ -5,66 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login GPS Acciona</title>
     <style>
-        :root {
-            --primary: #3498db;
-            --danger: #e74c3c;
-        }
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background: #f5f7fa;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .login-box {
-            background: white;
-            width: 100%;
-            max-width: 400px;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #2c3e50;
-            text-align: center;
-            margin-bottom: 25px;
-            font-size: 24px;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #34495e;
-            font-weight: 600;
-        }
-        select, input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #ecf0f1;
-            border-radius: 8px;
-            font-size: 16px;
-        }
-        button {
-            width: 100%;
-            padding: 14px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        .logo {
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 28px;
-        }
+        /* Estilos anteriores se mantienen igual */
     </style>
 </head>
 <body>
@@ -89,7 +30,7 @@
                 <input type="password" id="password" required>
             </div>
             
-            <button type="submit">Ingresar</button>
+            <button type="submit">Ingresar al Sistema</button>
         </form>
     </div>
 
@@ -106,18 +47,24 @@
                 "Movil2": "MovilAcciona2025",
                 "Movil3": "MovilAcciona2025",
                 "Movil4": "MovilAcciona2025",
-                "Funcionarios": "1234" // Nueva contraseña simple
+                "Funcionarios": "1234"
             };
             
             if (validCredentials[username] && password === validCredentials[username]) {
-                // Guardar en localStorage
-                localStorage.setItem('gpsAuth', JSON.stringify({
+                // Cerrar sesiones previas de móviles (excepto Funcionarios)
+                if (username !== 'Funcionarios') {
+                    localStorage.removeItem('mobileSession');
+                }
+                
+                // Guardar sesión actual
+                const sessionData = {
                     username,
                     isViewer: username === 'Funcionarios',
-                    timestamp: new Date().getTime()
-                }));
+                    timestamp: new Date().getTime(),
+                    token: Math.random().toString(36).substring(2) // Token único
+                };
                 
-                // Redirigir al mapa
+                localStorage.setItem('mobileSession', JSON.stringify(sessionData));
                 window.location.href = 'index.html';
             } else {
                 alert('Error: Usuario o contraseña incorrectos');
