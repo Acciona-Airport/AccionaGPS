@@ -12,6 +12,8 @@
             --red-primary: #f44336;
             --red-dark: #d32f2f;
             --gray-light: #f5f5f5;
+            --online-color: #27ae60;
+            --offline-color: #95a5a6;
         }
         body {
             margin: 0;
@@ -91,8 +93,8 @@
             font-size: 14px;
             margin-top: 5px;
         }
-        .online { color: #27ae60; }
-        .offline { color: var(--red-dark); }
+        .online { color: var(--online-color); }
+        .offline { color: var(--offline-color); }
         .logout-btn {
             background: var(--red-primary);
             color: white;
@@ -108,10 +110,14 @@
         .logout-btn:hover {
             background: var(--red-dark);
         }
-        .marker {
-            border-radius: 50%;
+        /* Estilos para los iconos de autos */
+        .vehicle-icon {
+            background-size: 60%;
+            background-repeat: no-repeat;
+            background-position: center;
             width: 30px;
             height: 30px;
+            border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -119,14 +125,21 @@
             font-weight: bold;
             border: 2px solid white;
             box-shadow: 0 0 5px rgba(0,0,0,0.5);
+            margin-right: 8px;
         }
-        .marker-movil1 { background-color: #3498db; }
-        .marker-movil2 { background-color: #2ecc71; }
-        .marker-movil3 { background-color: #e67e22; }
-        .marker-movil4 { background-color: #9b59b6; }
-        .marker-offline {
-            background-color: #95a5a6 !important;
+        .vehicle-icon.online {
+            background-color: var(--online-color);
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5v-5h14v5z"/><circle cx="7.5" cy="14.5" r="1.5"/><circle cx="16.5" cy="14.5" r="1.5"/></svg>');
+        }
+        .vehicle-icon.offline {
+            background-color: var(--offline-color);
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5v-5h14v5z"/><circle cx="7.5" cy="14.5" r="1.5"/><circle cx="16.5" cy="14.5" r="1.5"/></svg>');
             opacity: 0.7;
+        }
+        .vehicle-marker {
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
     </style>
 </head>
@@ -141,7 +154,10 @@
         <h3 style="margin-top:0;color:var(--red-dark);">🚗 Flota Acciona</h3>
         
         <div class="vehicle-card">
-            <div class="vehicle-name"><span class="marker marker-movil1" style="margin-right:8px;">1</span> Móvil 1</div>
+            <div class="vehicle-name">
+                <div id="movil1-icon" class="vehicle-icon offline"></div>
+                Móvil 1
+            </div>
             <div class="vehicle-status">
                 <span>Estado:</span>
                 <span id="movil1-status" class="offline">Desconectado</span>
@@ -149,7 +165,10 @@
         </div>
         
         <div class="vehicle-card">
-            <div class="vehicle-name"><span class="marker marker-movil2" style="margin-right:8px;">2</span> Móvil 2</div>
+            <div class="vehicle-name">
+                <div id="movil2-icon" class="vehicle-icon offline"></div>
+                Móvil 2
+            </div>
             <div class="vehicle-status">
                 <span>Estado:</span>
                 <span id="movil2-status" class="offline">Desconectado</span>
@@ -157,7 +176,10 @@
         </div>
         
         <div class="vehicle-card">
-            <div class="vehicle-name"><span class="marker marker-movil3" style="margin-right:8px;">3</span> Móvil 3</div>
+            <div class="vehicle-name">
+                <div id="movil3-icon" class="vehicle-icon offline"></div>
+                Móvil 3
+            </div>
             <div class="vehicle-status">
                 <span>Estado:</span>
                 <span id="movil3-status" class="offline">Desconectado</span>
@@ -165,7 +187,10 @@
         </div>
         
         <div class="vehicle-card">
-            <div class="vehicle-name"><span class="marker marker-movil4" style="margin-right:8px;">4</span> Móvil 4</div>
+            <div class="vehicle-name">
+                <div id="movil4-icon" class="vehicle-icon offline"></div>
+                Móvil 4
+            </div>
             <div class="vehicle-status">
                 <span>Estado:</span>
                 <span id="movil4-status" class="offline">Desconectado</span>
@@ -335,38 +360,80 @@
         function createMarker(mobileId, coords, isOnline) {
             if (markers[mobileId]) return;
             
-            const markerNumber = mobileId.replace('Movil', '');
-            markers[mobileId] = L.marker(coords, {
-                icon: L.divIcon({
-                    className: `marker-${mobileId.toLowerCase()}`,
-                    html: markerNumber,
-                    iconSize: [30, 30],
-                    className: 'marker' + (!isOnline ? ' marker-offline' : '')
-                }),
-                opacity: isOnline ? 1 : 0.6
-            }).addTo(map)
-            .bindPopup(`<b>${mobileId}</b><br>${isOnline ? 'En ruta' : 'Desconectado'}`);
+            const icon = L.divIcon({
+                className: '',
+                html: `<div style="
+                    background-color: ${isOnline ? '#27ae60' : '#95a5a6'};
+                    background-image: url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"white\"><path d=\"M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5v-5h14v5z\"/><circle cx=\"7.5\" cy=\"14.5\" r=\"1.5\"/><circle cx=\"16.5\" cy=\"14.5\" r=\"1.5\"/></svg>');
+                    background-size: 60%;
+                    background-repeat: no-repeat;
+                    background-position: center;
+                    width: 30px;
+                    height: 30px;
+                    border-radius: 50%;
+                    border: 2px solid white;
+                    box-shadow: 0 0 5px rgba(0,0,0,0.5);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    color: white;
+                    font-weight: bold;
+                    opacity: ${isOnline ? '1' : '0.7'};
+                ">${mobileId.replace('Movil', '')}</div>`,
+                iconSize: [30, 30],
+                className: 'vehicle-marker'
+            });
+
+            markers[mobileId] = L.marker(coords, { icon })
+                .addTo(map)
+                .bindPopup(`<b>${mobileId}</b><br>${isOnline ? 'En ruta' : 'Desconectado'}`);
         }
         
         function updateMarker(mobileId, coords, isOnline) {
             if (!markers[mobileId]) {
                 createMarker(mobileId, coords, isOnline);
             } else {
+                const icon = L.divIcon({
+                    html: `<div style="
+                        background-color: ${isOnline ? '#27ae60' : '#95a5a6'};
+                        background-image: url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"white\"><path d=\"M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5v-5h14v5z\"/><circle cx=\"7.5\" cy=\"14.5\" r=\"1.5\"/><circle cx=\"16.5\" cy=\"14.5\" r=\"1.5\"/></svg>');
+                        background-size: 60%;
+                        background-repeat: no-repeat;
+                        background-position: center;
+                        width: 30px;
+                        height: 30px;
+                        border-radius: 50%;
+                        border: 2px solid white;
+                        box-shadow: 0 0 5px rgba(0,0,0,0.5);
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        color: white;
+                        font-weight: bold;
+                        opacity: ${isOnline ? '1' : '0.7'};
+                    ">${mobileId.replace('Movil', '')}</div>`,
+                    iconSize: [30, 30],
+                    className: 'vehicle-marker'
+                });
+
                 markers[mobileId]
                     .setLatLng(coords)
+                    .setIcon(icon)
                     .setPopupContent(`<b>${mobileId}</b><br>${isOnline ? 'En ruta' : 'Desconectado'}<br>Última actualización: ${new Date().toLocaleTimeString()}`);
-                
-                const markerElement = markers[mobileId].getElement();
-                markerElement.classList.toggle('marker-offline', !isOnline);
-                markers[mobileId].setOpacity(isOnline ? 1 : 0.6);
             }
         }
         
         function updateStatus(mobileId, status) {
             const element = document.getElementById(`${mobileId.toLowerCase()}-status`);
+            const iconElement = document.getElementById(`${mobileId.toLowerCase()}-icon`);
+            
             if (element) {
                 element.textContent = status === 'online' ? 'En ruta' : 'Desconectado';
                 element.className = status === 'online' ? 'online' : 'offline';
+            }
+            
+            if (iconElement) {
+                iconElement.className = `vehicle-icon ${status === 'online' ? 'online' : 'offline'}`;
             }
         }
         
