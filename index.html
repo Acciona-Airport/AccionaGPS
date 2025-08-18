@@ -3,17 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GPS con OpenStreetMap</title>
+    <title>GPS Tracker - Mapa</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- Mapa (ocupa toda la pantalla) -->
     <div id="map"></div>
+    
+    <!-- Panel de usuario (visible claramente) -->
     <div id="user-info">
         <p>Usuario: <span id="current-user"></span></p>
         <button id="logout-btn">Cerrar Sesión</button>
     </div>
-    
+
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="script.js"></script>
 </body>
