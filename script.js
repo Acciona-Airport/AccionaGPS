@@ -1,63 +1,46 @@
-// Credenciales válidas
-const validCredentials = {
-    "Movil1": "MovilAcciona2025",
-    "Movil2": "MovilAcciona2025"
+// Base de datos SIMULADA (en producción usa Firebase/Backend)
+const mobileData = {
+    "Movil1": { coords: null, lastUpdate: null },
+    "Movil2": { coords: null, lastUpdate: null }
 };
 
-// Coordenadas Aeropuerto SCL
+// Configuración del mapa
 const SCL_COORDS = [-33.3931, -70.7858];
-const ZOOM_INICIAL = 16;
-
-// Variables globales
+const ZOOM_INICIAL = 14;
 let map;
-let currentMarker;
+const markers = {}; // Almacena los marcadores
 
-// Al cargar la página
+// Inicialización
 document.addEventListener('DOMContentLoaded', function() {
-    const path = window.location.pathname.split('/').pop();
-    
-    if (path === 'index.html' || path === '') {
-        checkAuth();
-    } else if (path === 'login.html') {
-        setupLogin();
-    }
+    if (isLoginPage()) setupLogin();
+    else initMap();
 });
-
-// Verificar autenticación
-function checkAuth() {
-    const user = localStorage.getItem('currentUser');
-    if (!user) {
-        window.location.href = 'login.html';
-    } else {
-        initApp(user);
-    }
-}
 
 // Configurar login
 function setupLogin() {
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
         e.preventDefault();
-        
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
-        
-        if (validCredentials[username] && password === validCredentials[username]) {
+
+        if (await authenticate(username, password)) {
             localStorage.setItem('currentUser', username);
             window.location.href = 'index.html';
         } else {
-            alert('Credenciales incorrectas. Usa Movil1/Movil2 y contraseña "MovilAcciona2025"');
+            alert('Credenciales incorrectas');
         }
     });
 }
 
-// Inicializar aplicación
-function initApp(username) {
-    document.getElementById('current-user').textContent = username;
-    document.getElementById('user-info').style.display = 'block';
-    document.getElementById('logout-btn').addEventListener('click', logout);
-    
-    initMap();
-    startTracking(username);
+// Autenticación simulada
+async function authenticate(username, password) {
+    // Verifica credenciales
+    const validCredentials = {
+        "Movil1": "MovilAcciona2025",
+        "Movil2": "MovilAcciona2025",
+        "Admin": "Acciona2025" // Usuario extra para visualización
+    };
+    return validCredentials[username] === password;
 }
 
 // Inicializar mapa
@@ -65,41 +48,82 @@ function initMap() {
     map = L.map('map').setView(SCL_COORDS, ZOOM_INICIAL);
     
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        attribution: '&copy; OpenStreetMap'
     }).addTo(map);
 
-    currentMarker = L.marker(SCL_COORDS).addTo(map)
+    // Marcador inicial para SCL
+    L.marker(SCL_COORDS).addTo(map)
         .bindPopup('Aeropuerto SCL')
         .openPopup();
+
+    // Actualizar posiciones cada 5 segundos
+    setInterval(updateMobilePositions, 5000);
 }
 
-// Iniciar seguimiento GPS
-function startTracking(username) {
+// Actualizar posiciones (simula recepción de datos GPS)
+function updateMobilePositions() {
+    // En un sistema real, aquí harías una petición a tu backend
+    Object.keys(mobileData).forEach(mobile => {
+        if (mobileData[mobile].coords) {
+            updateOrCreateMarker(mobile, mobileData[mobile].coords);
+        }
+    });
+}
+
+// Crear/actualizar marcador
+function updateOrCreateMarker(mobile, coords) {
+    if (!markers[mobile]) {
+        markers[mobile] = L.marker(coords, {
+            icon: L.divIcon({
+                className: `mobile-icon ${mobile}`,
+                html: mobile === 'Movil1' ? '🚗' : '🚕',
+                iconSize: [30, 30]
+            })
+        }).addTo(map)
+        .bindPopup(`<b>${mobile}</b>`);
+    } else {
+        markers[mobile].setLatLng(coords);
+    }
+}
+
+// Simulador de datos GPS (para prueba)
+function simulateGPS(mobile) {
+    // Coordenadas aleatorias cerca de SCL (solo para demo)
+    const offset = () => (Math.random() * 0.01 - 0.005);
+    mobileData[mobile].coords = [
+        SCL_COORDS[0] + offset(),
+        SCL_COORDS[1] + offset()
+    ];
+    mobileData[mobile].lastUpdate = new Date();
+    
+    // En sistema real, esto vendría del GPS del dispositivo
+    updateOrCreateMarker(mobile, mobileData[mobile].coords);
+}
+
+// Iniciar seguimiento (llamar desde cada dispositivo)
+function startTracking(mobile) {
+    // En dispositivos reales:
     if (navigator.geolocation) {
         navigator.geolocation.watchPosition(
-            (position) => updatePosition(position, username),
-            (error) => console.error('Error GPS:', error),
+            position => {
+                const coords = [position.coords.latitude, position.coords.longitude];
+                mobileData[mobile] = {
+                    coords: coords,
+                    lastUpdate: new Date()
+                };
+                // Enviar datos al backend en sistema real
+            },
+            error => console.error(`Error GPS ${mobile}:`, error),
             { enableHighAccuracy: true }
         );
     } else {
-        alert('Geolocalización no soportada');
+        console.log(`${mobile}: GPS no disponible`);
+        // Modo simulación para pruebas
+        setInterval(() => simulateGPS(mobile), 10000);
     }
 }
 
-// Actualizar posición
-function updatePosition(position, username) {
-    const coords = [position.coords.latitude, position.coords.longitude];
-    map.setView(coords);
-    
-    if (currentMarker) {
-        currentMarker.setLatLng(coords)
-            .setPopupContent(`${username}<br>Lat: ${coords[0].toFixed(4)}<br>Lng: ${coords[1].toFixed(4)}`)
-            .openPopup();
-    }
-}
-
-// Cerrar sesión
-function logout() {
-    localStorage.removeItem('currentUser');
-    window.location.href = 'login.html';
+// Helper para páginas
+function isLoginPage() {
+    return window.location.pathname.includes('login.html');
 }
