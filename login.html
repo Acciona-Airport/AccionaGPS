@@ -2,25 +2,40 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login GPS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Login GPS Dual</title>
     <style>
+        :root {
+            --primary: #2ecc71;
+            --danger: #e74c3c;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
         body {
-            font-family: Arial, sans-serif;
-            background: #f5f5f5;
+            background: #f5f7fa;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
+            min-height: 100vh;
+            padding: 20px;
         }
         .login-container {
             background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
-            width: 90%;
+            width: 100%;
             max-width: 400px;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 24px;
         }
         .form-group {
             margin-bottom: 20px;
@@ -28,44 +43,105 @@
         label {
             display: block;
             margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
         }
         input, select {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            box-sizing: border-box;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        input:focus, select:focus {
+            border-color: var(--primary);
+            outline: none;
         }
         button {
             width: 100%;
-            padding: 12px;
-            background: #2ecc71;
+            padding: 14px;
+            background: var(--primary);
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #27ae60;
+        }
+        .device-type {
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 1px solid #eee;
         }
     </style>
 </head>
 <body>
     <div class="login-container">
-        <h2 style="text-align:center;">Acceso GPS</h2>
+        <h1>🚗 Acciona GPS</h1>
         <form id="loginForm">
             <div class="form-group">
-                <label for="username">Usuario:</label>
+                <label for="username">Usuario</label>
                 <select id="username" required>
                     <option value="">Seleccione...</option>
                     <option value="Movil1">Móvil 1</option>
                     <option value="Movil2">Móvil 2</option>
+                    <option value="Central">Centro de Control</option>
                 </select>
             </div>
+            
             <div class="form-group">
-                <label for="password">Contraseña:</label>
+                <label for="password">Contraseña</label>
                 <input type="password" id="password" required>
             </div>
-            <button type="submit">Ingresar</button>
+            
+            <div class="form-group device-type">
+                <label for="deviceType">Modo de dispositivo</label>
+                <select id="deviceType" required>
+                    <option value="">Seleccione...</option>
+                    <option value="gps">Dispositivo con GPS (envía ubicación)</option>
+                    <option value="viewer">Solo visualización (monitorea flota)</option>
+                </select>
+            </div>
+            
+            <button type="submit">Ingresar al Sistema</button>
         </form>
     </div>
-    <script src="script.js"></script>
+
+    <script>
+        // Validación de credenciales
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const deviceType = document.getElementById('deviceType').value;
+            
+            // Credenciales válidas
+            const validCredentials = {
+                "Movil1": "MovilAcciona2025",
+                "Movil2": "MovilAcciona2025",
+                "Central": "AccionaControl2025"
+            };
+            
+            if (validCredentials[username] && password === validCredentials[username]) {
+                // Guardar configuración
+                localStorage.setItem('gpsAuth', JSON.stringify({
+                    username,
+                    deviceType,
+                    timestamp: new Date().getTime()
+                }));
+                
+                // Redirigir al mapa
+                window.location.href = 'index.html';
+            } else {
+                alert('Error: Credenciales incorrectas');
+            }
+        });
+    </script>
 </body>
 </html>
