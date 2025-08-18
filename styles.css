@@ -1,4 +1,4 @@
-/* Reset móvil */
+/* Reset esencial para móvil */
 * {
     margin: 0;
     padding: 0;
@@ -6,46 +6,41 @@
     -webkit-tap-highlight-color: transparent;
 }
 
-body {
+/* Altura completa (CRÍTICO para el mapa) */
+html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
     font-family: 'Arial', sans-serif;
-    background: #f5f5f5;
-    height: 100vh;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
-/* Contenedor rectangular para móvil */
-.mobile-container {
-    width: 95vw;
-    height: 70vh; /* Altura rectangular */
-    position: relative;
-    border-radius: 15px;
-    overflow: hidden;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-}
-
-/* Mapa rectangular */
+/* Contenedor del mapa (OBLIGATORIO) */
 #map {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
-    position: absolute;
     z-index: 1;
 }
 
-/* Panel de usuario móvil */
+/* Panel de usuario */
 #user-info {
-    position: absolute;
+    position: fixed;
     top: 15px;
     right: 15px;
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.95);
     padding: 10px 15px;
-    border-radius: 10px;
+    border-radius: 8px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
     z-index: 1000;
     font-size: 14px;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-    max-width: 60%;
+    max-width: 200px;
+}
+
+#user-info p {
+    margin-bottom: 8px;
+    color: #333;
 }
 
 #logout-btn {
@@ -53,8 +48,8 @@ body {
     color: white;
     border: none;
     padding: 6px 12px;
-    border-radius: 5px;
-    margin-top: 5px;
-    font-size: 12px;
+    border-radius: 4px;
     width: 100%;
+    cursor: pointer;
+    font-size: 13px;
 }
