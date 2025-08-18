@@ -2,24 +2,58 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login GPS</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Estilos específicos para login */
+        .login-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 25px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            background: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
     <div class="login-container">
-        <h1>🚖 GPS Flota</h1>
+        <h2 style="text-align: center; margin-bottom: 20px;">Acceso GPS</h2>
         <form id="loginForm">
-            <div class="input-group">
-                <label>Usuario:</label>
+            <div class="form-group">
+                <label for="username">Usuario:</label>
                 <select id="username" required>
-                    <option value="">Seleccionar...</option>
+                    <option value="">Seleccione...</option>
                     <option value="Movil1">Móvil 1</option>
                     <option value="Movil2">Móvil 2</option>
                 </select>
             </div>
-            <div class="input-group">
-                <label>Contraseña:</label>
+            <div class="form-group">
+                <label for="password">Contraseña:</label>
                 <input type="password" id="password" required>
             </div>
             <button type="submit">Ingresar</button>
