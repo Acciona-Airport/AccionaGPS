@@ -171,8 +171,9 @@
         const ZOOM_INICIAL = 14;
         let map;
         const markers = {};
+        let gpsInterval;
         
-        // Datos iniciales (simulados)
+        // Datos compartidos (simulados)
         const mobileData = {
             Movil1: { coords: null, status: 'offline', color: '#3498db' },
             Movil2: { coords: null, status: 'offline', color: '#2ecc71' },
@@ -182,8 +183,8 @@
         
         // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
-            const auth = JSON.parse(localStorage.getItem('gpsAuth'));
-            if (!auth) {
+            const session = JSON.parse(localStorage.getItem('mobileSession'));
+            if (!session) {
                 window.location.href = 'login.html';
                 return;
             }
@@ -191,10 +192,11 @@
             initMap();
             setupUI();
             
-            // Iniciar seguimiento según tipo de usuario
-            if (!auth.isViewer) {
-                startGPSTracking(auth.username);
+            if (!session.isViewer) {
+                // Modo móvil - envío de posición
+                startGPSTracking(session.username);
             } else {
+                // Modo funcionarios - solo visualización
                 startMonitoring();
             }
         });
@@ -230,36 +232,85 @@
         }
         
         function startGPSTracking(mobileId) {
-            // Simulación para demo (en producción usar GPS real)
-            simulateGPS(mobileId);
-            setInterval(() => simulateGPS(mobileId), 10000);
+            // 1. Detener cualquier seguimiento previo
+            if (gpsInterval) clearInterval(gpsInterval);
+            
+            // 2. Enviar posición inicial inmediatamente
+            getCurrentPosition(mobileId);
+            
+            // 3. Actualizar cada 5 segundos
+            gpsInterval = setInterval(() => {
+                getCurrentPosition(mobileId);
+            }, 5000);
+        }
+        
+        function getCurrentPosition(mobileId) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    position => {
+                        const coords = [position.coords.latitude, position.coords.longitude];
+                        updateMobilePosition(mobileId, coords, 'online');
+                        
+                        // En sistema real: enviar a servidor con fetch/API
+                        console.log(`Posición ${mobileId}:`, coords);
+                    },
+                    error => {
+                        console.error(`Error GPS (${mobileId}):`, error);
+                        updateMobilePosition(mobileId, mobileData[mobileId]?.coords || SCL_COORDS, 'offline');
+                    },
+                    { 
+                        enableHighAccuracy: true,
+                        timeout: 4000,
+                        maximumAge: 0 // Siempre obtener posición fresca
+                    }
+                );
+            } else {
+                alert('Tu dispositivo no soporta geolocalización');
+            }
         }
         
         function startMonitoring() {
-            // Simular los 4 móviles para funcionarios
+            // Simular actualización de los 4 móviles
             Object.keys(mobileData).forEach(mobile => {
-                simulateGPS(mobile);
-                setInterval(() => simulateGPS(mobile), 8000);
+                if (!mobileData[mobile].coords) {
+                    simulateGPS(mobile);
+                }
             });
+            
+            // Actualizar posiciones cada 3 segundos (simulado)
+            setInterval(() => {
+                Object.keys(mobileData).forEach(mobile => {
+                    simulateGPS(mobile);
+                });
+            }, 3000);
         }
         
         function simulateGPS(mobileId) {
             const offset = () => (Math.random() * 0.03 - 0.015);
-            const newCoords = [
-                SCL_COORDS[0] + offset(),
-                SCL_COORDS[1] + offset()
-            ];
+            const newCoords = mobileData[mobileId]?.coords 
+                ? [
+                    mobileData[mobileId].coords[0] + offset(),
+                    mobileData[mobileId].coords[1] + offset()
+                  ]
+                : [
+                    SCL_COORDS[0] + offset(),
+                    SCL_COORDS[1] + offset()
+                  ];
             
+            const status = Math.random() > 0.1 ? 'online' : 'offline';
+            updateMobilePosition(mobileId, newCoords, status);
+        }
+        
+        function updateMobilePosition(mobileId, coords, status) {
+            if (!coords) return;
+            
+            // Actualizar datos
             mobileData[mobileId] = {
-                coords: newCoords,
-                status: Math.random() > 0.2 ? 'online' : 'offline',
+                coords,
+                status,
                 lastUpdate: new Date()
             };
             
-            updateMobilePosition(mobileId, newCoords);
-        }
-        
-        function updateMobilePosition(mobileId, coords) {
             // Crear/actualizar marcador
             if (!markers[mobileId]) {
                 markers[mobileId] = L.marker(coords, {
@@ -274,10 +325,15 @@
             } else {
                 markers[mobileId]
                     .setLatLng(coords)
-                    .setPopupContent(`<b>${mobileId}</b><br>${new Date().toLocaleTimeString()}`);
+                    .setPopupContent(`<b>${mobileId}</b><br>Última actualización: ${new Date().toLocaleTimeString()}`);
             }
             
-            // Actualizar UI
+            // Centrar mapa en la posición del móvil actual (solo si es el usuario activo)
+            const session = JSON.parse(localStorage.getItem('mobileSession'));
+            if (!session.isViewer && session.username === mobileId) {
+                map.setView(coords);
+            }
+            
             updateStatusUI();
         }
         
@@ -292,7 +348,13 @@
         }
         
         function logout() {
-            localStorage.removeItem('gpsAuth');
+            // Limpiar intervalo de GPS
+            if (gpsInterval) clearInterval(gpsInterval);
+            
+            // Eliminar sesión
+            localStorage.removeItem('mobileSession');
+            
+            // Redirigir al login
             window.location.href = 'login.html';
         }
     </script>
