@@ -2,18 +2,16 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Monitor GPS Dual | Acciona</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitor GPS | Acciona</title>
     <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-        crossorigin=""/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         body {
             margin: 0;
             padding: 0;
-            overflow: hidden;
             font-family: 'Segoe UI', sans-serif;
+            overflow: hidden;
         }
         #map {
             position: absolute;
@@ -33,24 +31,30 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             z-index: 1000;
             width: 280px;
-            max-width: 90%;
         }
-        .vehicle-info {
-            margin-bottom: 15px;
-        }
-        .vehicle-info h3 {
-            color: #333;
-            margin-bottom: 8px;
-            font-size: 16px;
+        .vehicle-card {
+            margin-bottom: 12px;
+            padding-bottom: 12px;
             border-bottom: 1px solid #eee;
-            padding-bottom: 5px;
+        }
+        .vehicle-card:last-child {
+            border-bottom: none;
+        }
+        .vehicle-name {
+            font-weight: 600;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
         }
         .vehicle-status {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 5px;
             font-size: 14px;
+            color: #7f8c8d;
+            margin-top: 5px;
         }
+        .online { color: #27ae60; }
+        .offline { color: #e74c3c; }
         .logout-btn {
             background: #e74c3c;
             color: white;
@@ -60,10 +64,14 @@
             border-radius: 6px;
             cursor: pointer;
             font-weight: 600;
-            margin-top: 10px;
+            margin-top: 15px;
         }
-        .marker-movil1 {
-            background-color: #3498db;
+        /* Marcadores personalizados */
+        .marker-movil1 { background-color: #3498db; }
+        .marker-movil2 { background-color: #2ecc71; }
+        .marker-movil3 { background-color: #e67e22; }
+        .marker-movil4 { background-color: #9b59b6; }
+        .marker {
             border-radius: 50%;
             width: 30px;
             height: 30px;
@@ -72,166 +80,138 @@
             align-items: center;
             color: white;
             font-weight: bold;
-        }
-        .marker-movil2 {
-            background-color: #2ecc71;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-weight: bold;
+            border: 2px solid white;
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
         }
     </style>
 </head>
 <body>
-    <!-- Mapa -->
     <div id="map"></div>
     
-    <!-- Panel de control -->
     <div class="control-panel">
-        <div class="vehicle-info">
-            <h3>🚗 Estado de Flota</h3>
+        <h3 style="margin-top:0;color:#2c3e50;">🚗 Flota Acciona</h3>
+        
+        <div class="vehicle-card">
+            <div class="vehicle-name"><span class="marker marker-movil1" style="margin-right:8px;">1</span> Móvil 1</div>
             <div class="vehicle-status">
-                <span>Móvil 1:</span>
-                <span id="movil1-status">Desconectado</span>
-            </div>
-            <div class="vehicle-status">
-                <span>Móvil 2:</span>
-                <span id="movil2-status">Desconectado</span>
+                <span>Estado:</span>
+                <span id="movil1-status" class="offline">Desconectado</span>
             </div>
         </div>
+        
+        <div class="vehicle-card">
+            <div class="vehicle-name"><span class="marker marker-movil2" style="margin-right:8px;">2</span> Móvil 2</div>
+            <div class="vehicle-status">
+                <span>Estado:</span>
+                <span id="movil2-status" class="offline">Desconectado</span>
+            </div>
+        </div>
+        
+        <div class="vehicle-card">
+            <div class="vehicle-name"><span class="marker marker-movil3" style="margin-right:8px;">3</span> Móvil 3</div>
+            <div class="vehicle-status">
+                <span>Estado:</span>
+                <span id="movil3-status" class="offline">Desconectado</span>
+            </div>
+        </div>
+        
+        <div class="vehicle-card">
+            <div class="vehicle-name"><span class="marker marker-movil4" style="margin-right:8px;">4</span> Móvil 4</div>
+            <div class="vehicle-status">
+                <span>Estado:</span>
+                <span id="movil4-status" class="offline">Desconectado</span>
+            </div>
+        </div>
+        
         <button class="logout-btn" id="logoutBtn">Cerrar Sesión</button>
     </div>
 
     <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-        crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
-    <!-- Script principal -->
     <script>
-        // Configuración inicial
+        // Configuración
         const SCL_COORDS = [-33.3931, -70.7858];
         const ZOOM_INICIAL = 14;
         let map;
-        const markers = {
-            Movil1: null,
-            Movil2: null
-        };
+        const markers = {};
         
-        // Datos simulados (en producción usar Firebase)
+        // Datos iniciales (simulados)
         const mobileData = {
-            Movil1: { coords: null, lastUpdate: null, status: 'offline' },
-            Movil2: { coords: null, lastUpdate: null, status: 'offline' }
+            Movil1: { coords: null, status: 'offline', color: '#3498db' },
+            Movil2: { coords: null, status: 'offline', color: '#2ecc71' },
+            Movil3: { coords: null, status: 'offline', color: '#e67e22' },
+            Movil4: { coords: null, status: 'offline', color: '#9b59b6' }
         };
         
         // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
-            // Verificar autenticación
             const auth = JSON.parse(localStorage.getItem('gpsAuth'));
             if (!auth) {
                 window.location.href = 'login.html';
                 return;
             }
             
-            // Iniciar mapa
             initMap();
-            
-            // Configurar eventos
             document.getElementById('logoutBtn').addEventListener('click', logout);
             
-            // Iniciar seguimiento según tipo de dispositivo
-            if (auth.deviceType === 'gps') {
+            // Iniciar seguimiento según tipo de usuario
+            if (!auth.isViewer) {
                 startGPSTracking(auth.username);
             } else {
                 startMonitoring();
             }
         });
         
-        // Función para inicializar el mapa
         function initMap() {
             map = L.map('map').setView(SCL_COORDS, ZOOM_INICIAL);
             
-            // Capa base OSM
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                attribution: '&copy; OpenStreetMap'
             }).addTo(map);
             
-            // Marcador del aeropuerto
+            // Marcador aeropuerto
             L.marker(SCL_COORDS)
                 .addTo(map)
                 .bindPopup('✈️ Aeropuerto SCL')
                 .openPopup();
         }
         
-        // Función para iniciar GPS (dispositivos móviles)
         function startGPSTracking(mobileId) {
+            // Simulación para demo (en producción usar GPS real)
+            simulateGPS(mobileId);
+            setInterval(() => simulateGPS(mobileId), 10000);
+            
+            /* Código para GPS real:
             if (navigator.geolocation) {
                 navigator.geolocation.watchPosition(
                     position => {
                         const coords = [position.coords.latitude, position.coords.longitude];
                         updateMobilePosition(mobileId, coords);
-                        
-                        // En sistema real: enviar datos al servidor
-                        console.log(`Posición ${mobileId}:`, coords);
                     },
                     error => {
-                        console.error(`Error GPS (${mobileId}):`, error);
-                        // Modo simulación si falla el GPS real
+                        console.error('Error GPS:', error);
                         simulateGPS(mobileId);
                     },
-                    { enableHighAccuracy: true, timeout: 10000 }
+                    { enableHighAccuracy: true }
                 );
             } else {
-                alert('Tu dispositivo no soporta geolocalización');
+                alert('GPS no soportado');
                 simulateGPS(mobileId);
             }
+            */
         }
         
-        // Función para monitorear (centro de control)
         function startMonitoring() {
-            // Simular datos para demo (en producción usar WebSockets/Firebase)
-            setInterval(() => {
-                if (!mobileData.Movil1.coords) simulateGPS('Movil1');
-                if (!mobileData.Movil2.coords) simulateGPS('Movil2');
-                
-                updateInterface();
-            }, 3000);
+            // Simular los 4 móviles para funcionarios
+            Object.keys(mobileData).forEach(mobile => {
+                simulateGPS(mobile);
+                setInterval(() => simulateGPS(mobile), 8000);
+            });
         }
         
-        // Actualizar posición de un móvil
-        function updateMobilePosition(mobileId, coords) {
-            mobileData[mobileId] = {
-                coords: coords,
-                lastUpdate: new Date(),
-                status: 'online'
-            };
-            
-            // Crear o actualizar marcador
-            if (!markers[mobileId]) {
-                markers[mobileId] = L.marker(coords, {
-                    icon: L.divIcon({
-                        className: `marker-${mobileId.toLowerCase()}`,
-                        html: mobileId === 'Movil1' ? '1' : '2',
-                        iconSize: [30, 30]
-                    })
-                }).addTo(map)
-                .bindPopup(`<b>${mobileId}</b><br>Última actualización: ${new Date().toLocaleTimeString()}`);
-            } else {
-                markers[mobileId]
-                    .setLatLng(coords)
-                    .setPopupContent(`<b>${mobileId}</b><br>Última actualización: ${new Date().toLocaleTimeString()}`);
-            }
-            
-            updateInterface();
-        }
-        
-        // Simular datos GPS (para demo)
         function simulateGPS(mobileId) {
-            const offset = () => (Math.random() * 0.02 - 0.01);
+            const offset = () => (Math.random() * 0.03 - 0.015);
             const newCoords = [
                 SCL_COORDS[0] + offset(),
                 SCL_COORDS[1] + offset()
@@ -239,23 +219,45 @@
             
             mobileData[mobileId] = {
                 coords: newCoords,
-                lastUpdate: new Date(),
-                status: Math.random() > 0.1 ? 'online' : 'offline'
+                status: Math.random() > 0.2 ? 'online' : 'offline',
+                lastUpdate: new Date()
             };
             
             updateMobilePosition(mobileId, newCoords);
         }
         
-        // Actualizar interfaz
-        function updateInterface() {
-            document.getElementById('movil1-status').textContent = 
-                mobileData.Movil1.status === 'online' ? 'En movimiento' : 'Desconectado';
-                
-            document.getElementById('movil2-status').textContent = 
-                mobileData.Movil2.status === 'online' ? 'En movimiento' : 'Desconectado';
+        function updateMobilePosition(mobileId, coords) {
+            // Crear/actualizar marcador
+            if (!markers[mobileId]) {
+                markers[mobileId] = L.marker(coords, {
+                    icon: L.divIcon({
+                        className: `marker-${mobileId.toLowerCase()}`,
+                        html: mobileId.replace('Movil', ''),
+                        iconSize: [30, 30],
+                        className: 'marker'
+                    })
+                }).addTo(map)
+                .bindPopup(`<b>${mobileId}</b>`);
+            } else {
+                markers[mobileId]
+                    .setLatLng(coords)
+                    .setPopupContent(`<b>${mobileId}</b><br>${new Date().toLocaleTimeString()}`);
+            }
+            
+            // Actualizar UI
+            updateStatusUI();
         }
         
-        // Cerrar sesión
+        function updateStatusUI() {
+            Object.keys(mobileData).forEach(mobile => {
+                const element = document.getElementById(`${mobile.toLowerCase()}-status`);
+                if (element) {
+                    element.textContent = mobileData[mobile].status === 'online' ? 'En ruta' : 'Desconectado';
+                    element.className = mobileData[mobile].status === 'online' ? 'online' : 'offline';
+                }
+            });
+        }
+        
         function logout() {
             localStorage.removeItem('gpsAuth');
             window.location.href = 'login.html';
