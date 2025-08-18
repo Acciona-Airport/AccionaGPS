@@ -11,6 +11,7 @@
             --red-light: #ffebee;
             --red-primary: #f44336;
             --red-dark: #d32f2f;
+            --gray-light: #f5f5f5;
         }
         body {
             margin: 0;
@@ -75,6 +76,9 @@
             padding-bottom: 12px;
             border-bottom: 1px solid var(--red-light);
         }
+        .vehicle-card:last-child {
+            border-bottom: none;
+        }
         .vehicle-name {
             font-weight: 600;
             color: var(--red-dark);
@@ -120,12 +124,16 @@
         .marker-movil2 { background-color: #2ecc71; }
         .marker-movil3 { background-color: #e67e22; }
         .marker-movil4 { background-color: #9b59b6; }
+        .marker-offline {
+            background-color: #95a5a6 !important;
+            opacity: 0.7;
+        }
     </style>
 </head>
 <body>
     <div id="map"></div>
     
-    <div class="control-panel" id="controlPanel">
+    <div class="control-panel visible" id="controlPanel">
         <button class="toggle-panel" id="togglePanel">
             <span class="toggle-icon">◄</span>
         </button>
@@ -140,7 +148,29 @@
             </div>
         </div>
         
-        <!-- Repetir para Móvil 2, 3 y 4 -->
+        <div class="vehicle-card">
+            <div class="vehicle-name"><span class="marker marker-movil2" style="margin-right:8px;">2</span> Móvil 2</div>
+            <div class="vehicle-status">
+                <span>Estado:</span>
+                <span id="movil2-status" class="offline">Desconectado</span>
+            </div>
+        </div>
+        
+        <div class="vehicle-card">
+            <div class="vehicle-name"><span class="marker marker-movil3" style="margin-right:8px;">3</span> Móvil 3</div>
+            <div class="vehicle-status">
+                <span>Estado:</span>
+                <span id="movil3-status" class="offline">Desconectado</span>
+            </div>
+        </div>
+        
+        <div class="vehicle-card">
+            <div class="vehicle-name"><span class="marker marker-movil4" style="margin-right:8px;">4</span> Móvil 4</div>
+            <div class="vehicle-status">
+                <span>Estado:</span>
+                <span id="movil4-status" class="offline">Desconectado</span>
+            </div>
+        </div>
         
         <button class="logout-btn" id="logoutBtn">Cerrar Sesión</button>
     </div>
@@ -165,6 +195,9 @@
             initMap();
             setupUI();
             
+            // Mostrar todos los móviles desde el inicio
+            initializeAllMarkers();
+            
             if (!auth.isViewer) {
                 startGPSTracking(auth.username);
             } else {
@@ -179,6 +212,7 @@
                 attribution: '&copy; OpenStreetMap'
             }).addTo(map);
             
+            // Marcador del aeropuerto
             L.marker(SCL_COORDS)
                 .addTo(map)
                 .bindPopup('✈️ Aeropuerto SCL')
@@ -192,10 +226,20 @@
             document.getElementById('togglePanel').addEventListener('click', function() {
                 panel.classList.toggle('visible');
             });
+        }
+        
+        function initializeAllMarkers() {
+            // Crear marcadores para todos los móviles (inicialmente desconectados)
+            const initialPositions = {
+                Movil1: [-33.40, -70.78],
+                Movil2: [-33.39, -70.79],
+                Movil3: [-33.38, -70.77],
+                Movil4: [-33.41, -70.80]
+            };
             
-            if (window.innerWidth > 768) {
-                panel.classList.add('visible');
-            }
+            Object.keys(initialPositions).forEach(mobileId => {
+                createMarker(mobileId, initialPositions[mobileId], false);
+            });
         }
         
         function startGPSTracking(mobileId) {
@@ -238,7 +282,7 @@
             localStorage.setItem('gpsSharedData', JSON.stringify(sharedData));
             
             // Actualizar mapa
-            updateMarker(mobileId, coords);
+            updateMarker(mobileId, coords, true);
             updateStatus(mobileId, 'online');
         }
         
@@ -246,30 +290,62 @@
             // Verificar cambios cada 2 segundos
             setInterval(() => {
                 const sharedData = JSON.parse(localStorage.getItem('gpsSharedData')) || {};
-                Object.keys(sharedData).forEach(mobileId => {
+                
+                // Actualizar todos los móviles
+                ['Movil1', 'Movil2', 'Movil3', 'Movil4'].forEach(mobileId => {
                     if (sharedData[mobileId]?.coords) {
-                        updateMarker(mobileId, sharedData[mobileId].coords);
+                        updateMarker(mobileId, sharedData[mobileId].coords, sharedData[mobileId].status === 'online');
                         updateStatus(mobileId, sharedData[mobileId].status || 'offline');
+                    } else {
+                        // Móvil sin datos (desconectado)
+                        updateStatus(mobileId, 'offline');
+                        const marker = markers[mobileId];
+                        if (marker) {
+                            marker.getElement().classList.add('marker-offline');
+                        }
                     }
                 });
             }, 2000);
         }
         
-        function updateMarker(mobileId, coords) {
+        function createMarker(mobileId, coords, isOnline) {
+            if (markers[mobileId]) return;
+            
+            const markerNumber = mobileId.replace('Movil', '');
+            markers[mobileId] = L.marker(coords, {
+                icon: L.divIcon({
+                    className: `marker-${mobileId.toLowerCase()} ${isOnline ? '' : 'marker-offline'}`,
+                    html: markerNumber,
+                    iconSize: [30, 30],
+                    className: 'marker'
+                }),
+                opacity: isOnline ? 1 : 0.6
+            }).addTo(map)
+            .bindPopup(`<b>${mobileId}</b><br>${isOnline ? 'En ruta' : 'Desconectado'}`);
+            
+            if (!isOnline) {
+                markers[mobileId].getElement().classList.add('marker-offline');
+            }
+        }
+        
+        function updateMarker(mobileId, coords, isOnline) {
+            const markerNumber = mobileId.replace('Movil', '');
+            
             if (!markers[mobileId]) {
-                markers[mobileId] = L.marker(coords, {
-                    icon: L.divIcon({
-                        className: `marker-${mobileId.toLowerCase()}`,
-                        html: mobileId.replace('Movil', ''),
-                        iconSize: [30, 30],
-                        className: 'marker'
-                    })
-                }).addTo(map)
-                .bindPopup(`<b>${mobileId}</b>`);
+                createMarker(mobileId, coords, isOnline);
             } else {
                 markers[mobileId]
                     .setLatLng(coords)
-                    .setPopupContent(`<b>${mobileId}</b><br>${new Date().toLocaleTimeString()}`);
+                    .setPopupContent(`<b>${mobileId}</b><br>${isOnline ? 'En ruta' : 'Desconectado'}<br>${new Date().toLocaleTimeString()}`);
+                
+                const markerElement = markers[mobileId].getElement();
+                if (isOnline) {
+                    markerElement.classList.remove('marker-offline');
+                    markers[mobileId].setOpacity(1);
+                } else {
+                    markerElement.classList.add('marker-offline');
+                    markers[mobileId].setOpacity(0.6);
+                }
             }
         }
         
