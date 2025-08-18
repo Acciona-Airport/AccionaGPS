@@ -130,7 +130,7 @@
             const password = document.getElementById('password').value;
             const errorElement = document.getElementById('errorMessage');
             
-            // Credenciales válidas
+            // Credenciales válidas (en producción usa Firebase Auth)
             const validCredentials = {
                 "Movil1": "MovilAcciona2025",
                 "Movil2": "MovilAcciona2025", 
@@ -140,13 +140,6 @@
             };
             
             if (validCredentials[username] && password === validCredentials[username]) {
-                // Limpiar datos anteriores del mismo móvil
-                if (username !== 'Funcionarios') {
-                    const sharedData = JSON.parse(localStorage.getItem('gpsSharedData')) || {};
-                    sharedData[username] = null;
-                    localStorage.setItem('gpsSharedData', JSON.stringify(sharedData));
-                }
-                
                 // Guardar sesión
                 localStorage.setItem('gpsAuth', JSON.stringify({
                     username,
