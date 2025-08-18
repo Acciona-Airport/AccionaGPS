@@ -6,31 +6,31 @@ const validCredentials = {
 
 // Coordenadas Aeropuerto SCL
 const SCL_COORDS = [-33.3931, -70.7858];
-const MOBILE_ZOOM = 16;
+const INITIAL_ZOOM = 16;
 
 // Variables globales
 let map, currentMarker;
 
-// Inicialización
+// Al cargar la página
 document.addEventListener('DOMContentLoaded', function() {
-    if (window.location.pathname.includes('index.html') || window.location.pathname === '/') {
+    if (isIndexPage()) {
         checkAuth();
-    } else if (window.location.pathname.includes('login.html')) {
+    } else if (isLoginPage()) {
         setupLogin();
     }
 });
 
-// Autenticación
+// Verificar autenticación
 function checkAuth() {
     const user = localStorage.getItem('currentUser');
     if (!user) {
-        window.location.href = 'login.html';
+        redirectToLogin();
     } else {
         initApp(user);
     }
 }
 
-// Login
+// Configurar login
 function setupLogin() {
     document.getElementById('loginForm').addEventListener('submit', function(e) {
         e.preventDefault();
@@ -39,14 +39,14 @@ function setupLogin() {
         
         if (validCredentials[username] && password === validCredentials[username]) {
             localStorage.setItem('currentUser', username);
-            window.location.href = 'index.html';
+            redirectToIndex();
         } else {
             alert('Credenciales incorrectas. Usa Movil1/Movil2 y contraseña "MovilAcciona2025"');
         }
     });
 }
 
-// Aplicación principal
+// Iniciar aplicación
 function initApp(username) {
     document.getElementById('current-user').textContent = username;
     document.getElementById('logout-btn').addEventListener('click', logout);
@@ -54,37 +54,38 @@ function initApp(username) {
     startTracking(username);
 }
 
-// Mapa móvil optimizado
+// Inicializar mapa (FUNCIÓN CRÍTICA)
 function initMap() {
     map = L.map('map', {
         center: SCL_COORDS,
-        zoom: MOBILE_ZOOM,
+        zoom: INITIAL_ZOOM,
         tap: false, // Mejor compatibilidad táctil
-        dragging: true,
         zoomControl: true
     });
 
+    // Capa de mapa (OpenStreetMap)
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        maxZoom: 18
+        maxZoom: 19
     }).addTo(map);
 
     // Marcador inicial
     currentMarker = L.marker(SCL_COORDS, {
         icon: L.divIcon({
-            className: 'mobile-marker',
+            className: 'airport-icon',
             html: '✈️',
             iconSize: [30, 30]
         })
-    }).addTo(map).bindPopup('Aeropuerto SCL');
+    }).addTo(map)
+    .bindPopup('Aeropuerto Arturo Merino Benítez (SCL)');
 }
 
-// Geolocalización para móvil
+// Seguimiento GPS
 function startTracking(username) {
     if (navigator.geolocation) {
         navigator.geolocation.watchPosition(
-            position => updatePosition(position, username),
-            error => alert(`Error GPS: ${error.message}`),
+            (position) => updatePosition(position, username),
+            (error) => handleGeolocationError(error),
             { 
                 enableHighAccuracy: true,
                 timeout: 10000,
@@ -92,7 +93,7 @@ function startTracking(username) {
             }
         );
     } else {
-        alert('Geolocalización no soportada');
+        alert('Tu dispositivo no soporta geolocalización');
     }
 }
 
@@ -100,8 +101,11 @@ function startTracking(username) {
 function updatePosition(position, username) {
     const coords = [position.coords.latitude, position.coords.longitude];
     
-    // Suavizar movimiento en móvil
-    map.panTo(coords, { animate: true, duration: 1 });
+    // Mover mapa suavemente
+    map.setView(coords, map.getZoom(), {
+        animate: true,
+        duration: 1
+    });
     
     // Actualizar marcador
     if (!currentMarker) {
@@ -116,18 +120,59 @@ function updatePosition(position, username) {
         currentMarker.setLatLng(coords);
     }
     
-    // Popup móvil
+    // Actualizar popup
     currentMarker
         .setPopupContent(`
             <b>${username}</b><br>
-            <small>Lat: ${coords[0].toFixed(5)}</small><br>
-            <small>Lng: ${coords[1].toFixed(5)}</small>
+            Lat: ${coords[0].toFixed(6)}<br>
+            Lng: ${coords[1].toFixed(6)}<br>
+            Precisión: ${position.coords.accuracy.toFixed(1)}m
         `)
         .openPopup();
+}
+
+// Manejar errores de GPS
+function handleGeolocationError(error) {
+    let message = '';
+    switch(error.code) {
+        case error.PERMISSION_DENIED:
+            message = 'Permiso de ubicación denegado';
+            break;
+        case error.POSITION_UNAVAILABLE:
+            message = 'Ubicación no disponible';
+            break;
+        case error.TIMEOUT:
+            message = 'Tiempo de espera agotado';
+            break;
+        default:
+            message = `Error desconocido (${error.code})`;
+    }
+    console.error('Error GPS:', message);
 }
 
 // Cerrar sesión
 function logout() {
     localStorage.removeItem('currentUser');
+    redirectToLogin();
+}
+
+// Helper: Redirigir a login
+function redirectToLogin() {
     window.location.href = 'login.html';
+}
+
+// Helper: Redirigir a index
+function redirectToIndex() {
+    window.location.href = 'index.html';
+}
+
+// Helper: Verificar si es página index
+function isIndexPage() {
+    return window.location.pathname.endsWith('index.html') || 
+           window.location.pathname === '/';
+}
+
+// Helper: Verificar si es página login
+function isLoginPage() {
+    return window.location.pathname.endsWith('login.html');
 }
