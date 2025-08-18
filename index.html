@@ -175,9 +175,28 @@
         <button class="logout-btn" id="logoutBtn">Cerrar Sesión</button>
     </div>
 
+    <!-- Firebase y Leaflet JS -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
     <script>
-        // Configuración
+        // Configuración Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDT85qotm1EpAJzJzCFeoNwGyo-VKhM6dk",
+            authDomain: "gpsaccionascl2025.firebaseapp.com",
+            projectId: "gpsaccionascl2025",
+            storageBucket: "gpsaccionascl2025.appspot.com",
+            messagingSenderId: "742246618721",
+            appId: "1:742246618721:web:72d0046987416800f07c20",
+            measurementId: "G-LDCEHELB65"
+        };
+
+        // Inicializa Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Configuración del mapa
         const SCL_COORDS = [-33.3931, -70.7858];
         const ZOOM_INICIAL = 14;
         let map;
@@ -194,8 +213,6 @@
             
             initMap();
             setupUI();
-            
-            // Mostrar todos los móviles desde el inicio
             initializeAllMarkers();
             
             if (!auth.isViewer) {
@@ -229,7 +246,7 @@
         }
         
         function initializeAllMarkers() {
-            // Crear marcadores para todos los móviles (inicialmente desconectados)
+            // Marcadores iniciales (se actualizarán con datos reales)
             const initialPositions = {
                 Movil1: [-33.40, -70.78],
                 Movil2: [-33.39, -70.79],
@@ -243,7 +260,6 @@
         }
         
         function startGPSTracking(mobileId) {
-            // Limpiar intervalo previo
             if (gpsInterval) clearInterval(gpsInterval);
             
             // Primera actualización inmediata
@@ -265,6 +281,11 @@
                     error => {
                         console.error('Error GPS:', error);
                         updateStatus(mobileId, 'offline');
+                        // Actualizar estado en Firebase
+                        database.ref(`vehicles/${mobileId}`).update({
+                            status: 'offline',
+                            lastUpdate: firebase.database.ServerValue.TIMESTAMP
+                        });
                     },
                     { enableHighAccuracy: true, timeout: 4000 }
                 );
@@ -272,40 +293,37 @@
         }
         
         function savePosition(mobileId, coords) {
-            // Guardar en localStorage (simulando backend)
-            const sharedData = JSON.parse(localStorage.getItem('gpsSharedData')) || {};
-            sharedData[mobileId] = {
-                coords,
-                timestamp: new Date().getTime(),
-                status: 'online'
-            };
-            localStorage.setItem('gpsSharedData', JSON.stringify(sharedData));
+            // Guardar en Firebase
+            database.ref(`vehicles/${mobileId}`).set({
+                coords: {
+                    lat: coords[0],
+                    lng: coords[1]
+                },
+                status: 'online',
+                lastUpdate: firebase.database.ServerValue.TIMESTAMP
+            });
             
-            // Actualizar mapa
+            // Actualizar UI local
             updateMarker(mobileId, coords, true);
             updateStatus(mobileId, 'online');
         }
         
         function startMonitoring() {
-            // Verificar cambios cada 2 segundos
-            setInterval(() => {
-                const sharedData = JSON.parse(localStorage.getItem('gpsSharedData')) || {};
+            // Escuchar cambios en Firebase
+            database.ref('vehicles').on('value', (snapshot) => {
+                const vehiclesData = snapshot.val();
                 
-                // Actualizar todos los móviles
-                ['Movil1', 'Movil2', 'Movil3', 'Movil4'].forEach(mobileId => {
-                    if (sharedData[mobileId]?.coords) {
-                        updateMarker(mobileId, sharedData[mobileId].coords, sharedData[mobileId].status === 'online');
-                        updateStatus(mobileId, sharedData[mobileId].status || 'offline');
-                    } else {
-                        // Móvil sin datos (desconectado)
-                        updateStatus(mobileId, 'offline');
-                        const marker = markers[mobileId];
-                        if (marker) {
-                            marker.getElement().classList.add('marker-offline');
-                        }
+                Object.keys(vehiclesData).forEach(mobileId => {
+                    const vehicle = vehiclesData[mobileId];
+                    if (vehicle && vehicle.coords) {
+                        const coords = [vehicle.coords.lat, vehicle.coords.lng];
+                        const isOnline = vehicle.status === 'online';
+                        
+                        updateMarker(mobileId, coords, isOnline);
+                        updateStatus(mobileId, vehicle.status);
                     }
                 });
-            }, 2000);
+            });
         }
         
         function createMarker(mobileId, coords, isOnline) {
@@ -359,6 +377,10 @@
         
         function logout() {
             if (gpsInterval) clearInterval(gpsInterval);
+            // Dejar de escuchar cambios en Firebase
+            if (database.ref('vehicles').off) {
+                database.ref('vehicles').off();
+            }
             localStorage.removeItem('gpsAuth');
             window.location.href = 'login.html';
         }
