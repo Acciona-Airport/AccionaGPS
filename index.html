@@ -2,17 +2,15 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tracker GPS - SCL</title>
-    <!-- Leaflet CSS (URL oficial) -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
-        crossorigin=""/>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <!-- Estilos locales -->
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Contenedor del mapa (requiere altura absoluta) -->
+    <!-- Contenedor del mapa (DEBE existir) -->
     <div id="map"></div>
     
     <!-- Panel de usuario -->
@@ -21,11 +19,8 @@
         <button id="logout-btn">Cerrar Sesión</button>
     </div>
 
-    <!-- Leaflet JS (DEBE cargarse antes que script.js) -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-        crossorigin=""></script>
-    <!-- Script local -->
+    <!-- Scripts (ORDEN CRÍTICO) -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
