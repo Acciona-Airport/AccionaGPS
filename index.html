@@ -151,6 +151,19 @@
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5v-5h14v5z"/><circle cx="7.5" cy="14.5" r="1.5"/><circle cx="16.5" cy="14.5" r="1.5"/></svg>');
             opacity: 0.7;
         }
+        /* Estilo para la etiqueta del marcador */
+        .vehicle-label {
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            font-size: 12px;
+            font-weight: bold;
+            color: #333;
+            text-shadow: 0 0 3px white;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
@@ -237,7 +250,9 @@
         const ZOOM_INICIAL = 14;
         let map;
         const markers = {};
+        const lastUpdateTimes = {};
         let gpsInterval;
+        const TEN_MINUTES = 10 * 60 * 1000; // 10 minutos en milisegundos
         
         // Verificar autenticación al cargar
         firebase.auth().onAuthStateChanged((user) => {
@@ -293,6 +308,7 @@
             
             Object.keys(initialPositions).forEach(mobileId => {
                 createMarker(mobileId, initialPositions[mobileId], false);
+                lastUpdateTimes[mobileId] = Date.now();
             });
         }
         
@@ -338,21 +354,26 @@
         
         function savePosition(mobileId, coords, accuracy) {
             // Guardar en Firebase
+            const now = Date.now();
             database.ref(`vehicles/${mobileId}`).set({
                 coords: {
                     lat: parseFloat(coords[0]),
                     lng: parseFloat(coords[1])
                 },
                 status: 'online',
-                lastUpdate: firebase.database.ServerValue.TIMESTAMP,
+                lastUpdate: now,
                 accuracy: accuracy
             });
             
+            lastUpdateTimes[mobileId] = now;
             updateMarker(mobileId, coords, true);
             updateStatus(mobileId, 'online');
         }
         
         function startMonitoring() {
+            // Verificar estado de conexión cada minuto
+            setInterval(checkConnectionStatus, 60000);
+            
             database.ref('vehicles').on('value', (snapshot) => {
                 const vehiclesData = snapshot.val() || {};
                 
@@ -360,25 +381,56 @@
                     const vehicle = vehiclesData[mobileId];
                     if (vehicle && vehicle.coords) {
                         const coords = [vehicle.coords.lat, vehicle.coords.lng];
-                        updateMarker(mobileId, coords, vehicle.status === 'online');
-                        updateStatus(mobileId, vehicle.status || 'offline');
+                        const now = Date.now();
+                        lastUpdateTimes[mobileId] = vehicle.lastUpdate || now;
+                        
+                        // Verificar si ha pasado más de 10 minutos desde la última actualización
+                        const isOnline = (now - (vehicle.lastUpdate || 0)) < TEN_MINUTES;
+                        
+                        updateMarker(mobileId, coords, isOnline);
+                        updateStatus(mobileId, isOnline ? 'online' : 'offline');
                     }
                 });
+            });
+        }
+        
+        function checkConnectionStatus() {
+            const now = Date.now();
+            Object.keys(lastUpdateTimes).forEach(mobileId => {
+                const lastUpdate = lastUpdateTimes[mobileId] || 0;
+                if ((now - lastUpdate) > TEN_MINUTES) {
+                    // Actualizar estado a offline si ha pasado más de 10 minutos
+                    updateStatus(mobileId, 'offline');
+                    if (markers[mobileId]) {
+                        const icon = L.divIcon({
+                            className: 'vehicle-marker offline',
+                            iconSize: [32, 32],
+                            iconAnchor: [16, 16],
+                            popupAnchor: [0, -16]
+                        });
+                        markers[mobileId].setIcon(icon);
+                    }
+                }
             });
         }
         
         function createMarker(mobileId, coords, isOnline) {
             if (markers[mobileId]) return;
             
-            const icon = L.divIcon({
-                className: isOnline ? 'vehicle-marker online' : 'vehicle-marker offline',
-                iconSize: [32, 32],
+            // Crear contenedor para el marcador y la etiqueta
+            const container = L.divIcon({
+                className: 'vehicle-marker-container',
+                html: `
+                    <div class="vehicle-marker ${isOnline ? 'online' : 'offline'}"></div>
+                    <div class="vehicle-label">${mobileId}</div>
+                `,
+                iconSize: [32, 42], // Tamaño suficiente para el marcador y la etiqueta
                 iconAnchor: [16, 16],
                 popupAnchor: [0, -16]
             });
 
             markers[mobileId] = L.marker(coords, { 
-                icon: icon,
+                icon: container,
                 title: mobileId
             }).addTo(map)
             .bindPopup(`<b>${mobileId}</b><br>${isOnline ? 'En ruta' : 'Desconectado'}`);
@@ -388,16 +440,21 @@
             if (!markers[mobileId]) {
                 createMarker(mobileId, coords, isOnline);
             } else {
-                const icon = L.divIcon({
-                    className: isOnline ? 'vehicle-marker online' : 'vehicle-marker offline',
-                    iconSize: [32, 32],
+                // Actualizar el contenedor del marcador con el nuevo estado
+                const container = L.divIcon({
+                    className: 'vehicle-marker-container',
+                    html: `
+                        <div class="vehicle-marker ${isOnline ? 'online' : 'offline'}"></div>
+                        <div class="vehicle-label">${mobileId}</div>
+                    `,
+                    iconSize: [32, 42],
                     iconAnchor: [16, 16],
                     popupAnchor: [0, -16]
                 });
 
                 markers[mobileId]
                     .setLatLng(coords)
-                    .setIcon(icon)
+                    .setIcon(container)
                     .setPopupContent(`<b>${mobileId}</b><br>${isOnline ? 'En ruta' : 'Desconectado'}<br>Última actualización: ${new Date().toLocaleTimeString()}`);
             }
         }
