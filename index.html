@@ -29,28 +29,29 @@
             height: 100vh;
             z-index: 1;
         }
-        .control-panel {
+        .control-panel-container {
             position: fixed;
             top: 15px;
             right: 0;
+            z-index: 1000;
+            display: flex;
+        }
+        .control-panel {
             background: rgba(255,255,255,0.95);
             padding: 15px;
             border-radius: 12px 0 0 12px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            z-index: 1000;
             width: 280px;
-            transform: translateX(calc(100% - 40px));
+            transform: translateX(100%);
             transition: transform 0.3s ease;
             border: 1px solid var(--red-light);
+            margin-right: -100%;
         }
         .control-panel.visible {
             transform: translateX(0);
+            margin-right: 0;
         }
         .toggle-panel {
-            position: absolute;
-            left: -40px;
-            top: 50%;
-            transform: translateY(-50%);
             background: var(--white);
             border: 1px solid var(--red-light);
             width: 40px;
@@ -61,6 +62,7 @@
             align-items: center;
             justify-content: center;
             box-shadow: -3px 0 5px rgba(0,0,0,0.1);
+            margin-left: 5px;
         }
         .toggle-panel:hover {
             background: var(--red-light);
@@ -169,58 +171,60 @@
 <body>
     <div id="map"></div>
     
-    <div class="control-panel visible" id="controlPanel">
+    <div class="control-panel-container">
+        <div class="control-panel visible" id="controlPanel">
+            <h3 style="margin-top:0;color:var(--red-dark);">🚗 Flota Acciona</h3>
+            
+            <div class="vehicle-card">
+                <div class="vehicle-name">
+                    <div id="movil1-icon" class="vehicle-icon offline"></div>
+                    Móvil 1
+                </div>
+                <div class="vehicle-status">
+                    <span>Estado:</span>
+                    <span id="movil1-status" class="offline">Desconectado</span>
+                </div>
+            </div>
+            
+            <div class="vehicle-card">
+                <div class="vehicle-name">
+                    <div id="movil2-icon" class="vehicle-icon offline"></div>
+                    Móvil 2
+                </div>
+                <div class="vehicle-status">
+                    <span>Estado:</span>
+                    <span id="movil2-status" class="offline">Desconectado</span>
+                </div>
+            </div>
+            
+            <div class="vehicle-card">
+                <div class="vehicle-name">
+                    <div id="movil3-icon" class="vehicle-icon offline"></div>
+                    Móvil 3
+                </div>
+                <div class="vehicle-status">
+                    <span>Estado:</span>
+                    <span id="movil3-status" class="offline">Desconectado</span>
+                </div>
+            </div>
+            
+            <div class="vehicle-card">
+                <div class="vehicle-name">
+                    <div id="movil4-icon" class="vehicle-icon offline"></div>
+                    Móvil 4
+                </div>
+                <div class="vehicle-status">
+                    <span>Estado:</span>
+                    <span id="movil4-status" class="offline">Desconectado</span>
+                </div>
+            </div>
+            
+            <button class="logout-btn" id="logoutBtn">Cerrar Sesión</button>
+        </div>
+        
         <button class="toggle-panel" id="togglePanel">
             <span class="toggle-icon">◄</span>
         </button>
-        
-        <h3 style="margin-top:0;color:var(--red-dark);">🚗 Flota Acciona</h3>
-        
-        <div class="vehicle-card">
-            <div class="vehicle-name">
-                <div id="movil1-icon" class="vehicle-icon offline"></div>
-                Móvil 1
-            </div>
-            <div class="vehicle-status">
-                <span>Estado:</span>
-                <span id="movil1-status" class="offline">Desconectado</span>
-            </div>
-        </div>
-        
-        <div class="vehicle-card">
-            <div class="vehicle-name">
-                <div id="movil2-icon" class="vehicle-icon offline"></div>
-                Móvil 2
-            </div>
-            <div class="vehicle-status">
-                <span>Estado:</span>
-                <span id="movil2-status" class="offline">Desconectado</span>
-            </div>
-        </div>
-        
-        <div class="vehicle-card">
-            <div class="vehicle-name">
-                <div id="movil3-icon" class="vehicle-icon offline"></div>
-                Móvil 3
-            </div>
-            <div class="vehicle-status">
-                <span>Estado:</span>
-                <span id="movil3-status" class="offline">Desconectado</span>
-            </div>
-        </div>
-        
-        <div class="vehicle-card">
-            <div class="vehicle-name">
-                <div id="movil4-icon" class="vehicle-icon offline"></div>
-                Móvil 4
-            </div>
-            <div class="vehicle-status">
-                <span>Estado:</span>
-                <span id="movil4-status" class="offline">Desconectado</span>
-            </div>
-        </div>
-        
-        <button class="logout-btn" id="logoutBtn">Cerrar Sesión</button>
     </div>
 
     <!-- Firebase y Leaflet JS -->
