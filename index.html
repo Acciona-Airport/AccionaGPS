@@ -265,7 +265,6 @@
         // Verificar autenticación al cargar
         firebase.auth().onAuthStateChanged((user) => {
             if (!user) {
-                // Redirigir a login si no está autenticado
                 window.location.href = 'login.html';
             } else {
                 const auth = JSON.parse(localStorage.getItem('gpsAuth'));
