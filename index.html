@@ -137,39 +137,6 @@
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5v-5h14v5z"/><circle cx="7.5" cy="14.5" r="1.5"/><circle cx="16.5" cy="14.5" r="1.5"/></svg>');
             opacity: 0.7;
         }
-        /* Estilo para los marcadores en el mapa */
-        .vehicle-marker {
-            background-size: 70%;
-            background-repeat: no-repeat;
-            background-position: center;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            border: 2px solid white;
-            box-shadow: 0 0 5px rgba(0,0,0,0.5);
-        }
-        .vehicle-marker.online {
-            background-color: var(--online-color);
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5v-5h14v5z"/><circle cx="7.5" cy="14.5" r="1.5"/><circle cx="16.5" cy="14.5" r="1.5"/></svg>');
-        }
-        .vehicle-marker.offline {
-            background-color: var(--offline-color);
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5v-5h14v5z"/><circle cx="7.5" cy="14.5" r="1.5"/><circle cx="16.5" cy="14.5" r="1.5"/></svg>');
-            opacity: 0.7;
-        }
-        /* Estilo para la etiqueta del marcador */
-        .vehicle-label {
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            white-space: nowrap;
-            font-size: 12px;
-            font-weight: bold;
-            color: #333;
-            text-shadow: 0 0 3px white;
-            pointer-events: none;
-        }
         /* Estilo para el marcador del usuario */
         .user-marker {
             background-color: var(--user-marker-color);
@@ -191,11 +158,28 @@
                 box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.7);
             }
             70% {
-                box-shadow: 0 0 0 10px rgba(52, 152, 219, 0);
+                box-shadow: 0 0 0 15px rgba(52, 152, 219, 0);
             }
             100% {
                 box-shadow: 0 0 0 0 rgba(52, 152, 219, 0);
             }
+        }
+        .gps-status {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            z-index: 1000;
+            font-size: 14px;
+        }
+        .gps-status.error {
+            background: rgba(214, 48, 49, 0.8);
+        }
+        .gps-status.success {
+            background: rgba(39, 174, 96, 0.8);
         }
     </style>
 </head>
@@ -258,6 +242,8 @@
         </button>
     </div>
 
+    <div id="gpsStatus" class="gps-status" style="display: none;"></div>
+
     <!-- Firebase y Leaflet JS -->
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
@@ -292,6 +278,7 @@
         let currentUserMarker = null;
         let currentUserId = null;
         let isFuncionario = false;
+        let watchPositionId = null;
         
         // Verificar autenticación al cargar
         firebase.auth().onAuthStateChanged((user) => {
@@ -302,7 +289,7 @@
                 if (!auth) window.location.href = 'login.html';
                 
                 currentUserId = auth.username;
-                isFuncionario = !auth.isViewer; // Si no es viewer, es funcionario
+                isFuncionario = !auth.isViewer;
                 
                 initMap();
                 setupUI();
@@ -310,7 +297,6 @@
                 
                 if (isFuncionario) {
                     startGPSTracking();
-                    showCurrentUserPosition();
                 } else {
                     startMonitoring();
                 }
@@ -341,7 +327,6 @@
         }
         
         function initializeAllMarkers() {
-            // Todos los móviles comienzan en las coordenadas inactivas
             const mobileIds = ['Movil1', 'Movil2', 'Movil3', 'Movil4'];
             
             mobileIds.forEach(mobileId => {
@@ -351,48 +336,91 @@
         }
         
         function startGPSTracking() {
-            if (gpsInterval) clearInterval(gpsInterval);
+            showGPSMessage("Obteniendo ubicación...", "info");
             
-            updatePosition(); // Primera actualización
+            // Detener cualquier seguimiento anterior
+            if (watchPositionId) {
+                navigator.geolocation.clearWatch(watchPositionId);
+            }
+            if (gpsInterval) {
+                clearInterval(gpsInterval);
+            }
             
-            // Actualizar cada 5 segundos
+            // Intentar obtener ubicación inmediatamente
+            getCurrentPositionWithRetry();
+            
+            // Configurar seguimiento continuo
+            watchPositionId = navigator.geolocation.watchPosition(
+                position => handlePositionSuccess(position),
+                error => handlePositionError(error),
+                {
+                    enableHighAccuracy: true,
+                    maximumAge: 0,
+                    timeout: 10000
+                }
+            );
+            
+            // Configurar intervalo para forzar actualizaciones
             gpsInterval = setInterval(() => {
-                updatePosition();
-            }, 3000);
+                getCurrentPositionWithRetry();
+            }, 5000);
         }
         
-        function updatePosition() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    position => {
-                        const coords = [
-                            position.coords.latitude,
-                            position.coords.longitude
-                        ];
-                        
-                        // Solo actualizamos el estado en Firebase, no la ubicación
-                        updateOnlineStatus();
-                        
-                        // Mostramos la posición localmente
-                        updateCurrentUserMarker(coords);
-                    },
-                    error => {
-                        console.error('Error GPS:', error);
-                        updateStatus(currentUserId, 'offline');
-                        database.ref(`vehicles/${currentUserId}`).update({
-                            status: 'offline',
-                            lastUpdate: firebase.database.ServerValue.TIMESTAMP
-                        });
-                    },
-                    { 
-                        enableHighAccuracy: true,
-                        timeout: 10000,
-                        maximumAge: 0
-                    }
-                );
-            } else {
-                alert("Tu navegador no soporta geolocalización");
+        function getCurrentPositionWithRetry() {
+            navigator.geolocation.getCurrentPosition(
+                position => handlePositionSuccess(position),
+                error => handlePositionError(error),
+                {
+                    enableHighAccuracy: true,
+                    maximumAge: 0,
+                    timeout: 10000
+                }
+            );
+        }
+        
+        function handlePositionSuccess(position) {
+            const coords = [
+                position.coords.latitude,
+                position.coords.longitude
+            ];
+            
+            showGPSMessage("Ubicación actualizada", "success");
+            updateOnlineStatus();
+            updateCurrentUserMarker(coords);
+            
+            // Centrar el mapa en la ubicación actual (solo la primera vez)
+            if (!currentUserMarker) {
+                map.setView(coords, 16);
             }
+        }
+        
+        function handlePositionError(error) {
+            let errorMessage = "Error de GPS: ";
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    errorMessage += "Permiso denegado. Active la ubicación en su dispositivo.";
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    errorMessage += "Ubicación no disponible.";
+                    break;
+                case error.TIMEOUT:
+                    errorMessage += "Tiempo de espera agotado. Intentando nuevamente...";
+                    break;
+                default:
+                    errorMessage += "Error desconocido.";
+            }
+            
+            showGPSMessage(errorMessage, "error");
+            updateStatus(currentUserId, 'offline');
+            database.ref(`vehicles/${currentUserId}`).update({
+                status: 'offline',
+                lastUpdate: firebase.database.ServerValue.TIMESTAMP
+            });
+            
+            // Reintentar después de 5 segundos
+            setTimeout(() => {
+                getCurrentPositionWithRetry();
+            }, 5000);
         }
         
         function updateOnlineStatus() {
@@ -404,23 +432,6 @@
             
             lastUpdateTimes[currentUserId] = now;
             updateStatus(currentUserId, 'online');
-        }
-        
-        function showCurrentUserPosition() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    position => {
-                        const coords = [
-                            position.coords.latitude,
-                            position.coords.longitude
-                        ];
-                        updateCurrentUserMarker(coords);
-                    },
-                    error => {
-                        console.error('Error al obtener ubicación inicial:', error);
-                    }
-                );
-            }
         }
         
         function updateCurrentUserMarker(coords) {
@@ -437,19 +448,29 @@
                     icon: userIcon,
                     zIndexOffset: 1000
                 }).addTo(map)
-                .bindPopup(`<b>Tu ubicación</b><br>${new Date().toLocaleTimeString()}`);
-                
-                // Centrar el mapa en la ubicación del usuario
-                map.setView(coords, 16);
+                .bindPopup(`<b>Tu ubicación actual</b><br>Precisión: ${Math.round(coords.accuracy || 0)} metros`);
             } else {
                 currentUserMarker
                     .setLatLng(coords)
-                    .setPopupContent(`<b>Tu ubicación</b><br>${new Date().toLocaleTimeString()}`);
+                    .setPopupContent(`<b>Tu ubicación actual</b><br>Precisión: ${Math.round(coords.accuracy || 0)} metros`);
             }
         }
         
+        function showGPSMessage(message, type) {
+            const statusElement = document.getElementById('gpsStatus');
+            statusElement.textContent = message;
+            statusElement.className = `gps-status ${type}`;
+            statusElement.style.display = 'block';
+            
+            // Ocultar después de 5 segundos
+            setTimeout(() => {
+                if (statusElement.textContent === message) {
+                    statusElement.style.display = 'none';
+                }
+            }, 5000);
+        }
+        
         function startMonitoring() {
-            // Verificar estado de conexión cada minuto
             setInterval(checkConnectionStatus, 60000);
             
             database.ref('vehicles').on('value', (snapshot) => {
@@ -461,9 +482,7 @@
                         const now = Date.now();
                         lastUpdateTimes[mobileId] = vehicle.lastUpdate || now;
                         
-                        // Verificar si ha pasado más de 10 minutos desde la última actualización
                         const isOnline = (now - (vehicle.lastUpdate || 0)) < TEN_MINUTES;
-                        
                         updateStatus(mobileId, isOnline ? 'online' : 'offline');
                     }
                 });
@@ -501,28 +520,6 @@
             .bindPopup(`<b>${mobileId}</b><br>${isOnline ? 'En ruta' : 'Desconectado'}`);
         }
         
-        function updateMarker(mobileId, coords, isOnline) {
-            if (!markers[mobileId]) {
-                createMarker(mobileId, coords, isOnline);
-            } else {
-                const container = L.divIcon({
-                    className: 'vehicle-marker-container',
-                    html: `
-                        <div class="vehicle-marker ${isOnline ? 'online' : 'offline'}"></div>
-                        <div class="vehicle-label">${mobileId}</div>
-                    `,
-                    iconSize: [32, 42],
-                    iconAnchor: [16, 16],
-                    popupAnchor: [0, -16]
-                });
-
-                markers[mobileId]
-                    .setLatLng(coords)
-                    .setIcon(container)
-                    .setPopupContent(`<b>${mobileId}</b><br>${isOnline ? 'En ruta' : 'Desconectado'}<br>Última actualización: ${new Date().toLocaleTimeString()}`);
-            }
-        }
-        
         function updateStatus(mobileId, status) {
             const element = document.getElementById(`${mobileId.toLowerCase()}-status`);
             const iconElement = document.getElementById(`${mobileId.toLowerCase()}-icon`);
@@ -539,14 +536,15 @@
         
         function logout() {
             if (gpsInterval) clearInterval(gpsInterval);
+            if (watchPositionId) {
+                navigator.geolocation.clearWatch(watchPositionId);
+            }
             database.ref('vehicles').off();
             
-            // Eliminar la referencia del usuario al cerrar sesión
             if (currentUserId) {
                 database.ref(`vehicles/${currentUserId}`).remove();
             }
             
-            // Eliminar el marcador del usuario
             if (currentUserMarker) {
                 map.removeLayer(currentUserMarker);
             }
