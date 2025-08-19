@@ -247,6 +247,7 @@
 
         // Configuración del mapa
         const SCL_COORDS = [-33.3931, -70.7858];
+        const INACTIVE_COORDS = [-33.409995, -70.788647]; // Coordenadas para móviles inactivos
         const ZOOM_INICIAL = 14;
         let map;
         const markers = {};
@@ -298,16 +299,11 @@
         }
         
         function initializeAllMarkers() {
-            // Marcadores iniciales (se actualizarán con datos reales)
-            const initialPositions = {
-                Movil1: [-33.40, -70.78],
-                Movil2: [-33.39, -70.79],
-                Movil3: [-33.38, -70.77],
-                Movil4: [-33.41, -70.80]
-            };
+            // Todos los móviles comienzan en las coordenadas inactivas
+            const mobileIds = ['Movil1', 'Movil2', 'Movil3', 'Movil4'];
             
-            Object.keys(initialPositions).forEach(mobileId => {
-                createMarker(mobileId, initialPositions[mobileId], false);
+            mobileIds.forEach(mobileId => {
+                createMarker(mobileId, INACTIVE_COORDS, false);
                 lastUpdateTimes[mobileId] = Date.now();
             });
         }
@@ -380,12 +376,14 @@
                 Object.keys(vehiclesData).forEach(mobileId => {
                     const vehicle = vehiclesData[mobileId];
                     if (vehicle && vehicle.coords) {
-                        const coords = [vehicle.coords.lat, vehicle.coords.lng];
                         const now = Date.now();
                         lastUpdateTimes[mobileId] = vehicle.lastUpdate || now;
                         
                         // Verificar si ha pasado más de 10 minutos desde la última actualización
                         const isOnline = (now - (vehicle.lastUpdate || 0)) < TEN_MINUTES;
+                        const coords = isOnline ? 
+                            [vehicle.coords.lat, vehicle.coords.lng] : 
+                            INACTIVE_COORDS;
                         
                         updateMarker(mobileId, coords, isOnline);
                         updateStatus(mobileId, isOnline ? 'online' : 'offline');
@@ -404,11 +402,18 @@
                     if (markers[mobileId]) {
                         const icon = L.divIcon({
                             className: 'vehicle-marker offline',
-                            iconSize: [32, 32],
+                            html: `
+                                <div class="vehicle-marker offline"></div>
+                                <div class="vehicle-label">${mobileId}</div>
+                            `,
+                            iconSize: [32, 42],
                             iconAnchor: [16, 16],
                             popupAnchor: [0, -16]
                         });
-                        markers[mobileId].setIcon(icon);
+                        markers[mobileId]
+                            .setIcon(icon)
+                            .setLatLng(INACTIVE_COORDS)
+                            .setPopupContent(`<b>${mobileId}</b><br>Desconectado<br>Última actualización: ${new Date(lastUpdate).toLocaleTimeString()}`);
                     }
                 }
             });
