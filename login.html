@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login GPS Acciona</title>
+    <title>Login | Monitor GPS</title>
     <style>
         :root {
             --white: #ffffff;
@@ -11,120 +11,143 @@
             --red-primary: #f44336;
             --red-dark: #d32f2f;
             --gray-light: #f5f5f5;
-        }
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Arial, sans-serif;
+            --online-color: #27ae60;
+            --offline-color: #95a5a6;
         }
         body {
-            background: linear-gradient(135deg, var(--white) 0%, var(--red-light) 100%);
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f5f5f5;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            padding: 20px;
+            height: 100vh;
         }
         .login-container {
-            background: var(--white);
-            width: 100%;
-            max-width: 400px;
-            padding: 40px 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(244, 67, 54, 0.1);
-            border: 1px solid rgba(244, 67, 54, 0.1);
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            width: 350px;
             text-align: center;
         }
         .logo {
             color: var(--red-dark);
-            font-size: 2.5rem;
+            font-size: 24px;
             margin-bottom: 20px;
+            font-weight: bold;
         }
-        h1 {
-            color: var(--red-dark);
-            margin-bottom: 25px;
-            font-weight: 600;
-        }
-        .form-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--red-dark);
-            font-weight: 500;
-        }
-        select, input {
+        .login-form input {
             width: 100%;
-            padding: 12px 15px;
-            border: 2px solid var(--gray-light);
-            border-radius: 8px;
-            font-size: 16px;
-            transition: all 0.3s;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
         }
-        select:focus, input:focus {
-            border-color: var(--red-primary);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.2);
-        }
-        button {
-            width: 100%;
-            padding: 14px;
+        .login-btn {
             background: var(--red-primary);
             color: white;
             border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
+            padding: 12px;
+            width: 100%;
+            border-radius: 5px;
             cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 10px;
+            font-weight: 600;
+            margin-top: 15px;
+            transition: background 0.3s;
         }
-        button:hover {
+        .login-btn:hover {
             background: var(--red-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(211, 47, 47, 0.3);
+        }
+        .user-status {
+            margin: 20px 0;
+            text-align: left;
+        }
+        .user-status-item {
+            display: flex;
+            align-items: center;
+            margin: 8px 0;
+            padding: 8px;
+            border-radius: 5px;
+            background: var(--gray-light);
+        }
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .status-online {
+            background: var(--online-color);
+        }
+        .status-offline {
+            background: var(--offline-color);
+        }
+        .viewer-checkbox {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+        .viewer-checkbox input {
+            width: auto;
+            margin-right: 10px;
         }
         .error-message {
-            color: var(--red-dark);
-            margin-top: 15px;
+            color: var(--red-primary);
             font-size: 14px;
+            margin-top: 10px;
             display: none;
         }
     </style>
 </head>
 <body>
     <div class="login-container">
-        <div class="logo">🚗</div>
-        <h1>Acceso GPS Acciona</h1>
-        <form id="loginForm">
-            <div class="form-group">
-                <label for="username">Usuario</label>
-                <select id="username" required>
-                    <option value="">Seleccione vehículo...</option>
-                    <option value="Movil1">Móvil 1</option>
-                    <option value="Movil2">Móvil 2</option>
-                    <option value="Movil3">Móvil 3</option>
-                    <option value="Movil4">Móvil 4</option>
-                    <option value="Funcionarios">Funcionarios</option>
-                </select>
+        <div class="logo">Monitor GPS Acciona</div>
+        
+        <div class="user-status">
+            <h3>Usuarios en uso:</h3>
+            <div id="user-status-container">
+                <!-- Aquí se cargarán dinámicamente los estados de los usuarios -->
+                <div class="user-status-item">
+                    <div class="status-indicator status-offline"></div>
+                    <span>Móvil 1</span>
+                </div>
+                <div class="user-status-item">
+                    <div class="status-indicator status-offline"></div>
+                    <span>Móvil 2</span>
+                </div>
+                <div class="user-status-item">
+                    <div class="status-indicator status-offline"></div>
+                    <span>Móvil 3</span>
+                </div>
+                <div class="user-status-item">
+                    <div class="status-indicator status-offline"></div>
+                    <span>Móvil 4</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="login-form">
+            <input type="text" id="username" placeholder="Usuario" required>
+            <input type="password" id="password" placeholder="Contraseña" required>
+            
+            <div class="viewer-checkbox">
+                <input type="checkbox" id="isViewer">
+                <label for="isViewer">Solo visualización (no soy funcionario)</label>
             </div>
             
-            <div class="form-group">
-                <label for="password">Contraseña</label>
-                <input type="password" id="password" required>
-            </div>
-            
-            <button type="submit">Ingresar al Sistema</button>
-            <div class="error-message" id="errorMessage"></div>
-        </form>
+            <button class="login-btn" id="loginBtn">Iniciar Sesión</button>
+            <div id="errorMessage" class="error-message"></div>
+        </div>
     </div>
 
-    <!-- Firebase JS SDK -->
+    <!-- Firebase JS -->
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     
     <script>
         // Configuración Firebase (¡REEMPLAZA CON TUS DATOS!)
@@ -138,59 +161,73 @@
             appId: "1:742246618721:web:72d0046987416800f07c20"
         };
 
-        // Inicializar Firebase
-        firebase.initializeApp(firebaseConfig);
+        // Inicializa Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
 
-        // Mapeo de usuarios a correos
-        const userEmails = {
-            "Movil1": "movil1@gpsacciona.com",
-            "Movil2": "movil2@gpsacciona.com", 
-            "Movil3": "movil3@gpsacciona.com",
-            "Movil4": "movil4@gpsacciona.com",
-            "Funcionarios": "funcionarios@gpsacciona.com"
-        };
-
-        // Procesar formulario de login
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+        // Cargar estados de los usuarios al abrir la página
+        database.ref('vehicles').on('value', (snapshot) => {
+            const vehiclesData = snapshot.val() || {};
+            const TEN_MINUTES = 10 * 60 * 1000;
+            const now = Date.now();
             
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const errorElement = document.getElementById('errorMessage');
+            ['Movil1', 'Movil2', 'Movil3', 'Movil4'].forEach((mobileId, index) => {
+                const vehicle = vehiclesData[mobileId] || {};
+                const lastUpdate = vehicle.lastUpdate || 0;
+                const isOnline = (now - lastUpdate) < TEN_MINUTES;
+                
+                const statusItem = document.querySelectorAll('.user-status-item')[index];
+                const statusIndicator = statusItem.querySelector('.status-indicator');
+                
+                statusIndicator.className = `status-indicator ${isOnline ? 'status-online' : 'status-offline'}`;
+            });
+        });
 
-            // Validar selección de usuario
-            if (!username) {
-                errorElement.textContent = 'Seleccione un usuario válido';
-                errorElement.style.display = 'block';
+        // Manejar inicio de sesión
+        document.getElementById('loginBtn').addEventListener('click', login);
+        
+        function login() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const isViewer = document.getElementById('isViewer').checked;
+            const errorElement = document.getElementById('errorMessage');
+            
+            errorElement.style.display = 'none';
+            
+            if (!username || !password) {
+                showError("Por favor complete todos los campos");
                 return;
             }
-
-            // Obtener correo asociado al usuario
-            const email = userEmails[username];
             
-            // Iniciar sesión con Firebase Auth
-            firebase.auth().signInWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    // Guardar datos de sesión
-                    localStorage.setItem('gpsAuth', JSON.stringify({
-                        username,
-                        isViewer: username === 'Funcionarios',
-                        uid: userCredential.user.uid
-                    }));
-                    
-                    // Redirigir al panel principal
-                    window.location.href = 'index.html';
-                })
-                .catch((error) => {
-                    console.error("Error de autenticación:", error);
-                    errorElement.textContent = 'Usuario o contraseña incorrectos';
-                    errorElement.style.display = 'block';
-                    
-                    // Ocultar mensaje después de 3 segundos
-                    setTimeout(() => {
-                        errorElement.style.display = 'none';
-                    }, 3000);
-                });
+            // Autenticación simple (en producción usar Firebase Auth)
+            // Esto es solo para demostración - ¡NO SEGURO PARA PRODUCCIÓN!
+            if (password === "Acciona2023") { // Contraseña de ejemplo
+                // Guardar datos de autenticación en localStorage
+                localStorage.setItem('gpsAuth', JSON.stringify({
+                    username: username,
+                    isViewer: isViewer,
+                    timestamp: Date.now()
+                }));
+                
+                // Redirigir a la página principal
+                window.location.href = 'index.html';
+            } else {
+                showError("Usuario o contraseña incorrectos");
+            }
+        }
+        
+        function showError(message) {
+            const errorElement = document.getElementById('errorMessage');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+        
+        // Permitir login con Enter
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                login();
+            }
         });
     </script>
 </body>
