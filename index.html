@@ -70,13 +70,25 @@
         .toggle-panel:hover {
             background: var(--red-light);
         }
-        .toggle-icon {
-            color: var(--red-dark);
-            font-size: 16px;
-            transition: transform 0.3s;
+        .hamburger-icon {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            width: 20px;
         }
-        .control-panel.visible .toggle-icon {
-            transform: rotate(180deg);
+        .hamburger-line {
+            height: 2px;
+            background-color: var(--red-dark);
+            transition: all 0.3s ease;
+        }
+        .control-panel.visible .hamburger-line:nth-child(1) {
+            transform: translateY(6px) rotate(45deg);
+        }
+        .control-panel.visible .hamburger-line:nth-child(2) {
+            opacity: 0;
+        }
+        .control-panel.visible .hamburger-line:nth-child(3) {
+            transform: translateY(-6px) rotate(-45deg);
         }
         .vehicle-card {
             margin-bottom: 12px;
@@ -218,7 +230,7 @@
     <div id="map"></div>
     
     <div class="control-panel-container">
-        <div class="control-panel" id="controlPanel"> <!-- Eliminada la clase visible por defecto -->
+        <div class="control-panel" id="controlPanel">
             <h3 style="margin-top:0;color:var(--red-dark);">🚗 Flota Acciona</h3>
             
             <div class="vehicle-card">
@@ -269,7 +281,11 @@
         </div>
         
         <button class="toggle-panel" id="togglePanel">
-            <span class="toggle-icon">◄</span>
+            <div class="hamburger-icon">
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+            </div>
         </button>
     </div>
 
