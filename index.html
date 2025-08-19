@@ -217,7 +217,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <script>
-        // Configuración Firebase
+        // Configuración Firebase (¡REEMPLAZA CON TUS DATOS!)
         const firebaseConfig = {
             apiKey: "AIzaSyDT85qotm1EpAJzJzCFeoNwGyo-VKhM6dk",
             authDomain: "gpsaccionascl2025.firebaseapp.com",
@@ -237,8 +237,6 @@
         const ZOOM_INICIAL = 14;
         let map;
         const markers = {};
-        const lastPositions = {}; // Almacena las últimas posiciones y tiempos
-        const INACTIVITY_TIMEOUT = 15 * 60 * 1000; // 15 minutos en milisegundos
         let gpsInterval;
         
         // Verificar autenticación al cargar
@@ -295,12 +293,6 @@
             
             Object.keys(initialPositions).forEach(mobileId => {
                 createMarker(mobileId, initialPositions[mobileId], false);
-                // Inicializar registro de última posición
-                lastPositions[mobileId] = {
-                    coords: initialPositions[mobileId],
-                    timestamp: Date.now(),
-                    isOnline: false
-                };
             });
         }
         
@@ -312,7 +304,7 @@
             // Actualizar cada 5 segundos
             gpsInterval = setInterval(() => {
                 updatePosition(mobileId);
-            }, 5000);
+            }, 3000);
         }
         
         function updatePosition(mobileId) {
@@ -323,11 +315,7 @@
                             position.coords.latitude.toFixed(6),
                             position.coords.longitude.toFixed(6)
                         ];
-                        
-                        // Verificar si la posición ha cambiado
-                        const hasMoved = checkIfMoved(mobileId, coords);
-                        
-                        savePosition(mobileId, coords, position.coords.accuracy, hasMoved);
+                        savePosition(mobileId, coords, position.coords.accuracy);
                     },
                     error => {
                         console.error('Error GPS:', error);
@@ -348,64 +336,32 @@
             }
         }
         
-        function checkIfMoved(mobileId, newCoords) {
-            if (!lastPositions[mobileId]) return true;
-            
-            const lastCoords = lastPositions[mobileId].coords;
-            // Calcular distancia entre coordenadas (fórmula simplificada)
-            const latDiff = Math.abs(parseFloat(newCoords[0]) - parseFloat(lastCoords[0]);
-            const lngDiff = Math.abs(parseFloat(newCoords[1]) - parseFloat(lastCoords[1]);
-            const distance = Math.sqrt(latDiff * latDiff + lngDiff * lngDiff);
-            
-            // Consideramos movimiento si la distancia es mayor a 0.0001 grados (~11 metros)
-            return distance > 0.0001;
-        }
-        
-        function savePosition(mobileId, coords, accuracy, hasMoved) {
-            const now = Date.now();
-            const status = hasMoved ? 'online' : 
-                          (now - lastPositions[mobileId].timestamp > INACTIVITY_TIMEOUT) ? 'offline' : 
-                          lastPositions[mobileId].isOnline ? 'online' : 'offline';
-            
-            // Actualizar registro de última posición
-            lastPositions[mobileId] = {
-                coords: coords,
-                timestamp: now,
-                isOnline: status === 'online'
-            };
-            
+        function savePosition(mobileId, coords, accuracy) {
             // Guardar en Firebase
             database.ref(`vehicles/${mobileId}`).set({
                 coords: {
                     lat: parseFloat(coords[0]),
                     lng: parseFloat(coords[1])
                 },
-                status: status,
+                status: 'online',
                 lastUpdate: firebase.database.ServerValue.TIMESTAMP,
                 accuracy: accuracy
             });
             
-            updateMarker(mobileId, coords, status === 'online');
-            updateStatus(mobileId, status);
+            updateMarker(mobileId, coords, true);
+            updateStatus(mobileId, 'online');
         }
         
         function startMonitoring() {
             database.ref('vehicles').on('value', (snapshot) => {
                 const vehiclesData = snapshot.val() || {};
-                const now = Date.now();
                 
                 Object.keys(vehiclesData).forEach(mobileId => {
                     const vehicle = vehiclesData[mobileId];
                     if (vehicle && vehicle.coords) {
                         const coords = [vehicle.coords.lat, vehicle.coords.lng];
-                        
-                        // Verificar inactividad
-                        const lastUpdate = vehicle.lastUpdate || 0;
-                        const isActive = (now - lastUpdate) < INACTIVITY_TIMEOUT;
-                        const status = isActive ? (vehicle.status || 'offline') : 'offline';
-                        
-                        updateMarker(mobileId, coords, status === 'online');
-                        updateStatus(mobileId, status);
+                        updateMarker(mobileId, coords, vehicle.status === 'online');
+                        updateStatus(mobileId, vehicle.status || 'offline');
                     }
                 });
             });
