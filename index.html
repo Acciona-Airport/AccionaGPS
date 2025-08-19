@@ -39,7 +39,7 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             z-index: 1000;
             width: 280px;
-            transform: translateX(265px);
+            transform: translateX(calc(100% - 40px));
             transition: transform 0.3s ease;
             border: 1px solid var(--red-light);
         }
@@ -48,12 +48,12 @@
         }
         .toggle-panel {
             position: absolute;
-            left: -25px;
+            left: -40px;
             top: 50%;
             transform: translateY(-50%);
             background: var(--white);
             border: 1px solid var(--red-light);
-            width: 25px;
+            width: 40px;
             height: 60px;
             border-radius: 8px 0 0 8px;
             cursor: pointer;
