@@ -224,6 +224,23 @@
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
+        /* Añadido: Selector de proveedor de mapas */
+        .map-provider-selector {
+            position: fixed;
+            bottom: 70px;
+            left: 10px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            font-size: 12px;
+        }
+        .map-provider-selector select {
+            padding: 5px;
+            border-radius: 3px;
+            border: 1px solid #ccc;
+        }
     </style>
 </head>
 <body>
@@ -299,6 +316,17 @@
         </button>
     </div>
 
+    <!-- Selector de proveedor de mapas -->
+    <div class="map-provider-selector">
+        <label for="mapProvider">Mapa:</label>
+        <select id="mapProvider">
+            <option value="carto">CartoDB (Recomendado)</option>
+            <option value="osm">OpenStreetMap</option>
+            <option value="stadia">Stadia Maps</option>
+            <option value="esri">ESRI World Imagery</option>
+        </select>
+    </div>
+
     <!-- Firebase y Leaflet JS -->
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
@@ -306,7 +334,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <script>
-        // Configuración Firebase (¡REEMPLAZA CON TUS DATOS!)
+        // Configuración Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyDT85qotm1EpAJzJzCFeoNwGyo-VKhM6dk",
             authDomain: "gpsaccionascl2025.firebaseapp.com",
@@ -323,13 +351,38 @@
 
         // Configuración del mapa
         const SCL_COORDS = [-33.3931, -70.7858];
-        const INACTIVE_COORDS = [-33.409995, -70.788647]; // Coordenadas para móviles inactivos
+        const INACTIVE_COORDS = [-33.409995, -70.788647];
         const ZOOM_INICIAL = 14;
         let map;
+        let currentTileLayer;
         const markers = {};
         const lastUpdateTimes = {};
         let gpsInterval;
-        const TEN_MINUTES = 10 * 60 * 1000; // 10 minutos en milisegundos
+        const TEN_MINUTES = 10 * 60 * 1000;
+        
+        // Proveedores de mapas alternativos (solución al problema de User-Agent)
+        const mapProviders = {
+            carto: {
+                url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/attributions">CARTO</a>',
+                maxZoom: 20
+            },
+            osm: {
+                url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                maxZoom: 19
+            },
+            stadia: {
+                url: 'https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png',
+                attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors',
+                maxZoom: 20
+            },
+            esri: {
+                url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+                maxZoom: 19
+            }
+        };
         
         // Verificar autenticación al cargar
         firebase.auth().onAuthStateChanged((user) => {
@@ -354,15 +407,35 @@
         function initMap() {
             map = L.map('map').setView(SCL_COORDS, ZOOM_INICIAL);
             
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; OpenStreetMap'
-            }).addTo(map);
+            // Cargar el proveedor de mapas guardado o usar el recomendado por defecto
+            const savedProvider = localStorage.getItem('mapProvider') || 'carto';
+            document.getElementById('mapProvider').value = savedProvider;
+            setMapProvider(savedProvider);
             
             // Marcador del aeropuerto
             L.marker(SCL_COORDS)
                 .addTo(map)
                 .bindPopup('✈️ Aeropuerto SCL')
                 .openPopup();
+        }
+        
+        function setMapProvider(providerKey) {
+            // Eliminar la capa actual si existe
+            if (currentTileLayer) {
+                map.removeLayer(currentTileLayer);
+            }
+            
+            // Obtener la configuración del proveedor
+            const provider = mapProviders[providerKey];
+            
+            // Añadir la nueva capa
+            currentTileLayer = L.tileLayer(provider.url, {
+                attribution: provider.attribution,
+                maxZoom: provider.maxZoom
+            }).addTo(map);
+            
+            // Guardar la preferencia
+            localStorage.setItem('mapProvider', providerKey);
         }
         
         function setupUI() {
@@ -378,17 +451,19 @@
             // Configurar botón de actualización
             const refreshBtn = document.getElementById('refreshBtn');
             refreshBtn.addEventListener('click', function() {
-                // Mostrar spinner
                 refreshBtn.classList.add('loading');
                 
-                // Recargar la página después de un breve retraso para que se vea el spinner
                 setTimeout(() => {
-                    // Guardar el estado del panel antes de recargar
                     const isPanelVisible = panel.classList.contains('visible');
                     localStorage.setItem('panelState', isPanelVisible ? 'open' : 'closed');
                     
                     window.location.reload();
                 }, 500);
+            });
+            
+            // Configurar selector de proveedor de mapas
+            document.getElementById('mapProvider').addEventListener('change', function(e) {
+                setMapProvider(e.target.value);
             });
             
             // Al cargar la página, verificar si el panel debe estar abierto o cerrado
@@ -399,7 +474,6 @@
         }
         
         function initializeAllMarkers() {
-            // Todos los móviles comienzan en las coordenadas inactivas
             const mobileIds = ['Movil1', 'Movil2', 'Movil3', 'Movil4'];
             
             mobileIds.forEach(mobileId => {
@@ -411,9 +485,8 @@
         function startGPSTracking(mobileId) {
             if (gpsInterval) clearInterval(gpsInterval);
             
-            updatePosition(mobileId); // Primera actualización
+            updatePosition(mobileId);
             
-            // Actualizar cada 5 segundos
             gpsInterval = setInterval(() => {
                 updatePosition(mobileId);
             }, 3000);
@@ -449,7 +522,6 @@
         }
         
         function savePosition(mobileId, coords, accuracy) {
-            // Guardar en Firebase
             const now = Date.now();
             database.ref(`vehicles/${mobileId}`).set({
                 coords: {
@@ -467,7 +539,6 @@
         }
         
         function startMonitoring() {
-            // Verificar estado de conexión cada minuto
             setInterval(checkConnectionStatus, 60000);
             
             database.ref('vehicles').on('value', (snapshot) => {
@@ -479,7 +550,6 @@
                         const now = Date.now();
                         lastUpdateTimes[mobileId] = vehicle.lastUpdate || now;
                         
-                        // Verificar si ha pasado más de 10 minutos desde la última actualización
                         const isOnline = (now - (vehicle.lastUpdate || 0)) < TEN_MINUTES;
                         const coords = isOnline ? 
                             [vehicle.coords.lat, vehicle.coords.lng] : 
@@ -497,7 +567,6 @@
             Object.keys(lastUpdateTimes).forEach(mobileId => {
                 const lastUpdate = lastUpdateTimes[mobileId] || 0;
                 if ((now - lastUpdate) > TEN_MINUTES) {
-                    // Actualizar estado a offline si ha pasado más de 10 minutos
                     updateStatus(mobileId, 'offline');
                     if (markers[mobileId]) {
                         const icon = L.divIcon({
@@ -522,14 +591,13 @@
         function createMarker(mobileId, coords, isOnline) {
             if (markers[mobileId]) return;
             
-            // Crear contenedor para el marcador y la etiqueta
             const container = L.divIcon({
                 className: 'vehicle-marker-container',
                 html: `
                     <div class="vehicle-marker ${isOnline ? 'online' : 'offline'}"></div>
                     <div class="vehicle-label">${mobileId}</div>
                 `,
-                iconSize: [32, 42], // Tamaño suficiente para el marcador y la etiqueta
+                iconSize: [32, 42],
                 iconAnchor: [16, 16],
                 popupAnchor: [0, -16]
             });
@@ -545,7 +613,6 @@
             if (!markers[mobileId]) {
                 createMarker(mobileId, coords, isOnline);
             } else {
-                // Actualizar el contenedor del marcador con el nuevo estado
                 const container = L.divIcon({
                     className: 'vehicle-marker-container',
                     html: `
