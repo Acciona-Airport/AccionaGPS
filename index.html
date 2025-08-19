@@ -35,6 +35,7 @@
             right: 0;
             z-index: 1000;
             display: flex;
+            overflow: hidden;
         }
         .control-panel {
             background: rgba(255,255,255,0.95);
@@ -45,11 +46,12 @@
             transform: translateX(100%);
             transition: transform 0.3s ease;
             border: 1px solid var(--red-light);
-            margin-right: -100%;
+            position: relative;
+            right: -100%;
         }
         .control-panel.visible {
             transform: translateX(0);
-            margin-right: 0;
+            right: 0;
         }
         .toggle-panel {
             background: var(--white);
@@ -63,6 +65,7 @@
             justify-content: center;
             box-shadow: -3px 0 5px rgba(0,0,0,0.1);
             margin-left: 5px;
+            flex-shrink: 0;
         }
         .toggle-panel:hover {
             background: var(--red-light);
