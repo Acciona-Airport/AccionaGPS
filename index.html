@@ -14,6 +14,7 @@
             --gray-light: #f5f5f5;
             --online-color: #27ae60;
             --offline-color: #95a5a6;
+            --user-marker-color: #3498db;
         }
         body {
             margin: 0;
@@ -148,11 +149,11 @@
             box-shadow: 0 0 5px rgba(0,0,0,0.5);
         }
         .vehicle-marker.online {
-            background-color: #27ae60;
+            background-color: var(--online-color);
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5v-5h14v5z"/><circle cx="7.5" cy="14.5" r="1.5"/><circle cx="16.5" cy="14.5" r="1.5"/></svg>');
         }
         .vehicle-marker.offline {
-            background-color: #95a5a6;
+            background-color: var(--offline-color);
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5v-5h14v5z"/><circle cx="7.5" cy="14.5" r="1.5"/><circle cx="16.5" cy="14.5" r="1.5"/></svg>');
             opacity: 0.7;
         }
@@ -169,14 +170,32 @@
             text-shadow: 0 0 3px white;
             pointer-events: none;
         }
-        /* Estilo para el marcador del usuario actual */
-        .current-user-marker {
-            background-color: #3498db;
-            width: 24px;
-            height: 24px;
+        /* Estilo para el marcador del usuario */
+        .user-marker {
+            background-color: var(--user-marker-color);
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>');
+            background-size: 60%;
+            background-repeat: no-repeat;
+            background-position: center;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             border: 3px solid white;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+        .user-marker-pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(52, 152, 219, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(52, 152, 219, 0);
+            }
         }
     </style>
 </head>
@@ -246,7 +265,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <script>
-        // Configuración Firebase (¡REEMPLAZA CON TUS DATOS!)
+        // Configuración Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyDT85qotm1EpAJzJzCFeoNwGyo-VKhM6dk",
             authDomain: "gpsaccionascl2025.firebaseapp.com",
@@ -272,6 +291,7 @@
         const TEN_MINUTES = 10 * 60 * 1000;
         let currentUserMarker = null;
         let currentUserId = null;
+        let isFuncionario = false;
         
         // Verificar autenticación al cargar
         firebase.auth().onAuthStateChanged((user) => {
@@ -281,13 +301,16 @@
                 const auth = JSON.parse(localStorage.getItem('gpsAuth'));
                 if (!auth) window.location.href = 'login.html';
                 
-                currentUserId = auth.username; // Almacenar el ID del usuario actual
+                currentUserId = auth.username;
+                isFuncionario = !auth.isViewer; // Si no es viewer, es funcionario
+                
                 initMap();
                 setupUI();
                 initializeAllMarkers();
                 
-                if (!auth.isViewer) {
-                    startGPSTracking(currentUserId);
+                if (isFuncionario) {
+                    startGPSTracking();
+                    showCurrentUserPosition();
                 } else {
                     startMonitoring();
                 }
@@ -327,32 +350,36 @@
             });
         }
         
-        function startGPSTracking(userId) {
+        function startGPSTracking() {
             if (gpsInterval) clearInterval(gpsInterval);
             
-            updatePosition(userId); // Primera actualización
+            updatePosition(); // Primera actualización
             
             // Actualizar cada 5 segundos
             gpsInterval = setInterval(() => {
-                updatePosition(userId);
+                updatePosition();
             }, 3000);
         }
         
-        function updatePosition(userId) {
+        function updatePosition() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     position => {
                         const coords = [
-                            position.coords.latitude.toFixed(6),
-                            position.coords.longitude.toFixed(6)
+                            position.coords.latitude,
+                            position.coords.longitude
                         ];
-                        savePosition(userId, coords, position.coords.accuracy);
+                        
+                        // Solo actualizamos el estado en Firebase, no la ubicación
+                        updateOnlineStatus();
+                        
+                        // Mostramos la posición localmente
                         updateCurrentUserMarker(coords);
                     },
                     error => {
                         console.error('Error GPS:', error);
-                        updateStatus(userId, 'offline');
-                        database.ref(`vehicles/${userId}`).update({
+                        updateStatus(currentUserId, 'offline');
+                        database.ref(`vehicles/${currentUserId}`).update({
                             status: 'offline',
                             lastUpdate: firebase.database.ServerValue.TIMESTAMP
                         });
@@ -368,34 +395,57 @@
             }
         }
         
-        function updateCurrentUserMarker(coords) {
-            if (!currentUserMarker) {
-                currentUserMarker = L.circleMarker(coords, {
-                    className: 'current-user-marker',
-                    radius: 12,
-                    fillOpacity: 1,
-                    color: '#3498db',
-                    weight: 3,
-                    fillColor: '#3498db'
-                }).addTo(map)
-                .bindPopup(`<b>Tu ubicación actual</b><br>${new Date().toLocaleTimeString()}`);
-            } else {
-                currentUserMarker
-                    .setLatLng(coords)
-                    .setPopupContent(`<b>Tu ubicación actual</b><br>${new Date().toLocaleTimeString()}`);
-            }
-        }
-        
-        function savePosition(userId, coords, accuracy) {
-            // Solo guardamos datos básicos en Firebase para este usuario
+        function updateOnlineStatus() {
             const now = Date.now();
-            database.ref(`vehicles/${userId}`).set({
+            database.ref(`vehicles/${currentUserId}`).set({
                 status: 'online',
                 lastUpdate: now
             });
             
-            lastUpdateTimes[userId] = now;
-            updateStatus(userId, 'online');
+            lastUpdateTimes[currentUserId] = now;
+            updateStatus(currentUserId, 'online');
+        }
+        
+        function showCurrentUserPosition() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    position => {
+                        const coords = [
+                            position.coords.latitude,
+                            position.coords.longitude
+                        ];
+                        updateCurrentUserMarker(coords);
+                    },
+                    error => {
+                        console.error('Error al obtener ubicación inicial:', error);
+                    }
+                );
+            }
+        }
+        
+        function updateCurrentUserMarker(coords) {
+            if (!currentUserMarker) {
+                // Crear marcador de persona para el usuario actual
+                const userIcon = L.divIcon({
+                    className: 'user-marker user-marker-pulse',
+                    iconSize: [36, 36],
+                    iconAnchor: [18, 18],
+                    popupAnchor: [0, -18]
+                });
+                
+                currentUserMarker = L.marker(coords, {
+                    icon: userIcon,
+                    zIndexOffset: 1000
+                }).addTo(map)
+                .bindPopup(`<b>Tu ubicación</b><br>${new Date().toLocaleTimeString()}`);
+                
+                // Centrar el mapa en la ubicación del usuario
+                map.setView(coords, 16);
+            } else {
+                currentUserMarker
+                    .setLatLng(coords)
+                    .setPopupContent(`<b>Tu ubicación</b><br>${new Date().toLocaleTimeString()}`);
+            }
         }
         
         function startMonitoring() {
@@ -414,13 +464,7 @@
                         // Verificar si ha pasado más de 10 minutos desde la última actualización
                         const isOnline = (now - (vehicle.lastUpdate || 0)) < TEN_MINUTES;
                         
-                        // Solo actualizamos el estado, no la ubicación
                         updateStatus(mobileId, isOnline ? 'online' : 'offline');
-                        
-                        // Si es el usuario actual y está online, mostramos su marcador local
-                        if (mobileId === currentUserId && isOnline) {
-                            // No hacemos nada porque la ubicación no se comparte con otros
-                        }
                     }
                 });
             });
@@ -431,7 +475,6 @@
             Object.keys(lastUpdateTimes).forEach(mobileId => {
                 const lastUpdate = lastUpdateTimes[mobileId] || 0;
                 if ((now - lastUpdate) > TEN_MINUTES) {
-                    // Actualizar estado a offline si ha pasado más de 10 minutos
                     updateStatus(mobileId, 'offline');
                 }
             });
@@ -440,7 +483,6 @@
         function createMarker(mobileId, coords, isOnline) {
             if (markers[mobileId]) return;
             
-            // Crear contenedor para el marcador y la etiqueta
             const container = L.divIcon({
                 className: 'vehicle-marker-container',
                 html: `
@@ -463,7 +505,6 @@
             if (!markers[mobileId]) {
                 createMarker(mobileId, coords, isOnline);
             } else {
-                // Actualizar el contenedor del marcador con el nuevo estado
                 const container = L.divIcon({
                     className: 'vehicle-marker-container',
                     html: `
@@ -500,11 +541,12 @@
             if (gpsInterval) clearInterval(gpsInterval);
             database.ref('vehicles').off();
             
-            // Eliminar la ubicación del usuario al cerrar sesión
+            // Eliminar la referencia del usuario al cerrar sesión
             if (currentUserId) {
                 database.ref(`vehicles/${currentUserId}`).remove();
             }
             
+            // Eliminar el marcador del usuario
             if (currentUserMarker) {
                 map.removeLayer(currentUserMarker);
             }
