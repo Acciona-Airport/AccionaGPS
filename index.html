@@ -218,7 +218,7 @@
     <div id="map"></div>
     
     <div class="control-panel-container">
-        <div class="control-panel visible" id="controlPanel">
+        <div class="control-panel" id="controlPanel"> <!-- Eliminada la clase visible por defecto -->
             <h3 style="margin-top:0;color:var(--red-dark);">🚗 Flota Acciona</h3>
             
             <div class="vehicle-card">
@@ -353,7 +353,9 @@
             document.getElementById('logoutBtn').addEventListener('click', logout);
             
             const panel = document.getElementById('controlPanel');
-            document.getElementById('togglePanel').addEventListener('click', function() {
+            const toggleBtn = document.getElementById('togglePanel');
+            
+            toggleBtn.addEventListener('click', function() {
                 panel.classList.toggle('visible');
             });
             
@@ -365,9 +367,19 @@
                 
                 // Recargar la página después de un breve retraso para que se vea el spinner
                 setTimeout(() => {
+                    // Guardar el estado del panel antes de recargar
+                    const isPanelVisible = panel.classList.contains('visible');
+                    localStorage.setItem('panelState', isPanelVisible ? 'open' : 'closed');
+                    
                     window.location.reload();
                 }, 500);
             });
+            
+            // Al cargar la página, verificar si el panel debe estar abierto o cerrado
+            const savedPanelState = localStorage.getItem('panelState');
+            if (savedPanelState === 'open') {
+                panel.classList.add('visible');
+            }
         }
         
         function initializeAllMarkers() {
@@ -555,6 +567,7 @@
             database.ref('vehicles').off();
             firebase.auth().signOut();
             localStorage.removeItem('gpsAuth');
+            localStorage.removeItem('panelState');
             window.location.href = 'login.html';
         }
     </script>
