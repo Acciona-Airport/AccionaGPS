@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Monitor GPS | Acciona</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Metadatos para funcionamiento en segundo plano -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#f44336">
+    <meta name="mobile-web-app-capable" content="yes">
     <style>
         :root {
             --white: #ffffff;
@@ -241,10 +246,26 @@
             border-radius: 3px;
             border: 1px solid #ccc;
         }
+        /* Notificación de estado */
+        .status-notification {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            z-index: 1001;
+            display: none;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
     <div id="map"></div>
+    
+    <div class="status-notification" id="statusNotification"></div>
     
     <div class="control-panel-container">
         <div class="control-panel" id="controlPanel">
@@ -357,6 +378,8 @@
         const markers = {};
         const lastUpdateTimes = {};
         let gpsInterval;
+        let wakeLock = null;
+        let backgroundGeolocationWatchId = null;
         const TEN_MINUTES = 10 * 60 * 1000;
         
         // Proveedores de mapas alternativos (solución al problema de User-Agent)
@@ -465,6 +488,46 @@
             if (savedPanelState === 'open') {
                 panel.classList.add('visible');
             }
+            
+            // Detectar cambios de visibilidad de la página
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+            
+            // Detectar eventos de bloqueo/desbloqueo de pantalla
+            if ('wakeLock' in navigator) {
+                document.addEventListener('visibilitychange', async () => {
+                    if (document.visibilityState === 'visible') {
+                        await requestWakeLock();
+                    }
+                });
+            }
+        }
+        
+        function handleVisibilityChange() {
+            const notification = document.getElementById('statusNotification');
+            if (document.visibilityState === 'visible') {
+                notification.textContent = 'Aplicación en primer plano';
+                notification.style.display = 'block';
+                setTimeout(() => { notification.style.display = 'none'; }, 3000);
+            } else {
+                notification.textContent = 'Aplicación en segundo plano - El GPS sigue activo';
+                notification.style.display = 'block';
+                setTimeout(() => { notification.style.display = 'none'; }, 3000);
+            }
+        }
+        
+        async function requestWakeLock() {
+            try {
+                if ('wakeLock' in navigator) {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    console.log('Wake Lock activado para evitar que la pantalla se apague');
+                    
+                    wakeLock.addEventListener('release', () => {
+                        console.log('Wake Lock liberado');
+                    });
+                }
+            } catch (err) {
+                console.error('Error activando Wake Lock:', err);
+            }
         }
         
         function initializeAllMarkers() {
@@ -479,11 +542,85 @@
         function startGPSTracking(mobileId) {
             if (gpsInterval) clearInterval(gpsInterval);
             
+            // Solicitar Wake Lock para evitar que la pantalla se apague
+            requestWakeLock();
+            
+            // Iniciar seguimiento de ubicación
             updatePosition(mobileId);
             
-            gpsInterval = setInterval(() => {
-                updatePosition(mobileId);
-            }, 3000);
+            // Usar Service Worker si está disponible para seguimiento en segundo plano
+            if ('serviceWorker' in navigator && 'BackgroundFetchManager' in window) {
+                setupBackgroundTracking(mobileId);
+            } else {
+                // Fallback a intervalo tradicional
+                gpsInterval = setInterval(() => {
+                    updatePosition(mobileId);
+                }, 5000);
+            }
+            
+            // Configurar seguimiento de geolocalización en segundo plano
+            setupBackgroundGeolocation(mobileId);
+        }
+        
+        function setupBackgroundTracking(mobileId) {
+            // Registrar el Service Worker para seguimiento en segundo plano
+            navigator.serviceWorker.register('sw.js')
+                .then(registration => {
+                    console.log('Service Worker registrado para seguimiento en segundo plano');
+                    
+                    // Iniciar el seguimiento de ubicación
+                    if (navigator.serviceWorker.controller) {
+                        navigator.serviceWorker.controller.postMessage({
+                            type: 'START_GPS_TRACKING',
+                            mobileId: mobileId
+                        });
+                    }
+                    
+                    // Escuchar mensajes del Service Worker
+                    navigator.serviceWorker.addEventListener('message', event => {
+                        if (event.data.type === 'POSITION_UPDATE') {
+                            savePosition(mobileId, [event.data.lat, event.data.lng], event.data.accuracy);
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Error registrando Service Worker:', error);
+                    // Fallback a intervalo tradicional
+                    gpsInterval = setInterval(() => {
+                        updatePosition(mobileId);
+                    }, 5000);
+                });
+        }
+        
+        function setupBackgroundGeolocation(mobileId) {
+            // Usar la API de Geolocalización con configuraciones para segundo plano
+            if ('geolocation' in navigator) {
+                const geoOptions = {
+                    enableHighAccuracy: true,
+                    maximumAge: 30000,
+                    timeout: 27000
+                };
+                
+                // Iniciar watchPosition para obtener actualizaciones continuas
+                backgroundGeolocationWatchId = navigator.geolocation.watchPosition(
+                    (position) => {
+                        const coords = [
+                            position.coords.latitude.toFixed(6),
+                            position.coords.longitude.toFixed(6)
+                        ];
+                        savePosition(mobileId, coords, position.coords.accuracy);
+                    },
+                    (error) => {
+                        console.error('Error en seguimiento de ubicación:', error);
+                        updateStatus(mobileId, 'offline');
+                        database.ref(`vehicles/${mobileId}`).update({
+                            status: 'offline',
+                            lastUpdate: firebase.database.ServerValue.TIMESTAMP
+                        });
+                    },
+                    geoOptions
+                );
+            }
         }
         
         function updatePosition(mobileId) {
@@ -641,11 +778,35 @@
         
         function logout() {
             if (gpsInterval) clearInterval(gpsInterval);
+            if (backgroundGeolocationWatchId !== null) {
+                navigator.geolocation.clearWatch(backgroundGeolocationWatchId);
+            }
+            if (wakeLock !== null) {
+                wakeLock.release().then(() => {
+                    wakeLock = null;
+                });
+            }
             database.ref('vehicles').off();
             firebase.auth().signOut();
             localStorage.removeItem('gpsAuth');
             localStorage.removeItem('panelState');
             window.location.href = 'login.html';
+        }
+    </script>
+    
+    <!-- Script para registrar el Service Worker -->
+    <script>
+        // Registrar el Service Worker para seguimiento en segundo plano
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('sw.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker registrado con éxito:', registration);
+                    })
+                    .catch(function(error) {
+                        console.log('Error registrando ServiceWorker:', error);
+                    });
+            });
         }
     </script>
 </body>
