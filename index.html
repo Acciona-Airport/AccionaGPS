@@ -320,9 +320,9 @@
     <div class="map-provider-selector">
         <label for="mapProvider">Mapa:</label>
         <select id="mapProvider">
-            <option value="carto">CartoDB (Recomendado)</option>
-            <option value="osm">OpenStreetMap</option>
             <option value="esri">ESRI World Imagery</option>
+            <option value="carto">CartoDB</option>
+            <option value="osm">OpenStreetMap</option>
         </select>
     </div>
 
@@ -361,6 +361,11 @@
         
         // Proveedores de mapas alternativos (solución al problema de User-Agent)
         const mapProviders = {
+            esri: {
+                url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+                maxZoom: 19
+            },
             carto: {
                 url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/attributions">CARTO</a>',
@@ -369,11 +374,6 @@
             osm: {
                 url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                maxZoom: 19
-            },
-            esri: {
-                url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
                 maxZoom: 19
             }
         };
@@ -401,8 +401,8 @@
         function initMap() {
             map = L.map('map').setView(SCL_COORDS, ZOOM_INICIAL);
             
-            // Cargar el proveedor de mapas guardado o usar el recomendado por defecto
-            const savedProvider = localStorage.getItem('mapProvider') || 'carto';
+            // Cargar el proveedor de mapas guardado o usar ESRI por defecto
+            const savedProvider = localStorage.getItem('mapProvider') || 'esri';
             document.getElementById('mapProvider').value = savedProvider;
             setMapProvider(savedProvider);
             
