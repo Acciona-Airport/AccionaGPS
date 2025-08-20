@@ -241,37 +241,6 @@
             border-radius: 3px;
             border: 1px solid #ccc;
         }
-        /* Logo GPS personalizado */
-        .gps-logo {
-            display: inline-block;
-            width: 24px;
-            height: 24px;
-            background: var(--red-primary);
-            border-radius: 50%;
-            position: relative;
-            margin-right: 10px;
-        }
-        .gps-logo::before {
-            content: "";
-            position: absolute;
-            width: 36px;
-            height: 36px;
-            border: 2px solid var(--red-primary);
-            border-radius: 50%;
-            top: -6px;
-            left: -6px;
-            opacity: 0.6;
-        }
-        .gps-logo::after {
-            content: "";
-            position: absolute;
-            width: 8px;
-            height: 8px;
-            background: white;
-            border-radius: 50%;
-            top: 8px;
-            left: 8px;
-        }
     </style>
 </head>
 <body>
@@ -279,10 +248,7 @@
     
     <div class="control-panel-container">
         <div class="control-panel" id="controlPanel">
-            <h3 style="margin-top:0;color:var(--red-dark);display:flex;align-items:center;">
-                <div class="gps-logo"></div>
-                Flota Acciona
-            </h3>
+            <h3 style="margin-top:0;color:var(--red-dark);">🚗 Flota Acciona</h3>
             
             <div class="vehicle-card">
                 <div class="vehicle-name">
