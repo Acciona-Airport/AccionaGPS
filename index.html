@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Monitor GPS | Acciona</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <!-- Metadatos para funcionamiento en segundo plano -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#f44336">
@@ -19,12 +18,14 @@
             --gray-light: #f5f5f5;
             --online-color: #27ae60;
             --offline-color: #95a5a6;
+            --user-position-color: #3498db;
         }
         body {
             margin: 0;
             padding: 0;
             font-family: 'Segoe UI', sans-serif;
             overflow: hidden;
+            background-color: #2c3e50;
         }
         #map {
             position: absolute;
@@ -53,6 +54,8 @@
             border: 1px solid var(--red-light);
             position: relative;
             right: -100%;
+            max-height: 80vh;
+            overflow-y: auto;
         }
         .control-panel.visible {
             transform: translateX(0);
@@ -260,6 +263,90 @@
             display: none;
             font-size: 14px;
         }
+        /* Indicador de ubicación propia */
+        .current-user-indicator {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 15px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--red-dark);
+        }
+        /* Panel de diagnóstico */
+        .diagnostic-panel {
+            position: fixed;
+            bottom: 100px;
+            right: 10px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            font-size: 12px;
+            max-width: 300px;
+        }
+        .diagnostic-item {
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+        .diagnostic-value {
+            font-weight: bold;
+        }
+        .good { color: green; }
+        .bad { color: red; }
+        .warning { color: orange; }
+        
+        /* Pulsating circle for user location */
+        .pulse-circle {
+            border-radius: 50%;
+            background-color: var(--user-position-color);
+            width: 20px;
+            height: 20px;
+            position: absolute;
+            left: -10px;
+            top: -10px;
+            opacity: 0.6;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.8); opacity: 0.6; }
+            70% { transform: scale(2.5); opacity: 0; }
+            100% { transform: scale(0.8); opacity: 0; }
+        }
+        
+        /* Emergency location button */
+        .emergency-locate-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: var(--user-position-color);
+            color: white;
+            border: none;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        /* Location accuracy circle */
+        .accuracy-circle {
+            fill: rgba(52, 152, 219, 0.2);
+            stroke: rgba(52, 152, 219, 0.5);
+            stroke-width: 1;
+        }
     </style>
 </head>
 <body>
@@ -267,51 +354,99 @@
     
     <div class="status-notification" id="statusNotification"></div>
     
+    <div class="current-user-indicator" id="currentUserIndicator">
+        <span id="locationStatus">Buscando tu ubicación...</span>
+    </div>
+    
+    <div class="diagnostic-panel" id="diagnosticPanel">
+        <h4 style="margin:0 0 10px 0;">Diagnóstico GPS</h4>
+        <div class="diagnostic-item">
+            <span>Estado GPS:</span>
+            <span id="gpsStatus" class="diagnostic-value warning">Comprobando...</span>
+        </div>
+        <div class="diagnostic-item">
+            <span>Precisión:</span>
+            <span id="accuracyValue" class="diagnostic-value">--</span>
+        </div>
+        <div class="diagnostic-item">
+            <span>Última actualización:</span>
+            <span id="lastUpdateValue" class="diagnostic-value">--</span>
+        </div>
+        <div class="diagnostic-item">
+            <span>Método:</span>
+            <span id="methodValue" class="diagnostic-value">--</span>
+        </div>
+        <button id="forceLocationBtn" style="margin-top: 10px; width: 100%; padding: 5px; background: #3498db; color: white; border: none; border-radius: 3px; cursor: pointer;">
+            Forzar Ubicación
+        </button>
+    </div>
+    
+    <button class="emergency-locate-btn" id="emergencyLocateBtn" title="Centrar en mi ubicación">📍</button>
+
     <div class="control-panel-container">
         <div class="control-panel" id="controlPanel">
             <h3 style="margin-top:0;color:var(--red-dark);">🚗 Flota Acciona</h3>
             
             <div class="vehicle-card">
                 <div class="vehicle-name">
-                    <div id="movil1-icon" class="vehicle-icon offline"></div>
-                    Móvil 1
+                    <div id="current-user-icon" class="vehicle-icon offline"></div>
+                    <span id="current-user-name">Mi Ubicación</span>
                 </div>
                 <div class="vehicle-status">
                     <span>Estado:</span>
-                    <span id="movil1-status" class="offline">Desconectado</span>
+                    <span id="current-user-status" class="offline">Desconectado</span>
+                </div>
+                <div class="vehicle-status">
+                    <span>Coordenadas:</span>
+                    <span id="current-user-coords">--</span>
                 </div>
             </div>
             
-            <div class="vehicle-card">
-                <div class="vehicle-name">
-                    <div id="movil2-icon" class="vehicle-icon offline"></div>
-                    Móvil 2
+            <div id="other-vehicles-container" style="display: none;">
+                <h4 style="margin: 15px 0 10px 0; color: var(--red-dark);">Otros Vehículos</h4>
+                
+                <div class="vehicle-card">
+                    <div class="vehicle-name">
+                        <div id="movil1-icon" class="vehicle-icon offline"></div>
+                        Móvil 1
+                    </div>
+                    <div class="vehicle-status">
+                        <span>Estado:</span>
+                        <span id="movil1-status" class="offline">Desconectado</span>
+                    </div>
                 </div>
-                <div class="vehicle-status">
-                    <span>Estado:</span>
-                    <span id="movil2-status" class="offline">Desconectado</span>
+                
+                <div class="vehicle-card">
+                    <div class="vehicle-name">
+                        <div id="movil2-icon" class="vehicle-icon offline"></div>
+                        Móvil 2
+                    </div>
+                    <div class="vehicle-status">
+                        <span>Estado:</span>
+                        <span id="movil2-status" class="offline">Desconectado</span>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="vehicle-card">
-                <div class="vehicle-name">
-                    <div id="movil3-icon" class="vehicle-icon offline"></div>
-                    Móvil 3
+                
+                <div class="vehicle-card">
+                    <div class="vehicle-name">
+                        <div id="movil3-icon" class="vehicle-icon offline"></div>
+                        Móvil 3
+                    </div>
+                    <div class="vehicle-status">
+                        <span>Estado:</span>
+                        <span id="movil3-status" class="offline">Desconectado</span>
+                    </div>
                 </div>
-                <div class="vehicle-status">
-                    <span>Estado:</span>
-                    <span id="movil3-status" class="offline">Desconectado</span>
-                </div>
-            </div>
-            
-            <div class="vehicle-card">
-                <div class="vehicle-name">
-                    <div id="movil4-icon" class="vehicle-icon offline"></div>
-                    Móvil 4
-                </div>
-                <div class="vehicle-status">
-                    <span>Estado:</span>
-                    <span id="movil4-status" class="offline">Desconectado</span>
+                
+                <div class="vehicle-card">
+                    <div class="vehicle-name">
+                        <div id="movil4-icon" class="vehicle-icon offline"></div>
+                        Móvil 4
+                    </div>
+                    <div class="vehicle-status">
+                        <span>Estado:</span>
+                        <span id="movil4-status" class="offline">Desconectado</span>
+                    </div>
                 </div>
             </div>
             
@@ -381,6 +516,12 @@
         let wakeLock = null;
         let backgroundGeolocationWatchId = null;
         const TEN_MINUTES = 10 * 60 * 1000;
+        let currentUserId = null;
+        let isViewer = false;
+        let userPositionMarker = null;
+        let userAccuracyCircle = null;
+        let lastKnownPosition = null;
+        let locationUpdateInterval = null;
         
         // Proveedores de mapas alternativos (solución al problema de User-Agent)
         const mapProviders = {
@@ -409,14 +550,26 @@
                 const auth = JSON.parse(localStorage.getItem('gpsAuth'));
                 if (!auth) window.location.href = 'login.html';
                 
+                currentUserId = auth.username;
+                isViewer = auth.isViewer;
+                
                 initMap();
                 setupUI();
-                initializeAllMarkers();
                 
-                if (!auth.isViewer) {
-                    startGPSTracking(auth.username);
-                } else {
+                // Mostrar solo la ubicación del usuario actual
+                document.getElementById('current-user-name').textContent = currentUserId;
+                
+                // Si es viewer, mostrar todos los vehículos
+                if (isViewer) {
+                    document.getElementById('other-vehicles-container').style.display = 'block';
+                    initializeAllMarkers();
                     startMonitoring();
+                } else {
+                    // Si es funcionario, mostrar solo su ubicación
+                    initializeCurrentUserMarker();
+                    
+                    // Iniciar seguimiento GPS para el usuario actual
+                    startGPSTracking(currentUserId);
                 }
             }
         });
@@ -434,6 +587,9 @@
                 .addTo(map)
                 .bindPopup('✈️ Aeropuerto SCL')
                 .openPopup();
+                
+            // Crear marcador para la posición del usuario
+            createUserPositionMarker(SCL_COORDS);
         }
         
         function setMapProvider(providerKey) {
@@ -483,6 +639,16 @@
                 setMapProvider(e.target.value);
             });
             
+            // Configurar botón de forzar ubicación
+            document.getElementById('forceLocationBtn').addEventListener('click', function() {
+                forceLocationUpdate();
+            });
+            
+            // Configurar botón de emergencia para centrar en ubicación
+            document.getElementById('emergencyLocateBtn').addEventListener('click', function() {
+                centerOnUserLocation();
+            });
+            
             // Al cargar la página, verificar si el panel debe estar abierto o cerrado
             const savedPanelState = localStorage.getItem('panelState');
             if (savedPanelState === 'open') {
@@ -508,6 +674,11 @@
                 notification.textContent = 'Aplicación en primer plano';
                 notification.style.display = 'block';
                 setTimeout(() => { notification.style.display = 'none'; }, 3000);
+                
+                // Reforzar la obtención de ubicación cuando la app vuelve a primer plano
+                if (!isViewer) {
+                    forceLocationUpdate();
+                }
             } else {
                 notification.textContent = 'Aplicación en segundo plano - El GPS sigue activo';
                 notification.style.display = 'block';
@@ -539,57 +710,89 @@
             });
         }
         
+        function initializeCurrentUserMarker() {
+            createMarker(currentUserId, INACTIVE_COORDS, false);
+            lastUpdateTimes[currentUserId] = Date.now();
+        }
+        
+        function createUserPositionMarker(coords) {
+            // Eliminar marcador existente si hay uno
+            if (userPositionMarker) {
+                map.removeLayer(userPositionMarker);
+            }
+            if (userAccuracyCircle) {
+                map.removeLayer(userAccuracyCircle);
+            }
+            
+            // Crear un icono personalizado para la posición del usuario
+            const userIcon = L.divIcon({
+                className: 'user-position-marker',
+                html: `
+                    <div style="background-color: #3498db; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.5);"></div>
+                    <div class="pulse-circle"></div>
+                `,
+                iconSize: [20, 20],
+                iconAnchor: [10, 10]
+            });
+            
+            // Crear el marcador
+            userPositionMarker = L.marker(coords, { icon: userIcon, zIndexOffset: 1000 })
+                .addTo(map)
+                .bindPopup('<b>Tu ubicación actual</b>');
+                
+            // Centrar el mapa en la ubicación del usuario
+            map.setView(coords, 16);
+        }
+        
+        function updateUserPositionMarker(coords, accuracy) {
+            if (!userPositionMarker) {
+                createUserPositionMarker(coords);
+            } else {
+                userPositionMarker.setLatLng(coords);
+            }
+            
+            // Actualizar círculo de precisión
+            if (userAccuracyCircle) {
+                map.removeLayer(userAccuracyCircle);
+            }
+            
+            if (accuracy && accuracy < 1000) { // Solo mostrar si la precisión es razonable
+                userAccuracyCircle = L.circle(coords, {
+                    radius: accuracy,
+                    className: 'accuracy-circle'
+                }).addTo(map);
+            }
+            
+            // Actualizar coordenadas en el panel
+            document.getElementById('current-user-coords').textContent = 
+                `${coords[0].toFixed(6)}, ${coords[1].toFixed(6)}`;
+                
+            // Actualizar diagnóstico
+            document.getElementById('accuracyValue').textContent = 
+                accuracy ? `${accuracy.toFixed(1)} metros` : 'Desconocida';
+            document.getElementById('lastUpdateValue').textContent = new Date().toLocaleTimeString();
+        }
+        
         function startGPSTracking(mobileId) {
             if (gpsInterval) clearInterval(gpsInterval);
+            if (locationUpdateInterval) clearInterval(locationUpdateInterval);
             
             // Solicitar Wake Lock para evitar que la pantalla se apague
             requestWakeLock();
             
-            // Iniciar seguimiento de ubicación
+            // Iniciar seguimiento de ubicación inmediatamente
             updatePosition(mobileId);
             
-            // Usar Service Worker si está disponible para seguimiento en segundo plano
-            if ('serviceWorker' in navigator && 'BackgroundFetchManager' in window) {
-                setupBackgroundTracking(mobileId);
-            } else {
-                // Fallback a intervalo tradicional
-                gpsInterval = setInterval(() => {
-                    updatePosition(mobileId);
-                }, 5000);
-            }
+            // Configurar intervalo de actualización de ubicación
+            locationUpdateInterval = setInterval(() => {
+                updatePosition(mobileId);
+            }, 5000);
             
             // Configurar seguimiento de geolocalización en segundo plano
             setupBackgroundGeolocation(mobileId);
-        }
-        
-        function setupBackgroundTracking(mobileId) {
-            // Registrar el Service Worker para seguimiento en segundo plano
-            navigator.serviceWorker.register('sw.js')
-                .then(registration => {
-                    console.log('Service Worker registrado para seguimiento en segundo plano');
-                    
-                    // Iniciar el seguimiento de ubicación
-                    if (navigator.serviceWorker.controller) {
-                        navigator.serviceWorker.controller.postMessage({
-                            type: 'START_GPS_TRACKING',
-                            mobileId: mobileId
-                        });
-                    }
-                    
-                    // Escuchar mensajes del Service Worker
-                    navigator.serviceWorker.addEventListener('message', event => {
-                        if (event.data.type === 'POSITION_UPDATE') {
-                            savePosition(mobileId, [event.data.lat, event.data.lng], event.data.accuracy);
-                        }
-                    });
-                })
-                .catch(error => {
-                    console.error('Error registrando Service Worker:', error);
-                    // Fallback a intervalo tradicional
-                    gpsInterval = setInterval(() => {
-                        updatePosition(mobileId);
-                    }, 5000);
-                });
+            
+            // Forzar una actualización adicional después de 2 segundos
+            setTimeout(() => updatePosition(mobileId), 2000);
         }
         
         function setupBackgroundGeolocation(mobileId) {
@@ -597,49 +800,84 @@
             if ('geolocation' in navigator) {
                 const geoOptions = {
                     enableHighAccuracy: true,
-                    maximumAge: 30000,
-                    timeout: 27000
+                    maximumAge: 0,
+                    timeout: 10000
                 };
                 
                 // Iniciar watchPosition para obtener actualizaciones continuas
+                if (backgroundGeolocationWatchId !== null) {
+                    navigator.geolocation.clearWatch(backgroundGeolocationWatchId);
+                }
+                
                 backgroundGeolocationWatchId = navigator.geolocation.watchPosition(
                     (position) => {
                         const coords = [
-                            position.coords.latitude.toFixed(6),
-                            position.coords.longitude.toFixed(6)
+                            position.coords.latitude,
+                            position.coords.longitude
                         ];
-                        savePosition(mobileId, coords, position.coords.accuracy);
+                        const accuracy = position.coords.accuracy;
+                        
+                        updateDiagnostic('good', 'watchPosition', accuracy);
+                        savePosition(mobileId, coords, accuracy);
                     },
                     (error) => {
-                        console.error('Error en seguimiento de ubicación:', error);
+                        console.error('Error en watchPosition:', error);
+                        updateDiagnostic('bad', `Error: ${getGeolocationErrorText(error)}`);
                         updateStatus(mobileId, 'offline');
-                        database.ref(`vehicles/${mobileId}`).update({
-                            status: 'offline',
-                            lastUpdate: firebase.database.ServerValue.TIMESTAMP
-                        });
                     },
                     geoOptions
                 );
+            } else {
+                updateDiagnostic('bad', 'Geolocalización no soportada');
             }
         }
         
         function updatePosition(mobileId) {
             if (navigator.geolocation) {
+                // Método 1: getCurrentPosition con timeout corto
                 navigator.geolocation.getCurrentPosition(
                     position => {
                         const coords = [
-                            position.coords.latitude.toFixed(6),
-                            position.coords.longitude.toFixed(6)
+                            position.coords.latitude,
+                            position.coords.longitude
                         ];
-                        savePosition(mobileId, coords, position.coords.accuracy);
+                        const accuracy = position.coords.accuracy;
+                        
+                        updateDiagnostic('good', 'getCurrentPosition', accuracy);
+                        savePosition(mobileId, coords, accuracy);
                     },
                     error => {
-                        console.error('Error GPS:', error);
-                        updateStatus(mobileId, 'offline');
-                        database.ref(`vehicles/${mobileId}`).update({
-                            status: 'offline',
-                            lastUpdate: firebase.database.ServerValue.TIMESTAMP
-                        });
+                        console.error('Error GPS con getCurrentPosition:', error);
+                        
+                        // Método 2: Intentar con opciones menos estrictas
+                        navigator.geolocation.getCurrentPosition(
+                            position => {
+                                const coords = [
+                                    position.coords.latitude,
+                                    position.coords.longitude
+                                ];
+                                const accuracy = position.coords.accuracy;
+                                
+                                updateDiagnostic('warning', 'Método alternativo', accuracy);
+                                savePosition(mobileId, coords, accuracy);
+                            },
+                            error2 => {
+                                console.error('Error GPS con método alternativo:', error2);
+                                updateDiagnostic('bad', `Error: ${getGeolocationErrorText(error2)}`);
+                                updateStatus(mobileId, 'offline');
+                                
+                                // Método 3: Usar última posición conocida si está disponible
+                                if (lastKnownPosition) {
+                                    updateDiagnostic('warning', 'Usando última posición conocida');
+                                    savePosition(mobileId, lastKnownPosition, 1000);
+                                }
+                            },
+                            { 
+                                enableHighAccuracy: false,
+                                timeout: 15000,
+                                maximumAge: 300000  // 5 minutos
+                            }
+                        );
                     },
                     { 
                         enableHighAccuracy: true,
@@ -648,25 +886,133 @@
                     }
                 );
             } else {
+                updateDiagnostic('bad', 'Geolocalización no soportada');
                 alert("Tu navegador no soporta geolocalización");
             }
         }
         
+        function forceLocationUpdate() {
+            if (!currentUserId) return;
+            
+            updateDiagnostic('warning', 'Forzando actualización...');
+            
+            // Intentar con diferentes métodos
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    const coords = [
+                        position.coords.latitude,
+                        position.coords.longitude
+                    ];
+                    const accuracy = position.coords.accuracy;
+                    
+                    updateDiagnostic('good', 'Forzado exitoso', accuracy);
+                    savePosition(currentUserId, coords, accuracy);
+                    
+                    // Mostrar notificación
+                    showNotification('Ubicación actualizada forzosamente', 3000);
+                },
+                error => {
+                    updateDiagnostic('bad', `Forzado fallido: ${getGeolocationErrorText(error)}`);
+                    showNotification('Error al forzar ubicación', 3000);
+                },
+                { 
+                    enableHighAccuracy: true,
+                    timeout: 20000,
+                    maximumAge: 0
+                }
+            );
+        }
+        
+        function centerOnUserLocation() {
+            if (lastKnownPosition) {
+                map.setView(lastKnownPosition, 16);
+                showNotification('Centrado en tu ubicación', 2000);
+            } else {
+                updatePosition(currentUserId);
+                showNotification('Buscando tu ubicación...', 2000);
+            }
+        }
+        
+        function getGeolocationErrorText(error) {
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    return "Permiso denegado";
+                case error.POSITION_UNAVAILABLE:
+                    return "Posición no disponible";
+                case error.TIMEOUT:
+                    return "Tiempo agotado";
+                default:
+                    return "Error desconocido";
+            }
+        }
+        
+        function updateDiagnostic(status, method, accuracy = null) {
+            const statusElement = document.getElementById('gpsStatus');
+            const methodElement = document.getElementById('methodValue');
+            
+            statusElement.textContent = status === 'good' ? 'ACTIVO' : 
+                                      status === 'warning' ? 'LIMITADO' : 'INACTIVO';
+            statusElement.className = `diagnostic-value ${status}`;
+            
+            methodElement.textContent = method;
+            
+            if (accuracy !== null) {
+                document.getElementById('accuracyValue').textContent = `${accuracy.toFixed(1)} metros`;
+            }
+            
+            document.getElementById('lastUpdateValue').textContent = new Date().toLocaleTimeString();
+            
+            // Actualizar indicador principal
+            const locationStatus = document.getElementById('locationStatus');
+            if (status === 'good') {
+                locationStatus.textContent = 'Ubicación activa';
+                locationStatus.style.color = 'green';
+            } else if (status === 'warning') {
+                locationStatus.textContent = 'Ubicación limitada';
+                locationStatus.style.color = 'orange';
+            } else {
+                locationStatus.textContent = 'Ubicación inactiva';
+                locationStatus.style.color = 'red';
+            }
+        }
+        
+        function showNotification(message, duration) {
+            const notification = document.getElementById('statusNotification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+            setTimeout(() => { notification.style.display = 'none'; }, duration);
+        }
+        
         function savePosition(mobileId, coords, accuracy) {
             const now = Date.now();
-            database.ref(`vehicles/${mobileId}`).set({
-                coords: {
-                    lat: parseFloat(coords[0]),
-                    lng: parseFloat(coords[1])
-                },
-                status: 'online',
-                lastUpdate: now,
-                accuracy: accuracy
-            });
+            
+            // Guardar última posición conocida
+            lastKnownPosition = coords;
+            
+            // Actualizar marcador de usuario
+            updateUserPositionMarker(coords, accuracy);
+            
+            // Solo guardar en Firebase si no es viewer
+            if (!isViewer) {
+                database.ref(`vehicles/${mobileId}`).set({
+                    coords: {
+                        lat: coords[0],
+                        lng: coords[1]
+                    },
+                    status: 'online',
+                    lastUpdate: now,
+                    accuracy: accuracy
+                });
+            }
             
             lastUpdateTimes[mobileId] = now;
             updateMarker(mobileId, coords, true);
             updateStatus(mobileId, 'online');
+            
+            // Si es el usuario actual, centrar el mapa en su ubicación
+            if (mobileId === currentUserId) {
+                map.setView(coords, Math.max(map.getZoom(), 16));
+            }
         }
         
         function startMonitoring() {
@@ -763,21 +1109,39 @@
         }
         
         function updateStatus(mobileId, status) {
-            const element = document.getElementById(`${mobileId.toLowerCase()}-status`);
-            const iconElement = document.getElementById(`${mobileId.toLowerCase()}-icon`);
-            
-            if (element) {
-                element.textContent = status === 'online' ? 'En ruta' : 'Desconectado';
-                element.className = status === 'online' ? 'online' : 'offline';
-            }
-            
-            if (iconElement) {
-                iconElement.className = `vehicle-icon ${status === 'online' ? 'online' : 'offline'}`;
+            // Actualizar estado del usuario actual
+            if (mobileId === currentUserId) {
+                const element = document.getElementById('current-user-status');
+                const iconElement = document.getElementById('current-user-icon');
+                
+                if (element) {
+                    element.textContent = status === 'online' ? 'En ruta' : 'Desconectado';
+                    element.className = status === 'online' ? 'online' : 'offline';
+                }
+                
+                if (iconElement) {
+                    iconElement.className = `vehicle-icon ${status === 'online' ? 'online' : 'offline'}`;
+                }
+            } 
+            // Solo actualizar otros vehículos si es viewer
+            else if (isViewer) {
+                const element = document.getElementById(`${mobileId.toLowerCase()}-status`);
+                const iconElement = document.getElementById(`${mobileId.toLowerCase()}-icon`);
+                
+                if (element) {
+                    element.textContent = status === 'online' ? 'En ruta' : 'Desconectado';
+                    element.className = status === 'online' ? 'online' : 'offline';
+                }
+                
+                if (iconElement) {
+                    iconElement.className = `vehicle-icon ${status === 'online' ? 'online' : 'offline'}`;
+                }
             }
         }
         
         function logout() {
             if (gpsInterval) clearInterval(gpsInterval);
+            if (locationUpdateInterval) clearInterval(locationUpdateInterval);
             if (backgroundGeolocationWatchId !== null) {
                 navigator.geolocation.clearWatch(backgroundGeolocationWatchId);
             }
@@ -791,22 +1155,6 @@
             localStorage.removeItem('gpsAuth');
             localStorage.removeItem('panelState');
             window.location.href = 'login.html';
-        }
-    </script>
-    
-    <!-- Script para registrar el Service Worker -->
-    <script>
-        // Registrar el Service Worker para seguimiento en segundo plano
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('sw.js')
-                    .then(function(registration) {
-                        console.log('ServiceWorker registrado con éxito:', registration);
-                    })
-                    .catch(function(error) {
-                        console.log('Error registrando ServiceWorker:', error);
-                    });
-            });
         }
     </script>
 </body>
