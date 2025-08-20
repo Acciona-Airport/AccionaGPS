@@ -371,6 +371,11 @@
             margin-top: 5px;
             width: 100%;
         }
+        
+        .leaflet-bottom.leaflet-right {
+            bottom: 90px;
+        }
+
     </style>
 </head>
 <body>
@@ -658,12 +663,14 @@
         
         function initMap() {
     map = L.map('map', {
-        zoomControl: true,
+        zoomControl: false,
         tap: false,
         dragging: true
     }).setView(SCL_COORDS, ZOOM_INICIAL);
     
-    map.zoomControl.setPosition('bottomright');
+    L.control.zoom({
+        position: 'bottomright'
+    }).addTo(map);
     
     const savedProvider = localStorage.getItem('mapProvider') || 'esri';
     document.getElementById('mapProvider').value = savedProvider;
@@ -1238,6 +1245,7 @@
     </script>
 </body>
 </html>
+
 
 
 
