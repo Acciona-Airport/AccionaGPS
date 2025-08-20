@@ -314,7 +314,7 @@
         }
         .map-provider-selector select {
             padding: 5px;
-            borderRadius: 3px;
+            border-radius: 3px;
             border: 1px solid #ccc;
         }
         /* Notificación de estado */
@@ -460,7 +460,7 @@
         </button>
     </div>
 
-    <button class="emergence-locate-btn" id="emergenceLocateBtn" title="Centrar en mi ubicación">📍</button>
+    <button class="emergency-locate-btn" id="emergencyLocateBtn" title="Centrar en mi ubicación">📍</button>
 
     <!-- Panel de Control de Flota (derecha) -->
     <div class="control-panel-container">
@@ -482,7 +482,54 @@
                 </div>
             </div>
             
-            <!-- Sección de funcionarios completamente eliminada -->
+            <!-- Sección oculta para funcionarios -->
+            <div id="other-vehicles-container" style="display: none;">
+                <h4 style="margin: 15px 0 10px 0; color: var(--red-dark);">Otros Vehículos</h4>
+                
+                <div class="vehicle-card">
+                    <div class="vehicle-name">
+                        <div id="movil1-icon" class="vehicle-icon offline"></div>
+                        Móvil 1
+                    </div>
+                    <div class="vehicle-status">
+                        <span>Estado:</span>
+                        <span id="movil1-status" class="offline">Desconectado</span>
+                    </div>
+                </div>
+                
+                <div class="vehicle-card">
+                    <div class="vehicle-name">
+                        <div id="movil2-icon" class="vehicle-icon offline"></div>
+                        Móvil 2
+                    </div>
+                    <div class="vehicle-status">
+                        <span>Estado:</span>
+                        <span id="movil2-status" class="offline">Desconectado</span>
+                    </div>
+                </div>
+                
+                <div class="vehicle-card">
+                    <div class="vehicle-name">
+                        <div id="movil3-icon" class="vehicle-icon offline"></div>
+                        Móvil 3
+                    </div>
+                    <div class="vehicle-status">
+                        <span>Estado:</span>
+                        <span id="movil3-status" class="offline">Desconectado</span>
+                    </div>
+                </div>
+                
+                <div class="vehicle-card">
+                    <div class="vehicle-name">
+                        <div id="movil4-icon" class="vehicle-icon offline"></div>
+                        Móvil 4
+                    </div>
+                    <div class="vehicle-status">
+                        <span>Estado:</span>
+                        <span id="movil4-status" class="offline">Desconectado</span>
+                    </div>
+                </div>
+            </div>
             
             <button class="logout-btn" id="logoutBtn">Cerrar Sesión</button>
         </div>
@@ -595,6 +642,7 @@
                 
                 // Si es viewer, mostrar todos los vehículos
                 if (isViewer) {
+                    document.getElementById('other-vehicles-container').style.display = 'block';
                     initializeAllMarkers();
                     startMonitoring();
                 } else {
@@ -685,7 +733,7 @@
             });
             
             // Configurar botón de emergencia para centrar en ubicación
-            document.getElementById('emergenceLocateBtn').addEventListener('click', function() {
+            document.getElementById('emergencyLocateBtn').addEventListener('click', function() {
                 centerOnUserLocation();
             });
             
@@ -1159,7 +1207,17 @@
             } 
             // Solo actualizar otros vehículos si es viewer
             else if (isViewer) {
-                // Esta funcionalidad se mantiene para viewers
+                const element = document.getElementById(`${mobileId.toLowerCase()}-status`);
+                const iconElement = document.getElementById(`${mobileId.toLowerCase()}-icon`);
+                
+                if (element) {
+                    element.textContent = status === 'online' ? 'En ruta' : 'Desconectado';
+                    element.className = status === 'online' ? 'online' : 'offline';
+                }
+                
+                if (iconElement) {
+                    iconElement.className = `vehicle-icon ${status === 'online' ? 'online' : 'offline'}`;
+                }
             }
         }
         
