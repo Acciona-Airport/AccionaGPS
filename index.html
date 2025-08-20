@@ -89,13 +89,13 @@
             background-color: var(--red-dark);
             transition: all 0.3s ease;
         }
-        .control-panel.visible .hamburger-line:nth-child(1) {
+        .control-panel.visible ~ .toggle-panel .hamburger-line:nth-child(1) {
             transform: translateY(6px) rotate(45deg);
         }
-        .control-panel.visible .hamburger-line:nth-child(2) {
+        .control-panel.visible ~ .toggle-panel .hamburger-line:nth-child(2) {
             opacity: 0;
         }
-        .control-panel.visible .hamburger-line:nth-child(3) {
+        .control-panel.visible ~ .toggle-panel .hamburger-line:nth-child(3) {
             transform: translateY(-6px) rotate(-45deg);
         }
         .vehicle-card {
@@ -289,6 +289,34 @@
             box-shadow: 0 0 10px rgba(0,0,0,0.2);
             font-size: 12px;
             max-width: 300px;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        .diagnostic-panel.hidden {
+            transform: translateX(calc(100% + 20px));
+            opacity: 0;
+            pointer-events: none;
+        }
+        .diagnostic-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .diagnostic-title {
+            font-weight: bold;
+            margin: 0;
+        }
+        .toggle-diagnostic {
+            background: none;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .diagnostic-item {
             margin: 5px 0;
@@ -347,6 +375,29 @@
             stroke: rgba(52, 152, 219, 0.5);
             stroke-width: 1;
         }
+        
+        /* Ajuste para controles de zoom de Leaflet */
+        .leaflet-control-zoom {
+            margin-top: 80px !important;
+        }
+        
+        /* Botón para mostrar/ocultar diagnóstico */
+        .show-diagnostic-btn {
+            position: fixed;
+            bottom: 100px;
+            right: 10px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.9);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -359,7 +410,10 @@
     </div>
     
     <div class="diagnostic-panel" id="diagnosticPanel">
-        <h4 style="margin:0 0 10px 0;">Diagnóstico GPS</h4>
+        <div class="diagnostic-header">
+            <h4 class="diagnostic-title">Diagnóstico GPS</h4>
+            <button class="toggle-diagnostic" id="hideDiagnosticBtn">✕</button>
+        </div>
         <div class="diagnostic-item">
             <span>Estado GPS:</span>
             <span id="gpsStatus" class="diagnostic-value warning">Comprobando...</span>
@@ -381,6 +435,8 @@
         </button>
     </div>
     
+    <button class="show-diagnostic-btn" id="showDiagnosticBtn" style="display: none;">+</button>
+
     <button class="emergency-locate-btn" id="emergencyLocateBtn" title="Centrar en mi ubicación">📍</button>
 
     <div class="control-panel-container">
@@ -647,6 +703,17 @@
             // Configurar botón de emergencia para centrar en ubicación
             document.getElementById('emergencyLocateBtn').addEventListener('click', function() {
                 centerOnUserLocation();
+            });
+            
+            // Configurar botones para mostrar/ocultar diagnóstico
+            document.getElementById('hideDiagnosticBtn').addEventListener('click', function() {
+                document.getElementById('diagnosticPanel').classList.add('hidden');
+                document.getElementById('showDiagnosticBtn').style.display = 'flex';
+            });
+            
+            document.getElementById('showDiagnosticBtn').addEventListener('click', function() {
+                document.getElementById('diagnosticPanel').classList.remove('hidden');
+                document.getElementById('showDiagnosticBtn').style.display = 'none';
             });
             
             // Al cargar la página, verificar si el panel debe estar abierto o cerrado
