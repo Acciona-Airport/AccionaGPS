@@ -145,6 +145,10 @@
             font-size: 14px;
             display: none;
         }
+        .password-disabled {
+            background-color: #f0f0f0;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -182,12 +186,10 @@
         </form>
     </div>
 
-    <!-- Firebase JS SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
     
     <script>
-        // Configuración Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyDT85qotm1EpAJzJzCFeoNwGyo-VKhM6dk",
             authDomain: "gpsaccionascl2025.firebaseapp.com",
@@ -198,10 +200,8 @@
             appId: "1:742246618721:web:72d0046987416800f07c20"
         };
 
-        // Inicializar Firebase
         firebase.initializeApp(firebaseConfig);
 
-        // Mapeo de usuarios a correos
         const userEmails = {
             "Movil1": "movil1@gpsacciona.com",
             "Movil2": "movil2@gpsacciona.com", 
@@ -210,26 +210,26 @@
             "Funcionarios": "funcionarios@gpsacciona.com"
         };
 
-        // Contraseña automática para Funcionarios
         const FUNCIONARIOS_PASSWORD = "123456";
 
-        // Mostrar aviso cuando se selecciona Funcionarios
         document.getElementById('username').addEventListener('change', function() {
             const username = this.value;
             const autoLoginNotice = document.getElementById('autoLoginNotice');
+            const passwordInput = document.getElementById('password');
             
             if (username === 'Funcionarios') {
                 autoLoginNotice.style.display = 'block';
-                // Llenar automáticamente la contraseña
-                document.getElementById('password').value = FUNCIONARIOS_PASSWORD;
+                passwordInput.value = FUNCIONARIOS_PASSWORD;
+                passwordInput.setAttribute('readonly', 'true');
+                passwordInput.classList.add('password-disabled');
             } else {
                 autoLoginNotice.style.display = 'none';
-                // Limpiar la contraseña si no es Funcionarios
-                document.getElementById('password').value = '';
+                passwordInput.value = '';
+                passwordInput.removeAttribute('readonly');
+                passwordInput.classList.remove('password-disabled');
             }
         });
 
-        // Procesar formulario de login
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -237,40 +237,33 @@
             let password = document.getElementById('password').value;
             const errorElement = document.getElementById('errorMessage');
 
-            // Validar selección de usuario
             if (!username) {
                 errorElement.textContent = 'Seleccione un usuario válido';
                 errorElement.style.display = 'block';
                 return;
             }
 
-            // Si es Funcionarios y no hay contraseña, usar la automática
             if (username === 'Funcionarios' && !password) {
                 password = FUNCIONARIOS_PASSWORD;
                 document.getElementById('password').value = password;
             }
 
-            // Validar contraseña
             if (!password) {
                 errorElement.textContent = 'Ingrese la contraseña';
                 errorElement.style.display = 'block';
                 return;
             }
 
-            // Obtener correo asociado al usuario
             const email = userEmails[username];
             
-            // Iniciar sesión con Firebase Auth
             firebase.auth().signInWithEmailAndPassword(email, password)
                 .then((userCredential) => {
-                    // Guardar datos de sesión
                     localStorage.setItem('gpsAuth', JSON.stringify({
                         username,
                         isViewer: username === 'Funcionarios',
                         uid: userCredential.user.uid
                     }));
                     
-                    // Redirigir al panel principal
                     window.location.href = 'index.html';
                 })
                 .catch((error) => {
@@ -278,22 +271,21 @@
                     errorElement.textContent = 'Usuario o contraseña incorrectos';
                     errorElement.style.display = 'block';
                     
-                    // Ocultar mensaje después de 3 segundos
                     setTimeout(() => {
                         errorElement.style.display = 'none';
                     }, 3000);
                 });
         });
 
-        // Si la página se carga con Funcionarios ya seleccionado (por ejemplo, al volver atrás)
         window.addEventListener('load', function() {
             const usernameSelect = document.getElementById('username');
             if (usernameSelect.value === 'Funcionarios') {
                 document.getElementById('autoLoginNotice').style.display = 'block';
                 document.getElementById('password').value = FUNCIONARIOS_PASSWORD;
+                document.getElementById('password').setAttribute('readonly', 'true');
+                document.getElementById('password').classList.add('password-disabled');
             }
         });
     </script>
 </body>
 </html>
-
