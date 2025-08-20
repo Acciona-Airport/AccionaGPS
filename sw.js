@@ -37,10 +37,11 @@ function startGeolocationTracking(mobileId) {
 
   // Obtener ubicación inmediatamente y luego cada 15 segundos
   getLocation();
-  setInterval(getLocation, 15000);
+  setInterval(getLocation, 5000);
 }
 
 // Mantener vivo el Service Worker
 self.addEventListener('activate', event => {
   event.waitUntil(self.clients.claim());
+
 });
