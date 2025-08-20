@@ -139,45 +139,45 @@
         .logout-btn:hover {
             background: var(--red-dark);
         }
-        /* Panel de Diagnóstico */
+        /* Panel de Diagnóstico GPS (derecha, debajo del panel de flota) */
         .diagnostic-panel-container {
             position: fixed;
-            top: 15px;
-            left: 0;
-            z-index: 1000;
+            top: 85px; /* Colocado debajo del panel de flota */
+            right: 0;
+            z-index: 999; /* Un nivel por debajo del panel de flota */
             display: flex;
             overflow: hidden;
         }
         .diagnostic-panel {
             background: rgba(255,255,255,0.95);
             padding: 15px;
-            border-radius: 0 12px 12px 0;
+            border-radius: 12px 0 0 12px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             width: 280px;
-            transform: translateX(-100%);
+            transform: translateX(100%);
             transition: transform 0.3s ease;
             border: 1px solid var(--blue-light);
             position: relative;
-            left: -100%;
-            max-height: 80vh;
+            right: -100%;
+            max-height: 60vh;
             overflow-y: auto;
         }
         .diagnostic-panel.visible {
             transform: translateX(0);
-            left: 0;
+            right: 0;
         }
         .toggle-diagnostic-panel {
             background: var(--white);
             border: 1px solid var(--blue-light);
             width: 40px;
             height: 60px;
-            border-radius: 0 8px 8px 0;
+            border-radius: 8px 0 0 8px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 3px 0 5px rgba(0,0,0,0.1);
-            margin-right: 5px;
+            box-shadow: -3px 0 5px rgba(0,0,0,0.1);
+            margin-left: 5px;
             flex-shrink: 0;
         }
         .toggle-diagnostic-panel:hover {
@@ -422,7 +422,7 @@
         <span id="locationStatus">Buscando tu ubicación...</span>
     </div>
 
-    <!-- Panel de Diagnóstico GPS (izquierda) -->
+    <!-- Panel de Diagnóstico GPS (derecha, debajo del panel de flota) -->
     <div class="diagnostic-panel-container">
         <div class="diagnostic-panel" id="diagnosticPanel">
             <h3 style="margin-top:0;color:var(--blue-dark);">📊 Diagnóstico GPS</h3>
