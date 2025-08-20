@@ -657,27 +657,29 @@
         });
         
         function initMap() {
-            map = L.map('map', {
-                zoomControl: true,
-                tap: false,
-                dragging: true
-            }).setView(SCL_COORDS, ZOOM_INICIAL);
-            
-            const savedProvider = localStorage.getItem('mapProvider') || 'esri';
-            document.getElementById('mapProvider').value = savedProvider;
-            setMapProvider(savedProvider);
-            
-            L.marker(SCL_COORDS)
-                .addTo(map)
-                .bindPopup('✈️ Aeropuerto SCL')
-                .openPopup();
-                
-            createUserPositionMarker(SCL_COORDS);
-            
-            if (L.Browser.touch) {
-                map.doubleClickZoom.disable();
-            }
-        }
+    map = L.map('map', {
+        zoomControl: true,
+        tap: false,
+        dragging: true
+    }).setView(SCL_COORDS, ZOOM_INICIAL);
+    
+    map.zoomControl.setPosition('bottomright');
+    
+    const savedProvider = localStorage.getItem('mapProvider') || 'esri';
+    document.getElementById('mapProvider').value = savedProvider;
+    setMapProvider(savedProvider);
+    
+    L.marker(SCL_COORDS)
+        .addTo(map)
+        .bindPopup('✈️ Aeropuerto SCL')
+        .openPopup();
+        
+    createUserPositionMarker(SCL_COORDS);
+    
+    if (L.Browser.touch) {
+        map.doubleClickZoom.disable();
+    }
+}
         
         function setMapProvider(providerKey) {
             if (currentTileLayer) {
@@ -1236,5 +1238,6 @@
     </script>
 </body>
 </html>
+
 
 
