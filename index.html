@@ -260,20 +260,6 @@
             display: none;
             font-size: 14px;
         }
-        /* Indicador de ubicación propia */
-        .current-user-indicator {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            z-index: 1000;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 10px 15px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.2);
-            font-size: 14px;
-            font-weight: bold;
-            color: var(--red-dark);
-        }
     </style>
 </head>
 <body>
@@ -281,70 +267,51 @@
     
     <div class="status-notification" id="statusNotification"></div>
     
-    <div class="current-user-indicator" id="currentUserIndicator" style="display: none;">
-        Mostrando tu ubicación actual
-    </div>
-    
     <div class="control-panel-container">
         <div class="control-panel" id="controlPanel">
             <h3 style="margin-top:0;color:var(--red-dark);">🚗 Flota Acciona</h3>
             
             <div class="vehicle-card">
                 <div class="vehicle-name">
-                    <div id="current-user-icon" class="vehicle-icon offline"></div>
-                    <span id="current-user-name">Mi Ubicación</span>
+                    <div id="movil1-icon" class="vehicle-icon offline"></div>
+                    Móvil 1
                 </div>
                 <div class="vehicle-status">
                     <span>Estado:</span>
-                    <span id="current-user-status" class="offline">Desconectado</span>
+                    <span id="movil1-status" class="offline">Desconectado</span>
                 </div>
             </div>
             
-            <div id="other-vehicles-container" style="display: none;">
-                <h4 style="margin: 15px 0 10px 0; color: var(--red-dark);">Otros Vehículos</h4>
-                
-                <div class="vehicle-card">
-                    <div class="vehicle-name">
-                        <div id="movil1-icon" class="vehicle-icon offline"></div>
-                        Móvil 1
-                    </div>
-                    <div class="vehicle-status">
-                        <span>Estado:</span>
-                        <span id="movil1-status" class="offline">Desconectado</span>
-                    </div>
+            <div class="vehicle-card">
+                <div class="vehicle-name">
+                    <div id="movil2-icon" class="vehicle-icon offline"></div>
+                    Móvil 2
                 </div>
-                
-                <div class="vehicle-card">
-                    <div class="vehicle-name">
-                        <div id="movil2-icon" class="vehicle-icon offline"></div>
-                        Móvil 2
-                    </div>
-                    <div class="vehicle-status">
-                        <span>Estado:</span>
-                        <span id="movil2-status" class="offline">Desconectado</span>
-                    </div>
+                <div class="vehicle-status">
+                    <span>Estado:</span>
+                    <span id="movil2-status" class="offline">Desconectado</span>
                 </div>
-                
-                <div class="vehicle-card">
-                    <div class="vehicle-name">
-                        <div id="movil3-icon" class="vehicle-icon offline"></div>
-                        Móvil 3
-                    </div>
-                    <div class="vehicle-status">
-                        <span>Estado:</span>
-                        <span id="movil3-status" class="offline">Desconectado</span>
-                    </div>
+            </div>
+            
+            <div class="vehicle-card">
+                <div class="vehicle-name">
+                    <div id="movil3-icon" class="vehicle-icon offline"></div>
+                    Móvil 3
                 </div>
-                
-                <div class="vehicle-card">
-                    <div class="vehicle-name">
-                        <div id="movil4-icon" class="vehicle-icon offline"></div>
-                        Móvil 4
-                    </div>
-                    <div class="vehicle-status">
-                        <span>Estado:</span>
-                        <span id="movil4-status" class="offline">Desconectado</span>
-                    </div>
+                <div class="vehicle-status">
+                    <span>Estado:</span>
+                    <span id="movil3-status" class="offline">Desconectado</span>
+                </div>
+            </div>
+            
+            <div class="vehicle-card">
+                <div class="vehicle-name">
+                    <div id="movil4-icon" class="vehicle-icon offline"></div>
+                    Móvil 4
+                </div>
+                <div class="vehicle-status">
+                    <span>Estado:</span>
+                    <span id="movil4-status" class="offline">Desconectado</span>
                 </div>
             </div>
             
@@ -414,8 +381,6 @@
         let wakeLock = null;
         let backgroundGeolocationWatchId = null;
         const TEN_MINUTES = 10 * 60 * 1000;
-        let currentUserId = null;
-        let isViewer = false;
         
         // Proveedores de mapas alternativos (solución al problema de User-Agent)
         const mapProviders = {
@@ -444,27 +409,14 @@
                 const auth = JSON.parse(localStorage.getItem('gpsAuth'));
                 if (!auth) window.location.href = 'login.html';
                 
-                currentUserId = auth.username;
-                isViewer = auth.isViewer;
-                
                 initMap();
                 setupUI();
+                initializeAllMarkers();
                 
-                // Mostrar solo la ubicación del usuario actual
-                document.getElementById('current-user-name').textContent = currentUserId;
-                document.getElementById('currentUserIndicator').style.display = 'block';
-                
-                // Si es viewer, mostrar todos los vehículos
-                if (isViewer) {
-                    document.getElementById('other-vehicles-container').style.display = 'block';
-                    initializeAllMarkers();
-                    startMonitoring();
+                if (!auth.isViewer) {
+                    startGPSTracking(auth.username);
                 } else {
-                    // Si es funcionario, mostrar solo su ubicación
-                    initializeCurrentUserMarker();
-                    
-                    // Iniciar seguimiento GPS para el usuario actual
-                    startGPSTracking(currentUserId);
+                    startMonitoring();
                 }
             }
         });
@@ -585,11 +537,6 @@
                 createMarker(mobileId, INACTIVE_COORDS, false);
                 lastUpdateTimes[mobileId] = Date.now();
             });
-        }
-        
-        function initializeCurrentUserMarker() {
-            createMarker(currentUserId, INACTIVE_COORDS, false);
-            lastUpdateTimes[currentUserId] = Date.now();
         }
         
         function startGPSTracking(mobileId) {
@@ -720,11 +667,6 @@
             lastUpdateTimes[mobileId] = now;
             updateMarker(mobileId, coords, true);
             updateStatus(mobileId, 'online');
-            
-            // Si es el usuario actual, centrar el mapa en su ubicación
-            if (mobileId === currentUserId) {
-                map.setView(coords, map.getZoom());
-            }
         }
         
         function startMonitoring() {
@@ -821,33 +763,16 @@
         }
         
         function updateStatus(mobileId, status) {
-            // Actualizar estado del usuario actual
-            if (mobileId === currentUserId) {
-                const element = document.getElementById('current-user-status');
-                const iconElement = document.getElementById('current-user-icon');
-                
-                if (element) {
-                    element.textContent = status === 'online' ? 'En ruta' : 'Desconectado';
-                    element.className = status === 'online' ? 'online' : 'offline';
-                }
-                
-                if (iconElement) {
-                    iconElement.className = `vehicle-icon ${status === 'online' ? 'online' : 'offline'}`;
-                }
-            } 
-            // Solo actualizar otros vehículos si es viewer
-            else if (isViewer) {
-                const element = document.getElementById(`${mobileId.toLowerCase()}-status`);
-                const iconElement = document.getElementById(`${mobileId.toLowerCase()}-icon`);
-                
-                if (element) {
-                    element.textContent = status === 'online' ? 'En ruta' : 'Desconectado';
-                    element.className = status === 'online' ? 'online' : 'offline';
-                }
-                
-                if (iconElement) {
-                    iconElement.className = `vehicle-icon ${status === 'online' ? 'online' : 'offline'}`;
-                }
+            const element = document.getElementById(`${mobileId.toLowerCase()}-status`);
+            const iconElement = document.getElementById(`${mobileId.toLowerCase()}-icon`);
+            
+            if (element) {
+                element.textContent = status === 'online' ? 'En ruta' : 'Desconectado';
+                element.className = status === 'online' ? 'online' : 'offline';
+            }
+            
+            if (iconElement) {
+                iconElement.className = `vehicle-icon ${status === 'online' ? 'online' : 'offline'}`;
             }
         }
         
