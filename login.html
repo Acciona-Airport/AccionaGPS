@@ -215,8 +215,28 @@
             }
         });
 
+        // Función para simular autenticación de funcionarios
+        function signInAsFuncionario() {
+            return new Promise((resolve) => {
+                // Crear un usuario simulado para Firebase
+                const funcionarioUser = {
+                    uid: 'funcionario-' + Date.now(),
+                    email: 'funcionarios@gpsacciona.com',
+                    displayName: 'Funcionarios',
+                    emailVerified: true
+                };
+                
+                // Simular el objeto de credenciales de usuario
+                resolve({
+                    user: funcionarioUser,
+                    providerId: null,
+                    operationType: 'signIn'
+                });
+            });
+        }
+
         // Procesar formulario de login
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const username = document.getElementById('username').value;
@@ -230,53 +250,63 @@
                 return;
             }
 
-            // Si es Funcionarios, acceder directamente sin autenticación
-            if (username === 'Funcionarios') {
-                // Guardar datos de sesión
-                localStorage.setItem('gpsAuth', JSON.stringify({
-                    username,
-                    isViewer: true,
-                    uid: 'funcionario-' + Date.now()
-                }));
+            try {
+                let userCredential;
                 
-                // Redirigir al panel principal
-                window.location.href = 'index.html';
-                return;
-            }
-            
-            // Para otros usuarios, validar contraseña
-            if (!password) {
-                errorElement.textContent = 'Ingrese la contraseña';
-                errorElement.style.display = 'block';
-                return;
-            }
-
-            // Obtener correo asociado al usuario
-            const email = userEmails[username];
-            
-            // Iniciar sesión con Firebase Auth
-            firebase.auth().signInWithEmailAndPassword(email, password)
-                .then((userCredential) => {
+                // Si es Funcionarios, usar autenticación simulada
+                if (username === 'Funcionarios') {
+                    userCredential = await signInAsFuncionario();
+                    
                     // Guardar datos de sesión
                     localStorage.setItem('gpsAuth', JSON.stringify({
                         username,
-                        isViewer: username === 'Funcionarios',
+                        isViewer: true,
                         uid: userCredential.user.uid
                     }));
                     
-                    // Redirigir al panel principal
-                    window.location.href = 'index.html';
-                })
-                .catch((error) => {
-                    console.error("Error de autenticación:", error);
-                    errorElement.textContent = 'Usuario o contraseña incorrectos';
-                    errorElement.style.display = 'block';
+                    // IMPORTANTE: Establecer el estado de autenticación de Firebase manualmente
+                    firebase.auth().currentUser = userCredential.user;
+                    firebase.auth().onAuthStateChanged = (callback) => {
+                        callback(userCredential.user);
+                        return () => {}; // Retornar función de limpieza
+                    };
+                } else {
+                    // Para otros usuarios, validar contraseña
+                    if (!password) {
+                        errorElement.textContent = 'Ingrese la contraseña';
+                        errorElement.style.display = 'block';
+                        return;
+                    }
+
+                    // Obtener correo asociado al usuario
+                    const email = userEmails[username];
                     
-                    // Ocultar mensaje después de 3 segundos
-                    setTimeout(() => {
-                        errorElement.style.display = 'none';
-                    }, 3000);
-                });
+                    // Iniciar sesión con Firebase Auth
+                    userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+                    
+                    // Guardar datos de sesión
+                    localStorage.setItem('gpsAuth', JSON.stringify({
+                        username,
+                        isViewer: false,
+                        uid: userCredential.user.uid
+                    }));
+                }
+                
+                // Redirigir al panel principal
+                window.location.href = 'index.html';
+                
+            } catch (error) {
+                console.error("Error de autenticación:", error);
+                errorElement.textContent = username === 'Funcionarios' 
+                    ? 'Error al acceder como funcionario' 
+                    : 'Usuario o contraseña incorrectos';
+                errorElement.style.display = 'block';
+                
+                // Ocultar mensaje después de 3 segundos
+                setTimeout(() => {
+                    errorElement.style.display = 'none';
+                }, 3000);
+            }
         });
     </script>
 </body>
