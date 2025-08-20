@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Monitor GPS | Acciona</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Metadatos para funcionamiento en segundo plano -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#f44336">
@@ -18,7 +19,6 @@
             --gray-light: #f5f5f5;
             --online-color: #27ae60;
             --offline-color: #95a5a6;
-            --user-position-color: #4285f4;
         }
         body {
             margin: 0;
@@ -132,6 +132,7 @@
         .logout-btn:hover {
             background: var(--red-dark);
         }
+        /* Estilos para los iconos de autos */
         .vehicle-icon {
             background-size: 70%;
             background-repeat: no-repeat;
@@ -152,6 +153,7 @@
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5v-5h14v5z"/><circle cx="7.5" cy="14.5" r="1.5"/><circle cx="16.5" cy="14.5" r="1.5"/></svg>');
             opacity: 0.7;
         }
+        /* Estilo para los marcadores en el mapa */
         .vehicle-marker {
             background-size: 70%;
             background-repeat: no-repeat;
@@ -171,14 +173,7 @@
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5v-5h14v5z"/><circle cx="7.5" cy="14.5" r="1.5"/><circle cx="16.5" cy="14.5" r="1.5"/></svg>');
             opacity: 0.7;
         }
-        .user-position-marker {
-            background-color: var(--user-position-color);
-            width: 16px;
-            height: 16px;
-            border: 3px solid white;
-            border-radius: 50%;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
-        }
+        /* Estilo para la etiqueta del marcador */
         .vehicle-label {
             position: absolute;
             bottom: -10px;
@@ -191,6 +186,7 @@
             text-shadow: 0 0 3px white;
             pointer-events: none;
         }
+        /* Estilos para el botón de actualización */
         .refresh-container {
             position: fixed;
             bottom: 20px;
@@ -233,6 +229,7 @@
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
+        /* Añadido: Selector de proveedor de mapas */
         .map-provider-selector {
             position: fixed;
             bottom: 70px;
@@ -249,6 +246,7 @@
             border-radius: 3px;
             border: 1px solid #ccc;
         }
+        /* Notificación de estado */
         .status-notification {
             position: fixed;
             top: 10px;
@@ -262,16 +260,19 @@
             display: none;
             font-size: 14px;
         }
-        .user-position-info {
+        /* Indicador de ubicación propia */
+        .current-user-indicator {
             position: fixed;
-            bottom: 70px;
-            right: 10px;
+            top: 10px;
+            left: 10px;
             z-index: 1000;
             background: rgba(255, 255, 255, 0.9);
-            padding: 10px;
+            padding: 10px 15px;
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0,0,0,0.2);
-            font-size: 12px;
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--red-dark);
         }
     </style>
 </head>
@@ -280,57 +281,71 @@
     
     <div class="status-notification" id="statusNotification"></div>
     
+    <div class="current-user-indicator" id="currentUserIndicator" style="display: none;">
+        Mostrando tu ubicación actual
+    </div>
+    
     <div class="control-panel-container">
         <div class="control-panel" id="controlPanel">
             <h3 style="margin-top:0;color:var(--red-dark);">🚗 Flota Acciona</h3>
             
             <div class="vehicle-card">
                 <div class="vehicle-name">
-                    <div id="movil1-icon" class="vehicle-icon offline"></div>
-                    Móvil 1
+                    <div id="current-user-icon" class="vehicle-icon offline"></div>
+                    <span id="current-user-name">Mi Ubicación</span>
                 </div>
                 <div class="vehicle-status">
                     <span>Estado:</span>
-                    <span id="movil1-status" class="offline">Desconectado</span>
+                    <span id="current-user-status" class="offline">Desconectado</span>
                 </div>
             </div>
             
-            <div class="vehicle-card">
-                <div class="vehicle-name">
-                    <div id="movil2-icon" class="vehicle-icon offline"></div>
-                    Móvil 2
+            <div id="other-vehicles-container" style="display: none;">
+                <h4 style="margin: 15px 0 10px 0; color: var(--red-dark);">Otros Vehículos</h4>
+                
+                <div class="vehicle-card">
+                    <div class="vehicle-name">
+                        <div id="movil1-icon" class="vehicle-icon offline"></div>
+                        Móvil 1
+                    </div>
+                    <div class="vehicle-status">
+                        <span>Estado:</span>
+                        <span id="movil1-status" class="offline">Desconectado</span>
+                    </div>
                 </div>
-                <div class="vehicle-status">
-                    <span>Estado:</span>
-                    <span id="movil2-status" class="offline">Desconectado</span>
+                
+                <div class="vehicle-card">
+                    <div class="vehicle-name">
+                        <div id="movil2-icon" class="vehicle-icon offline"></div>
+                        Móvil 2
+                    </div>
+                    <div class="vehicle-status">
+                        <span>Estado:</span>
+                        <span id="movil2-status" class="offline">Desconectado</span>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="vehicle-card">
-                <div class="vehicle-name">
-                    <div id="movil3-icon" class="vehicle-icon offline"></div>
-                    Móvil 3
+                
+                <div class="vehicle-card">
+                    <div class="vehicle-name">
+                        <div id="movil3-icon" class="vehicle-icon offline"></div>
+                        Móvil 3
+                    </div>
+                    <div class="vehicle-status">
+                        <span>Estado:</span>
+                        <span id="movil3-status" class="offline">Desconectado</span>
+                    </div>
                 </div>
-                <div class="vehicle-status">
-                    <span>Estado:</span>
-                    <span id="movil3-status" class="offline">Desconectado</span>
+                
+                <div class="vehicle-card">
+                    <div class="vehicle-name">
+                        <div id="movil4-icon" class="vehicle-icon offline"></div>
+                        Móvil 4
+                    </div>
+                    <div class="vehicle-status">
+                        <span>Estado:</span>
+                        <span id="movil4-status" class="offline">Desconectado</span>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="vehicle-card">
-                <div class="vehicle-name">
-                    <div id="movil4-icon" class="vehicle-icon offline"></div>
-                    Móvil 4
-                </div>
-                <div class="vehicle-status">
-                    <span>Estado:</span>
-                    <span id="movil4-status" class="offline">Desconectado</span>
-                </div>
-            </div>
-            
-            <div id="userPositionInfo" class="user-position-info" style="display: none;">
-                <strong>Mi posición</strong>
-                <div id="userCoords">Cargando...</div>
             </div>
             
             <button class="logout-btn" id="logoutBtn">Cerrar Sesión</button>
@@ -345,6 +360,7 @@
         </button>
     </div>
 
+    <!-- Botón de actualización -->
     <div class="refresh-container">
         <button class="refresh-btn" id="refreshBtn">
             <svg class="refresh-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
@@ -354,6 +370,7 @@
         </button>
     </div>
 
+    <!-- Selector de proveedor de mapas -->
     <div class="map-provider-selector">
         <label for="mapProvider">Mapa:</label>
         <select id="mapProvider">
@@ -363,12 +380,14 @@
         </select>
     </div>
 
+    <!-- Firebase y Leaflet JS -->
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <script>
+        // Configuración Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyDT85qotm1EpAJzJzCFeoNwGyo-VKhM6dk",
             authDomain: "gpsaccionascl2025.firebaseapp.com",
@@ -379,9 +398,11 @@
             appId: "1:742246618721:web:72d0046987416800f07c20"
         };
 
+        // Inicializa Firebase
         const app = firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
+        // Configuración del mapa
         const SCL_COORDS = [-33.3931, -70.7858];
         const INACTIVE_COORDS = [-33.409995, -70.788647];
         const ZOOM_INICIAL = 14;
@@ -392,10 +413,11 @@
         let gpsInterval;
         let wakeLock = null;
         let backgroundGeolocationWatchId = null;
-        let userPositionMarker = null;
-        let currentUserId = null;
         const TEN_MINUTES = 10 * 60 * 1000;
+        let currentUserId = null;
+        let isViewer = false;
         
+        // Proveedores de mapas alternativos (solución al problema de User-Agent)
         const mapProviders = {
             esri: {
                 url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
@@ -414,6 +436,7 @@
             }
         };
         
+        // Verificar autenticación al cargar
         firebase.auth().onAuthStateChanged((user) => {
             if (!user) {
                 window.location.href = 'login.html';
@@ -422,15 +445,26 @@
                 if (!auth) window.location.href = 'login.html';
                 
                 currentUserId = auth.username;
+                isViewer = auth.isViewer;
+                
                 initMap();
                 setupUI();
-                initializeAllMarkers();
                 
-                if (!auth.isViewer) {
-                    document.getElementById('userPositionInfo').style.display = 'block';
-                    startGPSTracking(auth.username);
-                } else {
+                // Mostrar solo la ubicación del usuario actual
+                document.getElementById('current-user-name').textContent = currentUserId;
+                document.getElementById('currentUserIndicator').style.display = 'block';
+                
+                // Si es viewer, mostrar todos los vehículos
+                if (isViewer) {
+                    document.getElementById('other-vehicles-container').style.display = 'block';
+                    initializeAllMarkers();
                     startMonitoring();
+                } else {
+                    // Si es funcionario, mostrar solo su ubicación
+                    initializeCurrentUserMarker();
+                    
+                    // Iniciar seguimiento GPS para el usuario actual
+                    startGPSTracking(currentUserId);
                 }
             }
         });
@@ -438,10 +472,12 @@
         function initMap() {
             map = L.map('map').setView(SCL_COORDS, ZOOM_INICIAL);
             
+            // Cargar el proveedor de mapas guardado o usar ESRI por defecto
             const savedProvider = localStorage.getItem('mapProvider') || 'esri';
             document.getElementById('mapProvider').value = savedProvider;
             setMapProvider(savedProvider);
             
+            // Marcador del aeropuerto
             L.marker(SCL_COORDS)
                 .addTo(map)
                 .bindPopup('✈️ Aeropuerto SCL')
@@ -449,17 +485,21 @@
         }
         
         function setMapProvider(providerKey) {
+            // Eliminar la capa actual si existe
             if (currentTileLayer) {
                 map.removeLayer(currentTileLayer);
             }
             
+            // Obtener la configuración del proveedor
             const provider = mapProviders[providerKey];
             
+            // Añadir la nueva capa
             currentTileLayer = L.tileLayer(provider.url, {
                 attribution: provider.attribution,
                 maxZoom: provider.maxZoom
             }).addTo(map);
             
+            // Guardar la preferencia
             localStorage.setItem('mapProvider', providerKey);
         }
         
@@ -473,6 +513,7 @@
                 panel.classList.toggle('visible');
             });
             
+            // Configurar botón de actualización
             const refreshBtn = document.getElementById('refreshBtn');
             refreshBtn.addEventListener('click', function() {
                 refreshBtn.classList.add('loading');
@@ -485,17 +526,21 @@
                 }, 500);
             });
             
+            // Configurar selector de proveedor de mapas
             document.getElementById('mapProvider').addEventListener('change', function(e) {
                 setMapProvider(e.target.value);
             });
             
+            // Al cargar la página, verificar si el panel debe estar abierto o cerrado
             const savedPanelState = localStorage.getItem('panelState');
             if (savedPanelState === 'open') {
                 panel.classList.add('visible');
             }
             
+            // Detectar cambios de visibilidad de la página
             document.addEventListener('visibilitychange', handleVisibilityChange);
             
+            // Detectar eventos de bloqueo/desbloqueo de pantalla
             if ('wakeLock' in navigator) {
                 document.addEventListener('visibilitychange', async () => {
                     if (document.visibilityState === 'visible') {
@@ -522,6 +567,7 @@
             try {
                 if ('wakeLock' in navigator) {
                     wakeLock = await navigator.wakeLock.request('screen');
+                    console.log('Wake Lock activado para evitar que la pantalla se apague');
                     
                     wakeLock.addEventListener('release', () => {
                         console.log('Wake Lock liberado');
@@ -541,29 +587,41 @@
             });
         }
         
+        function initializeCurrentUserMarker() {
+            createMarker(currentUserId, INACTIVE_COORDS, false);
+            lastUpdateTimes[currentUserId] = Date.now();
+        }
+        
         function startGPSTracking(mobileId) {
             if (gpsInterval) clearInterval(gpsInterval);
             
+            // Solicitar Wake Lock para evitar que la pantalla se apague
             requestWakeLock();
             
+            // Iniciar seguimiento de ubicación
             updatePosition(mobileId);
             
+            // Usar Service Worker si está disponible para seguimiento en segundo plano
             if ('serviceWorker' in navigator && 'BackgroundFetchManager' in window) {
                 setupBackgroundTracking(mobileId);
             } else {
+                // Fallback a intervalo tradicional
                 gpsInterval = setInterval(() => {
                     updatePosition(mobileId);
                 }, 5000);
             }
             
+            // Configurar seguimiento de geolocalización en segundo plano
             setupBackgroundGeolocation(mobileId);
         }
         
         function setupBackgroundTracking(mobileId) {
+            // Registrar el Service Worker para seguimiento en segundo plano
             navigator.serviceWorker.register('sw.js')
                 .then(registration => {
                     console.log('Service Worker registrado para seguimiento en segundo plano');
                     
+                    // Iniciar el seguimiento de ubicación
                     if (navigator.serviceWorker.controller) {
                         navigator.serviceWorker.controller.postMessage({
                             type: 'START_GPS_TRACKING',
@@ -571,6 +629,7 @@
                         });
                     }
                     
+                    // Escuchar mensajes del Service Worker
                     navigator.serviceWorker.addEventListener('message', event => {
                         if (event.data.type === 'POSITION_UPDATE') {
                             savePosition(mobileId, [event.data.lat, event.data.lng], event.data.accuracy);
@@ -579,6 +638,7 @@
                 })
                 .catch(error => {
                     console.error('Error registrando Service Worker:', error);
+                    // Fallback a intervalo tradicional
                     gpsInterval = setInterval(() => {
                         updatePosition(mobileId);
                     }, 5000);
@@ -586,6 +646,7 @@
         }
         
         function setupBackgroundGeolocation(mobileId) {
+            // Usar la API de Geolocalización con configuraciones para segundo plano
             if ('geolocation' in navigator) {
                 const geoOptions = {
                     enableHighAccuracy: true,
@@ -593,6 +654,7 @@
                     timeout: 27000
                 };
                 
+                // Iniciar watchPosition para obtener actualizaciones continuas
                 backgroundGeolocationWatchId = navigator.geolocation.watchPosition(
                     (position) => {
                         const coords = [
@@ -645,7 +707,6 @@
         
         function savePosition(mobileId, coords, accuracy) {
             const now = Date.now();
-            
             database.ref(`vehicles/${mobileId}`).set({
                 coords: {
                     lat: parseFloat(coords[0]),
@@ -660,26 +721,9 @@
             updateMarker(mobileId, coords, true);
             updateStatus(mobileId, 'online');
             
-            updateUserPositionMarker(coords);
-        }
-        
-        function updateUserPositionMarker(coords) {
-            const latLng = [parseFloat(coords[0]), parseFloat(coords[1])];
-            
-            document.getElementById('userCoords').textContent = 
-                `${latLng[0].toFixed(6)}, ${latLng[1].toFixed(6)}`;
-            
-            if (!userPositionMarker) {
-                userPositionMarker = L.marker(latLng, {
-                    icon: L.divIcon({
-                        className: 'user-position-marker',
-                        iconSize: [22, 22],
-                        iconAnchor: [11, 11]
-                    })
-                }).addTo(map)
-                .bindPopup('<strong>Mi posición actual</strong>');
-            } else {
-                userPositionMarker.setLatLng(latLng);
+            // Si es el usuario actual, centrar el mapa en su ubicación
+            if (mobileId === currentUserId) {
+                map.setView(coords, map.getZoom());
             }
         }
         
@@ -777,16 +821,33 @@
         }
         
         function updateStatus(mobileId, status) {
-            const element = document.getElementById(`${mobileId.toLowerCase()}-status`);
-            const iconElement = document.getElementById(`${mobileId.toLowerCase()}-icon`);
-            
-            if (element) {
-                element.textContent = status === 'online' ? 'En ruta' : 'Desconectado';
-                element.className = status === 'online' ? 'online' : 'offline';
-            }
-            
-            if (iconElement) {
-                iconElement.className = `vehicle-icon ${status === 'online' ? 'online' : 'offline'}`;
+            // Actualizar estado del usuario actual
+            if (mobileId === currentUserId) {
+                const element = document.getElementById('current-user-status');
+                const iconElement = document.getElementById('current-user-icon');
+                
+                if (element) {
+                    element.textContent = status === 'online' ? 'En ruta' : 'Desconectado';
+                    element.className = status === 'online' ? 'online' : 'offline';
+                }
+                
+                if (iconElement) {
+                    iconElement.className = `vehicle-icon ${status === 'online' ? 'online' : 'offline'}`;
+                }
+            } 
+            // Solo actualizar otros vehículos si es viewer
+            else if (isViewer) {
+                const element = document.getElementById(`${mobileId.toLowerCase()}-status`);
+                const iconElement = document.getElementById(`${mobileId.toLowerCase()}-icon`);
+                
+                if (element) {
+                    element.textContent = status === 'online' ? 'En ruta' : 'Desconectado';
+                    element.className = status === 'online' ? 'online' : 'offline';
+                }
+                
+                if (iconElement) {
+                    iconElement.className = `vehicle-icon ${status === 'online' ? 'online' : 'offline'}`;
+                }
             }
         }
         
@@ -808,7 +869,9 @@
         }
     </script>
     
+    <!-- Script para registrar el Service Worker -->
     <script>
+        // Registrar el Service Worker para seguimiento en segundo plano
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
                 navigator.serviceWorker.register('sw.js')
