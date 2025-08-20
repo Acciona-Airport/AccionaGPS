@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Monitor GPS | Acciona</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -23,12 +23,17 @@
             --blue-light: #e3f2fd;
             --blue-dark: #1976d2;
         }
+        * {
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
         body {
             margin: 0;
             padding: 0;
             font-family: 'Segoe UI', sans-serif;
             overflow: hidden;
             background-color: #2c3e50;
+            touch-action: pan-x pan-y;
         }
         #map {
             position: absolute;
@@ -60,6 +65,7 @@
             right: -100%;
             max-height: 80vh;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
         .control-panel.visible {
             transform: translateX(0);
@@ -139,69 +145,9 @@
         .logout-btn:hover {
             background: var(--red-dark);
         }
-        /* Panel de Diagnóstico GPS (derecha, debajo del panel de flota) */
+        /* Panel de Diagnóstico GPS (OCULTO) */
         .diagnostic-panel-container {
-            position: fixed;
-            top: 85px; /* Colocado debajo del panel de flota */
-            right: 0;
-            z-index: 999; /* Un nivel por debajo del panel de flota */
-            display: flex;
-            overflow: hidden;
-        }
-        .diagnostic-panel {
-            background: rgba(255,255,255,0.95);
-            padding: 15px;
-            border-radius: 12px 0 0 12px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            width: 280px;
-            transform: translateX(100%);
-            transition: transform 0.3s ease;
-            border: 1px solid var(--blue-light);
-            position: relative;
-            right: -100%;
-            max-height: 60vh;
-            overflow-y: auto;
-        }
-        .diagnostic-panel.visible {
-            transform: translateX(0);
-            right: 0;
-        }
-        .toggle-diagnostic-panel {
-            background: var(--white);
-            border: 1px solid var(--blue-light);
-            width: 40px;
-            height: 60px;
-            border-radius: 8px 0 0 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: -3px 0 5px rgba(0,0,0,0.1);
-            margin-left: 5px;
-            flex-shrink: 0;
-        }
-        .toggle-diagnostic-panel:hover {
-            background: var(--blue-light);
-        }
-        .diagnostic-hamburger-icon {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            width: 20px;
-        }
-        .diagnostic-hamburger-line {
-            height: 2px;
-            background-color: var(--blue-dark);
-            transition: all 0.3s ease;
-        }
-        .diagnostic-panel.visible + .toggle-diagnostic-panel .diagnostic-hamburger-line:nth-child(1) {
-            transform: translateY(6px) rotate(45deg);
-        }
-        .diagnostic-panel.visible + .toggle-diagnostic-panel .diagnostic-hamburger-line:nth-child(2) {
-            opacity: 0;
-        }
-        .diagnostic-panel.visible + .toggle-diagnostic-panel .diagnostic-hamburger-line:nth-child(3) {
-            transform: translateY(-6px) rotate(-45deg);
+            display: none;
         }
         /* Estilos para los iconos de autos */
         .vehicle-icon {
@@ -347,21 +293,6 @@
             font-weight: bold;
             color: var(--red-dark);
         }
-        /* Panel de diagnóstico */
-        .diagnostic-info {
-            margin: 10px 0;
-        }
-        .diagnostic-item {
-            margin: 5px 0;
-            display: flex;
-            justify-content: space-between;
-        }
-        .diagnostic-value {
-            font-weight: bold;
-        }
-        .good { color: green; }
-        .bad { color: red; }
-        .warning { color: orange; }
         
         /* Pulsating circle for user location */
         .pulse-circle {
@@ -413,6 +344,19 @@
         .leaflet-control-zoom {
             margin-top: 80px !important;
         }
+        
+        /* Mejoras para dispositivos móviles */
+        .leaflet-bar a {
+            width: 40px !important;
+            height: 40px !important;
+            line-height: 40px !important;
+            font-size: 24px !important;
+        }
+        
+        /* Prevenir zoom no deseado en el mapa */
+        .leaflet-container {
+            touch-action: manipulation;
+        }
     </style>
 </head>
 <body>
@@ -424,7 +368,7 @@
         <span id="locationStatus">Buscando tu ubicación...</span>
     </div>
 
-    <!-- Panel de Diagnóstico GPS (derecha, debajo del panel de flota) -->
+    <!-- Panel de Diagnóstico GPS (OCULTO) -->
     <div class="diagnostic-panel-container">
         <div class="diagnostic-panel" id="diagnosticPanel">
             <h3 style="margin-top:0;color:var(--blue-dark);">📊 Diagnóstico GPS</h3>
@@ -658,7 +602,11 @@
         });
         
         function initMap() {
-            map = L.map('map').setView(SCL_COORDS, ZOOM_INICIAL);
+            map = L.map('map', {
+                zoomControl: true,
+                tap: false, // Mejora la interacción táctil
+                dragging: true
+            }).setView(SCL_COORDS, ZOOM_INICIAL);
             
             // Cargar el proveedor de mapas guardado o usar ESRI por defecto
             const savedProvider = localStorage.getItem('mapProvider') || 'esri';
@@ -673,6 +621,11 @@
                 
             // Crear marcador para la posición del usuario
             createUserPositionMarker(SCL_COORDS);
+            
+            // Mejorar la interacción táctil en dispositivos móviles
+            if (L.Browser.touch) {
+                map.doubleClickZoom.disable();
+            }
         }
         
         function setMapProvider(providerKey) {
@@ -700,15 +653,9 @@
             // Configurar paneles (ambos ocultos al inicio)
             const panel = document.getElementById('controlPanel');
             const toggleBtn = document.getElementById('togglePanel');
-            const diagnosticPanel = document.getElementById('diagnosticPanel');
-            const toggleDiagnosticBtn = document.getElementById('toggleDiagnosticPanel');
             
             toggleBtn.addEventListener('click', function() {
                 panel.classList.toggle('visible');
-            });
-            
-            toggleDiagnosticBtn.addEventListener('click', function() {
-                diagnosticPanel.classList.toggle('visible');
             });
             
             // Configurar botón de actualización
