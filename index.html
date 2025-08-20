@@ -22,6 +22,8 @@
             --blue-primary: #2196f3;
             --blue-light: #e3f2fd;
             --blue-dark: #1976d2;
+            --route1-color: #e74c3c;
+            --route2-color: #9b59b6;
         }
         * {
             -webkit-tap-highlight-color: transparent;
@@ -351,6 +353,24 @@
         .control-panel.visible ~ .map-touch-overlay {
             display: block;
         }
+        .route-selector {
+            position: fixed;
+            top: 70px;
+            left: 10px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            font-size: 12px;
+        }
+        .route-selector select {
+            padding: 5px;
+            border-radius: 3px;
+            border: 1px solid #ccc;
+            margin-top: 5px;
+            width: 100%;
+        }
     </style>
 </head>
 <body>
@@ -398,6 +418,15 @@
                 <div class="diagnostic-hamburger-line"></div>
             </div>
         </button>
+    </div>
+
+    <div class="route-selector">
+        <label for="routeSelector">Ruta:</label>
+        <select id="routeSelector">
+            <option value="none">Sin ruta</option>
+            <option value="route1">Ruta 1</option>
+            <option value="route2">Ruta 2</option>
+        </select>
     </div>
 
     <button class="emergency-locate-btn" id="emergencyLocateBtn" title="Centrar en mi ubicación">📍</button>
@@ -535,6 +564,54 @@
         let userAccuracyCircle = null;
         let lastKnownPosition = null;
         let locationUpdateInterval = null;
+        let currentRouteLayer = null;
+        
+        const route1Coordinates = [
+            [-33.4095444, -70.7893019],
+            [-33.4092635, -70.7895518],
+            [-33.404626, -70.7897795],
+            [-33.4045659, -70.7889574],
+            [-33.3965734, -70.7893183],
+            [-33.3966737, -70.7910012],
+            [-33.3970831, -70.790958],
+            [-33.3971273, -70.7919677],
+            [-33.4013289, -70.7917774],
+            [-33.401446, -70.795415],
+            [-33.399824, -70.7955015],
+            [-33.3998119, -70.7961745],
+            [-33.3963198, -70.796343],
+            [-33.3960964, -70.7894296],
+            [-33.3966985, -70.7893961],
+            [-33.3967748, -70.7909972],
+            [-33.3971721, -70.7909347],
+            [-33.3972203, -70.792002],
+            [-33.4045345, -70.7915771],
+            [-33.4044984, -70.7897934],
+            [-33.40931, -70.7895175],
+            [-33.4096593, -70.7891232]
+        ];
+        
+        const route2Coordinates = [
+            [-33.4096962, -70.7892734],
+            [-33.4093809, -70.7895438],
+            [-33.4046214, -70.789786],
+            [-33.4045632, -70.7889705],
+            [-33.396562, -70.7892819],
+            [-33.3978377, -70.7892925],
+            [-33.3965727, -70.7894256],
+            [-33.3960698, -70.7894298],
+            [-33.3963548, -70.7976905],
+            [-33.3964463, -70.7976813],
+            [-33.3961578, -70.7894911],
+            [-33.3966306, -70.7894806],
+            [-33.3966755, -70.7909568],
+            [-33.3971077, -70.7909379],
+            [-33.3971536, -70.7919911],
+            [-33.4045264, -70.7915813],
+            [-33.4044983, -70.7898167],
+            [-33.4093156, -70.7894927],
+            [-33.4096696, -70.7891884]
+        ];
         
         const mapProviders = {
             esri: {
@@ -644,6 +721,10 @@
                 setMapProvider(e.target.value);
             });
             
+            document.getElementById('routeSelector').addEventListener('change', function(e) {
+                showRoute(e.target.value);
+            });
+            
             document.getElementById('forceLocationBtn').addEventListener('click', function() {
                 forceLocationUpdate();
             });
@@ -666,6 +747,36 @@
             mapTouchOverlay.addEventListener('click', function() {
                 panel.classList.remove('visible');
             });
+        }
+        
+        function showRoute(routeId) {
+            if (currentRouteLayer) {
+                map.removeLayer(currentRouteLayer);
+                currentRouteLayer = null;
+            }
+            
+            if (routeId === 'none') return;
+            
+            let coordinates;
+            let color;
+            
+            if (routeId === 'route1') {
+                coordinates = route1Coordinates;
+                color = '#e74c3c';
+            } else if (routeId === 'route2') {
+                coordinates = route2Coordinates;
+                color = '#9b59b6';
+            }
+            
+            currentRouteLayer = L.polyline(coordinates, {
+                color: color,
+                weight: 4,
+                opacity: 0.7,
+                smoothFactor: 1
+            }).addTo(map);
+            
+            const bounds = L.latLngBounds(coordinates);
+            map.fitBounds(bounds, { padding: [50, 50] });
         }
         
         function handleVisibilityChange() {
@@ -843,7 +954,6 @@
                                 updateDiagnostic('bad', `Error: ${getGeolocationErrorText(error2)}`);
                                 updateStatus(mobileId, 'offline');
                                 
-                                // Método 3: Usar última posición conocida si está disponible
                                 if (lastKnownPosition) {
                                     updateDiagnostic('warning', 'Usando última posición conocida');
                                     savePosition(mobileId, lastKnownPosition, 1000);
@@ -852,7 +962,7 @@
                             { 
                                 enableHighAccuracy: false,
                                 timeout: 15000,
-                                maximumAge: 300000  // 5 minutos
+                                maximumAge: 300000
                             }
                         );
                     },
@@ -873,7 +983,6 @@
             
             updateDiagnostic('warning', 'Forzando actualización...');
             
-            // Intentar con diferentes métodos
             navigator.geolocation.getCurrentPosition(
                 position => {
                     const coords = [
@@ -885,7 +994,6 @@
                     updateDiagnostic('good', 'Forzado exitoso', accuracy);
                     savePosition(currentUserId, coords, accuracy);
                     
-                    // Mostrar notificación
                     showNotification('Ubicación actualizada forzosamente', 3000);
                 },
                 error => {
@@ -939,7 +1047,6 @@
             
             document.getElementById('lastUpdateValue').textContent = new Date().toLocaleTimeString();
             
-            // Actualizar indicador principal
             const locationStatus = document.getElementById('locationStatus');
             if (status === 'good') {
                 locationStatus.textContent = 'Ubicación activa';
@@ -963,13 +1070,10 @@
         function savePosition(mobileId, coords, accuracy) {
             const now = Date.now();
             
-            // Guardar última posición conocida
             lastKnownPosition = coords;
             
-            // Actualizar marcador de usuario
             updateUserPositionMarker(coords, accuracy);
             
-            // Solo guardar en Firebase si no es viewer
             if (!isViewer) {
                 database.ref(`vehicles/${mobileId}`).set({
                     coords: {
@@ -986,7 +1090,6 @@
             updateMarker(mobileId, coords, true);
             updateStatus(mobileId, 'online');
             
-            // Si es el usuario actual, centrar el mapa en su ubicación
             if (mobileId === currentUserId) {
                 map.setView(coords, Math.max(map.getZoom(), 16));
             }
@@ -1086,7 +1189,6 @@
         }
         
         function updateStatus(mobileId, status) {
-            // Actualizar estado del usuario actual
             if (mobileId === currentUserId) {
                 const element = document.getElementById('current-user-status');
                 const iconElement = document.getElementById('current-user-icon');
@@ -1100,7 +1202,6 @@
                     iconElement.className = `vehicle-icon ${status === 'online' ? 'online' : 'offline'}`;
                 }
             } 
-            // Solo actualizar otros vehículos si es viewer
             else if (isViewer) {
                 const element = document.getElementById(`${mobileId.toLowerCase()}-status`);
                 const iconElement = document.getElementById(`${mobileId.toLowerCase()}-icon`);
@@ -1136,5 +1237,3 @@
     </script>
 </body>
 </html>
-
-
