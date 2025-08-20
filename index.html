@@ -19,6 +19,7 @@
             --online-color: #27ae60;
             --offline-color: #95a5a6;
             --user-position-color: #3498db;
+            --diagnostic-color: #2980b9;
         }
         body {
             margin: 0;
@@ -35,6 +36,7 @@
             height: 100vh;
             z-index: 1;
         }
+        /* Panel de control principal (Flota Acciona) */
         .control-panel-container {
             position: fixed;
             top: 15px;
@@ -98,6 +100,72 @@
         .control-panel.visible ~ .toggle-panel .hamburger-line:nth-child(3) {
             transform: translateY(-6px) rotate(-45deg);
         }
+        
+        /* Panel de diagnóstico */
+        .diagnostic-panel-container {
+            position: fixed;
+            top: 85px;
+            right: 0;
+            z-index: 999;
+            display: flex;
+            overflow: hidden;
+        }
+        .diagnostic-panel {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            border-radius: 12px 0 0 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            width: 280px;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            border: 1px solid var(--diagnostic-color);
+            position: relative;
+            right: -100%;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        .diagnostic-panel.visible {
+            transform: translateX(0);
+            right: 0;
+        }
+        .toggle-diagnostic {
+            background: var(--white);
+            border: 1px solid var(--diagnostic-color);
+            width: 40px;
+            height: 60px;
+            border-radius: 8px 0 0 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: -3px 0 5px rgba(0,0,0,0.1);
+            margin-left: 5px;
+            flex-shrink: 0;
+        }
+        .toggle-diagnostic:hover {
+            background: rgba(41, 128, 185, 0.1);
+        }
+        .diagnostic-hamburger-icon {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            width: 20px;
+        }
+        .diagnostic-hamburger-line {
+            height: 2px;
+            background-color: var(--diagnostic-color);
+            transition: all 0.3s ease;
+        }
+        .diagnostic-panel.visible ~ .toggle-diagnostic .diagnostic-hamburger-line:nth-child(1) {
+            transform: translateY(6px) rotate(45deg);
+        }
+        .diagnostic-panel.visible ~ .toggle-diagnostic .diagnostic-hamburger-line:nth-child(2) {
+            opacity: 0;
+        }
+        .diagnostic-panel.visible ~ .toggle-diagnostic .diagnostic-hamburger-line:nth-child(3) {
+            transform: translateY(-6px) rotate(-45deg);
+        }
+        
         .vehicle-card {
             margin-bottom: 12px;
             padding-bottom: 12px;
@@ -149,360 +217,37 @@
         }
         .vehicle-icon.online {
             background-color: var(--online-color);
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5v-5h14v5z"/><circle cx="7.5" cy="14.5" r="1.5"/><circle cx="16.5" cy="14.5" r="1.5"/></svg>');
-        }
-        .vehicle-icon.offline {
-            background-color: var(--offline-color);
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5v-5h14v5z"/><circle cx="7.5" cy="14.5" r="1.5"/><circle cx="16.5" cy="14.5" r="1.5"/></svg>');
-            opacity: 0.7;
-        }
-        /* Estilo para los marcadores en el mapa */
-        .vehicle-marker {
-            background-size: 70%;
-            background-repeat: no-repeat;
-            background-position: center;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            border: 2px solid white;
-            box-shadow: 0 0 5px rgba(0,0,0,0.5);
-        }
-        .vehicle-marker.online {
-            background-color: #27ae60;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5v-5h14v5z"/><circle cx="7.5" cy="14.5" r="1.5"/><circle cx="16.5" cy="14.5" r="1.5"/></svg>');
-        }
-        .vehicle-marker.offline {
-            background-color: #95a5a6;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5v-5h14v5z"/><circle cx="7.5" cy="14.5" r="1.5"/><circle cx="16.5" cy="14.5" r="1.5"/></svg>');
-            opacity: 0.7;
-        }
-        /* Estilo para la etiqueta del marcador */
-        .vehicle-label {
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            white-space: nowrap;
-            font-size: 12px;
-            font-weight: bold;
-            color: #333;
-            text-shadow: 0 0 3px white;
-            pointer-events: none;
-        }
-        /* Estilos para el botón de actualización */
-        .refresh-container {
-            position: fixed;
-            bottom: 20px;
-            left: 0;
-            right: 0;
-            display: flex;
-            justify-content: center;
-            z-index: 1000;
-        }
-        .refresh-btn {
-            background: var(--red-primary);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            transition: background 0.3s, transform 0.2s;
-        }
-        .refresh-btn:hover {
-            background: var(--red-dark);
-            transform: translateY(-2px);
-        }
-        .refresh-btn:active {
-            transform: translateY(0);
-        }
-        .refresh-icon {
-            width: 16px;
-            height: 16px;
-            transition: transform 0.5s;
-        }
-        .refresh-btn.loading .refresh-icon {
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        /* Añadido: Selector de proveedor de mapas */
-        .map-provider-selector {
-            position: fixed;
-            bottom: 70px;
-            left: 10px;
-            z-index: 1000;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.2);
-            font-size: 12px;
-        }
-        .map-provider-selector select {
-            padding: 5px;
-            border-radius: 3px;
-            border: 1px solid #ccc;
-        }
-        /* Notificación de estado */
-        .status-notification {
-            position: fixed;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 10px 15px;
-            border-radius: 5px;
-            z-index: 1001;
-            display: none;
-            font-size: 14px;
-        }
-        /* Indicador de ubicación propia */
-        .current-user-indicator {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            z-index: 1000;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 10px 15px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.2);
-            font-size: 14px;
-            font-weight: bold;
-            color: var(--red-dark);
-        }
-        /* Panel de diagnóstico */
-        .diagnostic-panel {
-            position: fixed;
-            bottom: 100px;
-            right: 10px;
-            z-index: 1000;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.2);
-            font-size: 12px;
-            max-width: 300px;
-            transition: transform 0.3s ease, opacity 0.3s ease;
-        }
-        .diagnostic-panel.hidden {
-            transform: translateX(calc(100% + 20px));
-            opacity: 0;
-            pointer-events: none;
-        }
-        .diagnostic-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        .diagnostic-title {
-            font-weight: bold;
-            margin: 0;
-        }
-        .toggle-diagnostic {
-            background: none;
-            border: none;
-            font-size: 16px;
-            cursor: pointer;
-            padding: 0;
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .diagnostic-item {
-            margin: 5px 0;
-            display: flex;
-            justify-content: space-between;
-        }
-        .diagnostic-value {
-            font-weight: bold;
-        }
-        .good { color: green; }
-        .bad { color: red; }
-        .warning { color: orange; }
-        
-        /* Pulsating circle for user location */
-        .pulse-circle {
-            border-radius: 50%;
-            background-color: var(--user-position-color);
-            width: 20px;
-            height: 20px;
-            position: absolute;
-            left: -10px;
-            top: -10px;
-            opacity: 0.6;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0% { transform: scale(0.8); opacity: 0.6; }
-            70% { transform: scale(2.5); opacity: 0; }
-            100% { transform: scale(0.8); opacity: 0; }
-        }
-        
-        /* Emergency location button */
-        .emergency-locate-btn {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 1000;
-            background: var(--user-position-color);
-            color: white;
-            border: none;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-weight: bold;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-        }
-        
-        /* Location accuracy circle */
-        .accuracy-circle {
-            fill: rgba(52, 152, 219, 0.2);
-            stroke: rgba(52, 152, 219, 0.5);
-            stroke-width: 1;
-        }
-        
-        /* Ajuste para controles de zoom de Leaflet */
-        .leaflet-control-zoom {
-            margin-top: 80px !important;
-        }
-        
-        /* Botón para mostrar/ocultar diagnóstico */
-        .show-diagnostic-btn {
-            position: fixed;
-            bottom: 100px;
-            right: 10px;
-            z-index: 1000;
-            background: rgba(255, 255, 255, 0.9);
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 0 5px rgba(0,0,0,0.2);
-            font-weight: bold;
-        }
-    </style>
-</head>
-<body>
-    <div id="map"></div>
-    
-    <div class="status-notification" id="statusNotification"></div>
-    
-    <div class="current-user-indicator" id="currentUserIndicator">
-        <span id="locationStatus">Buscando tu ubicación...</span>
-    </div>
-    
-    <div class="diagnostic-panel" id="diagnosticPanel">
-        <div class="diagnostic-header">
-            <h4 class="diagnostic-title">Diagnóstico GPS</h4>
-            <button class="toggle-diagnostic" id="hideDiagnosticBtn">✕</button>
-        </div>
-        <div class="diagnostic-item">
-            <span>Estado GPS:</span>
-            <span id="gpsStatus" class="diagnostic-value warning">Comprobando...</span>
-        </div>
-        <div class="diagnostic-item">
-            <span>Precisión:</span>
-            <span id="accuracyValue" class="diagnostic-value">--</span>
-        </div>
-        <div class="diagnostic-item">
-            <span>Última actualización:</span>
-            <span id="lastUpdateValue" class="diagnostic-value">--</span>
-        </div>
-        <div class="diagnostic-item">
-            <span>Método:</span>
-            <span id="methodValue" class="diagnostic-value">--</span>
-        </div>
-        <button id="forceLocationBtn" style="margin-top: 10px; width: 100%; padding: 5px; background: #3498db; color: white; border: none; border-radius: 3px; cursor: pointer;">
-            Forzar Ubicación
-        </button>
-    </div>
-    
-    <button class="show-diagnostic-btn" id="showDiagnosticBtn" style="display: none;">+</button>
-
-    <button class="emergency-locate-btn" id="emergencyLocateBtn" title="Centrar en mi ubicación">📍</button>
-
-    <div class="control-panel-container">
-        <div class="control-panel" id="controlPanel">
-            <h3 style="margin-top:0;color:var(--red-dark);">🚗 Flota Acciona</h3>
-            
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h极速赛车开奖直播历史记录，澳洲幸运10是官方开奖吗，飞艇6码滚雪球图片
             <div class="vehicle-card">
                 <div class="vehicle-name">
-                    <div id="current-user-icon" class="vehicle-icon offline"></div>
-                    <span id="current-user-name">Mi Ubicación</span>
+                    <div id="movil2-icon" class="vehicle-icon offline"></div>
+                    Móvil 2
                 </div>
                 <div class="vehicle-status">
                     <span>Estado:</span>
-                    <span id="current-user-status" class="offline">Desconectado</span>
-                </div>
-                <div class="vehicle-status">
-                    <span>Coordenadas:</span>
-                    <span id="current-user-coords">--</span>
+                    <span id="movil2-status" class="offline">Desconectado</span>
                 </div>
             </div>
             
-            <div id="other-vehicles-container" style="display: none;">
-                <h4 style="margin: 15px 0 10px 0; color: var(--red-dark);">Otros Vehículos</h4>
-                
-                <div class="vehicle-card">
-                    <div class="vehicle-name">
-                        <div id="movil1-icon" class="vehicle-icon offline"></div>
-                        Móvil 1
-                    </div>
-                    <div class="vehicle-status">
-                        <span>Estado:</span>
-                        <span id="movil1-status" class="offline">Desconectado</span>
-                    </div>
+            <div class="vehicle-card">
+                <div class="vehicle-name">
+                    <div id="movil3-icon" class="vehicle-icon offline"></div>
+                    Móvil 3
                 </div>
-                
-                <div class="vehicle-card">
-                    <div class="vehicle-name">
-                        <div id="movil2-icon" class="vehicle-icon offline"></div>
-                        Móvil 2
-                    </div>
-                    <div class="vehicle-status">
-                        <span>Estado:</span>
-                        <span id="movil2-status" class="offline">Desconectado</span>
-                    </div>
+                <div class="vehicle-status">
+                    <span>Estado:</span>
+                    <span id="movil3-status" class="offline">Desconectado</span>
                 </div>
-                
-                <div class="vehicle-card">
-                    <div class="vehicle-name">
-                        <div id="movil3-icon" class="vehicle-icon offline"></div>
-                        Móvil 3
-                    </div>
-                    <div class="vehicle-status">
-                        <span>Estado:</span>
-                        <span id="movil3-status" class="offline">Desconectado</span>
-                    </div>
+            </div>
+            
+            <div class="vehicle-card">
+                <div class="vehicle-name">
+                    <div id="movil4-icon" class="vehicle-icon offline"></div>
+                    Móvil 4
                 </div>
-                
-                <div class="vehicle-card">
-                    <div class="vehicle-name">
-                        <div id="movil4-icon" class="vehicle-icon offline"></div>
-                        Móvil 4
-                    </div>
-                    <div class="vehicle-status">
-                        <span>Estado:</span>
-                        <span id="movil4-status" class="offline">Desconectado</span>
-                    </div>
+                <div class="vehicle-status">
+                    <span>Estado:</span>
+                    <span id="movil4-status" class="offline">Desconectado</span>
                 </div>
             </div>
             
@@ -518,11 +263,46 @@
         </button>
     </div>
 
+    <!-- Panel de diagnóstico -->
+    <div class="diagnostic-panel-container">
+        <div class="diagnostic-panel" id="diagnosticPanel">
+            <h4 style="margin:0 0 10px 0;color:var(--diagnostic-color);">📊 Diagnóstico GPS</h4>
+            
+            <div class="diagnostic-item">
+                <span>Estado GPS:</span>
+                <span id="gpsStatus" class="diagnostic-value warning">Comprobando...</span>
+            </div>
+            <div class="diagnostic-item">
+                <span>Precisión:</span>
+                <span id="accuracyValue" class="diagnostic-value">--</span>
+            </div>
+            <div class="diagnostic-item">
+                <span>Última actualización:</span>
+                <span id="lastUpdateValue" class="diagnostic-value">--</span>
+            </div>
+            <div class="diagnostic-item">
+                <span>Método:</span>
+                <span id="methodValue" class="diagnostic-value">--</span>
+            </div>
+            <button id="forceLocationBtn" style="margin-top: 10px; width: 100%; padding: 8px; background: var(--diagnostic-color); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                Forzar Ubicación
+            </button>
+        </div>
+        
+        <button class="toggle-diagnostic" id="toggleDiagnostic">
+            <div class="diagnostic-hamburger-icon">
+                <div class="diagnostic-hamburger-line"></div>
+                <div class="diagnostic-hamburger-line"></div>
+                <div class="diagnostic-hamburger-line"></div>
+            </div>
+        </button>
+    </div>
+
     <!-- Botón de actualización -->
     <div class="refresh-container">
         <button class="refresh-btn" id="refreshBtn">
             <svg class="refresh-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
-                <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+                <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h极速赛车开奖直播历史记录，澳洲幸运10是官方开奖吗，飞艇6码滚雪球图片
             </svg>
             Actualizar
         </button>
@@ -646,6 +426,9 @@
                 
             // Crear marcador para la posición del usuario
             createUserPositionMarker(SCL_COORDS);
+            
+            // Ajustar controles de zoom
+            document.querySelector('.leaflet-control-zoom').style.marginTop = '80px';
         }
         
         function setMapProvider(providerKey) {
@@ -672,9 +455,19 @@
             
             const panel = document.getElementById('controlPanel');
             const toggleBtn = document.getElementById('togglePanel');
+            const diagnosticPanel = document.getElementById('diagnosticPanel');
+            const toggleDiagnosticBtn = document.getElementById('toggleDiagnostic');
+            
+            // Iniciar con ambos paneles ocultos
+            panel.classList.remove('visible');
+            diagnosticPanel.classList.remove('visible');
             
             toggleBtn.addEventListener('click', function() {
                 panel.classList.toggle('visible');
+            });
+            
+            toggleDiagnosticBtn.addEventListener('click', function() {
+                diagnosticPanel.classList.toggle('visible');
             });
             
             // Configurar botón de actualización
@@ -704,23 +497,6 @@
             document.getElementById('emergencyLocateBtn').addEventListener('click', function() {
                 centerOnUserLocation();
             });
-            
-            // Configurar botones para mostrar/ocultar diagnóstico
-            document.getElementById('hideDiagnosticBtn').addEventListener('click', function() {
-                document.getElementById('diagnosticPanel').classList.add('hidden');
-                document.getElementById('showDiagnosticBtn').style.display = 'flex';
-            });
-            
-            document.getElementById('showDiagnosticBtn').addEventListener('click', function() {
-                document.getElementById('diagnosticPanel').classList.remove('hidden');
-                document.getElementById('showDiagnosticBtn').style.display = 'none';
-            });
-            
-            // Al cargar la página, verificar si el panel debe estar abierto o cerrado
-            const savedPanelState = localStorage.getItem('panelState');
-            if (savedPanelState === 'open') {
-                panel.classList.add('visible');
-            }
             
             // Detectar cambios de visibilidad de la página
             document.addEventListener('visibilitychange', handleVisibilityChange);
