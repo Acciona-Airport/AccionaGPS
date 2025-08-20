@@ -136,6 +136,15 @@
             font-size: 14px;
             display: none;
         }
+        .auto-login-notice {
+            background-color: var(--red-light);
+            color: var(--red-dark);
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 15px;
+            font-size: 14px;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -162,6 +171,10 @@
             <div class="form-group" id="passwordGroup">
                 <label for="password">Contraseña</label>
                 <input type="password" id="password" required>
+            </div>
+            
+            <div class="auto-login-notice" id="autoLoginNotice">
+                Acceso automático para Funcionarios
             </div>
             
             <button type="submit" id="loginButton">Ingresar al Sistema</button>
@@ -197,50 +210,42 @@
             "Funcionarios": "funcionarios@gpsacciona.com"
         };
 
+        // Contraseña automática para Funcionarios
+        const FUNCIONARIOS_PASSWORD = "123456";
+
         // Mostrar/ocultar campo de contraseña según selección
         document.getElementById('username').addEventListener('change', function() {
             const username = this.value;
             const passwordGroup = document.getElementById('passwordGroup');
             const passwordInput = document.getElementById('password');
             const loginButton = document.getElementById('loginButton');
+            const autoLoginNotice = document.getElementById('autoLoginNotice');
             
             if (username === 'Funcionarios') {
+                // Ocultar campo de contraseña y mostrar aviso
                 passwordGroup.style.display = 'none';
-                passwordInput.removeAttribute('required');
+                autoLoginNotice.style.display = 'block';
                 loginButton.textContent = 'Acceder como Funcionario';
+                
+                // Si es Funcionarios, hacer login automáticamente después de un breve delay
+                setTimeout(() => {
+                    loginButton.click();
+                }, 500);
             } else {
+                // Mostrar campo de contraseña y ocultar aviso
                 passwordGroup.style.display = 'block';
+                autoLoginNotice.style.display = 'none';
                 passwordInput.setAttribute('required', 'true');
                 loginButton.textContent = 'Ingresar al Sistema';
             }
         });
 
-        // Función para simular autenticación de funcionarios
-        function signInAsFuncionario() {
-            return new Promise((resolve) => {
-                // Crear un usuario simulado para Firebase
-                const funcionarioUser = {
-                    uid: 'funcionario-' + Date.now(),
-                    email: 'funcionarios@gpsacciona.com',
-                    displayName: 'Funcionarios',
-                    emailVerified: true
-                };
-                
-                // Simular el objeto de credenciales de usuario
-                resolve({
-                    user: funcionarioUser,
-                    providerId: null,
-                    operationType: 'signIn'
-                });
-            });
-        }
-
         // Procesar formulario de login
-        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
             const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
+            let password = document.getElementById('password').value;
             const errorElement = document.getElementById('errorMessage');
 
             // Validar selección de usuario
@@ -250,63 +255,44 @@
                 return;
             }
 
-            try {
-                let userCredential;
-                
-                // Si es Funcionarios, usar autenticación simulada
-                if (username === 'Funcionarios') {
-                    userCredential = await signInAsFuncionario();
-                    
-                    // Guardar datos de sesión
-                    localStorage.setItem('gpsAuth', JSON.stringify({
-                        username,
-                        isViewer: true,
-                        uid: userCredential.user.uid
-                    }));
-                    
-                    // IMPORTANTE: Establecer el estado de autenticación de Firebase manualmente
-                    firebase.auth().currentUser = userCredential.user;
-                    firebase.auth().onAuthStateChanged = (callback) => {
-                        callback(userCredential.user);
-                        return () => {}; // Retornar función de limpieza
-                    };
-                } else {
-                    // Para otros usuarios, validar contraseña
-                    if (!password) {
-                        errorElement.textContent = 'Ingrese la contraseña';
-                        errorElement.style.display = 'block';
-                        return;
-                    }
-
-                    // Obtener correo asociado al usuario
-                    const email = userEmails[username];
-                    
-                    // Iniciar sesión con Firebase Auth
-                    userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
-                    
-                    // Guardar datos de sesión
-                    localStorage.setItem('gpsAuth', JSON.stringify({
-                        username,
-                        isViewer: false,
-                        uid: userCredential.user.uid
-                    }));
-                }
-                
-                // Redirigir al panel principal
-                window.location.href = 'index.html';
-                
-            } catch (error) {
-                console.error("Error de autenticación:", error);
-                errorElement.textContent = username === 'Funcionarios' 
-                    ? 'Error al acceder como funcionario' 
-                    : 'Usuario o contraseña incorrectos';
-                errorElement.style.display = 'block';
-                
-                // Ocultar mensaje después de 3 segundos
-                setTimeout(() => {
-                    errorElement.style.display = 'none';
-                }, 3000);
+            // Si es Funcionarios, usar contraseña automática
+            if (username === 'Funcionarios') {
+                password = FUNCIONARIOS_PASSWORD;
             }
+
+            // Validar contraseña para usuarios normales
+            if (username !== 'Funcionarios' && !password) {
+                errorElement.textContent = 'Ingrese la contraseña';
+                errorElement.style.display = 'block';
+                return;
+            }
+
+            // Obtener correo asociado al usuario
+            const email = userEmails[username];
+            
+            // Iniciar sesión con Firebase Auth
+            firebase.auth().signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Guardar datos de sesión
+                    localStorage.setItem('gpsAuth', JSON.stringify({
+                        username,
+                        isViewer: username === 'Funcionarios',
+                        uid: userCredential.user.uid
+                    }));
+                    
+                    // Redirigir al panel principal
+                    window.location.href = 'index.html';
+                })
+                .catch((error) => {
+                    console.error("Error de autenticación:", error);
+                    errorElement.textContent = 'Usuario o contraseña incorrectos';
+                    errorElement.style.display = 'block';
+                    
+                    // Ocultar mensaje después de 3 segundos
+                    setTimeout(() => {
+                        errorElement.style.display = 'none';
+                    }, 3000);
+                });
         });
     </script>
 </body>
