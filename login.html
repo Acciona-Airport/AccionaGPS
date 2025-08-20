@@ -168,16 +168,16 @@
                 </select>
             </div>
             
-            <div class="form-group" id="passwordGroup">
+            <div class="form-group">
                 <label for="password">Contraseña</label>
                 <input type="password" id="password" required>
             </div>
             
             <div class="auto-login-notice" id="autoLoginNotice">
-                Acceso automático para Funcionarios
+                Acceso automático para Funcionarios (contraseña: 123456)
             </div>
             
-            <button type="submit" id="loginButton">Ingresar al Sistema</button>
+            <button type="submit">Ingresar al Sistema</button>
             <div class="error-message" id="errorMessage"></div>
         </form>
     </div>
@@ -213,30 +213,19 @@
         // Contraseña automática para Funcionarios
         const FUNCIONARIOS_PASSWORD = "123456";
 
-        // Mostrar/ocultar campo de contraseña según selección
+        // Mostrar aviso cuando se selecciona Funcionarios
         document.getElementById('username').addEventListener('change', function() {
             const username = this.value;
-            const passwordGroup = document.getElementById('passwordGroup');
-            const passwordInput = document.getElementById('password');
-            const loginButton = document.getElementById('loginButton');
             const autoLoginNotice = document.getElementById('autoLoginNotice');
             
             if (username === 'Funcionarios') {
-                // Ocultar campo de contraseña y mostrar aviso
-                passwordGroup.style.display = 'none';
                 autoLoginNotice.style.display = 'block';
-                loginButton.textContent = 'Acceder como Funcionario';
-                
-                // Si es Funcionarios, hacer login automáticamente después de un breve delay
-                setTimeout(() => {
-                    loginButton.click();
-                }, 500);
+                // Llenar automáticamente la contraseña
+                document.getElementById('password').value = FUNCIONARIOS_PASSWORD;
             } else {
-                // Mostrar campo de contraseña y ocultar aviso
-                passwordGroup.style.display = 'block';
                 autoLoginNotice.style.display = 'none';
-                passwordInput.setAttribute('required', 'true');
-                loginButton.textContent = 'Ingresar al Sistema';
+                // Limpiar la contraseña si no es Funcionarios
+                document.getElementById('password').value = '';
             }
         });
 
@@ -255,13 +244,14 @@
                 return;
             }
 
-            // Si es Funcionarios, usar contraseña automática
-            if (username === 'Funcionarios') {
+            // Si es Funcionarios y no hay contraseña, usar la automática
+            if (username === 'Funcionarios' && !password) {
                 password = FUNCIONARIOS_PASSWORD;
+                document.getElementById('password').value = password;
             }
 
-            // Validar contraseña para usuarios normales
-            if (username !== 'Funcionarios' && !password) {
+            // Validar contraseña
+            if (!password) {
                 errorElement.textContent = 'Ingrese la contraseña';
                 errorElement.style.display = 'block';
                 return;
@@ -293,6 +283,15 @@
                         errorElement.style.display = 'none';
                     }, 3000);
                 });
+        });
+
+        // Si la página se carga con Funcionarios ya seleccionado (por ejemplo, al volver atrás)
+        window.addEventListener('load', function() {
+            const usernameSelect = document.getElementById('username');
+            if (usernameSelect.value === 'Funcionarios') {
+                document.getElementById('autoLoginNotice').style.display = 'block';
+                document.getElementById('password').value = FUNCIONARIOS_PASSWORD;
+            }
         });
     </script>
 </body>
