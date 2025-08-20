@@ -6,11 +6,9 @@ self.addEventListener('message', (event) => {
 });
 
 function startGeolocationTracking(mobileId) {
-  // Función para obtener y enviar la ubicación
   function getLocation() {
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        // Enviar datos al thread principal
         self.clients.matchAll().then((clients) => {
           clients.forEach((client) => {
             client.postMessage({
@@ -35,13 +33,10 @@ function startGeolocationTracking(mobileId) {
     );
   }
 
-  // Obtener ubicación inmediatamente y luego cada 15 segundos
   getLocation();
   setInterval(getLocation, 5000);
 }
 
-// Mantener vivo el Service Worker
 self.addEventListener('activate', event => {
   event.waitUntil(self.clients.claim());
-
 });
