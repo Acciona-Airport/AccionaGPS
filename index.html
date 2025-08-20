@@ -188,7 +188,7 @@
         }
         .vehicle-marker.offline {
             background-color: #95a5a6;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 极-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 极-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5v-5极14v5z"/><circle cx="7.5" cy="14.5" r="1.5"/><circle cx="16.5" cy="14.5" r="1.5"/></svg>');
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5v-5h14v5z"/><circle cx="7.5" cy="14.5" r="1.5"/><circle cx="16.5" cy="14.5" r="1.5"/></svg>');
             opacity: 0.7;
         }
         .vehicle-label {
@@ -223,7 +223,7 @@
             font-weight: 600;
             display: flex;
             align-items: center;
-           极ap: 8px;
+            gap: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             transition: background 0.3s, transform 0.2s;
             pointer-events: auto;
@@ -298,7 +298,7 @@
             left: -10px;
             top: -10px;
             opacity: 0.6;
-            animation: pulse极s infinite;
+            animation: pulse 2s infinite;
         }
         @keyframes pulse {
             0% { transform: scale(0.8); opacity: 0.6; }
@@ -350,12 +350,12 @@
             z-index: 999;
             display: none;
         }
-        .control-panel.visible ~极map-touch-overlay {
+        .control-panel.visible ~ .map-touch-overlay {
             display: block;
         }
         .route-selector {
             position: fixed;
-            top: 110px;
+            top: 70px;
             left: 10px;
             z-index: 1000;
             background: rgba(255, 255, 255, 0.9);
@@ -377,7 +377,7 @@
     <div id="map"></div>
     <div class="map-touch-overlay" id="mapTouchOverlay"></div>
     
-    <div class="status-notification" id极statusNotification"></div>
+    <div class="status-notification" id="statusNotification"></div>
     
     <div class="current-user-indicator" id="currentUserIndicator">
         <span id="locationStatus">Buscando tu ubicación...</span>
@@ -400,7 +400,7 @@
                     <span>Última actualización:</span>
                     <span id="lastUpdateValue" class="diagnostic-value">--</span>
                 </div>
-                <div class极diagnostic-item">
+                <div class="diagnostic-item">
                     <span>Método:</span>
                     <span id="methodValue" class="diagnostic-value">--</span>
                 </div>
@@ -460,7 +460,7 @@
                     </div>
                     <div class="vehicle-status">
                         <span>Estado:</span>
-                        <span id="mov极1-status" class="offline">Desconectado</span>
+                        <span id="movil1-status" class="offline">Desconectado</span>
                     </div>
                 </div>
                 
@@ -487,7 +487,7 @@
                 </div>
                 
                 <div class="vehicle-card">
-                    <div class极vehicle-name">
+                    <div class="vehicle-name">
                         <div id="movil4-icon" class="vehicle-icon offline"></div>
                         Móvil 4
                     </div>
@@ -505,15 +505,15 @@
             <div class="hamburger-icon">
                 <div class="hamburger-line"></div>
                 <div class="hamburger-line"></div>
-                <div class="hamburger极line"></div>
+                <div class="hamburger-line"></div>
             </div>
         </button>
     </div>
 
     <div class="refresh-container">
         <button class="refresh-btn" id="refreshBtn">
-            <svg class="refresh-icon" xmlns="http://www.w3.org/2000/svg" viewBox="极 0 24 24" fill="white">
-                <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6极1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+            <svg class="refresh-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
+                <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
             </svg>
             Actualizar
         </button>
@@ -535,9 +535,9 @@
     
     <script>
         const firebaseConfig = {
-            apiKey: "AIzaSyDT85qotm1EpAJzJ极CFeoNwGyo-VKhM6dk",
+            apiKey: "AIzaSyDT85qotm1EpAJzJzCFeoNwGyo-VKhM6dk",
             authDomain: "gpsaccionascl2025.firebaseapp.com",
-            databaseURL: "https://g极saccionascl2025-default-rtdb.firebaseio.com",
+            databaseURL: "https://gpsaccionascl2025-default-rtdb.firebaseio.com",
             projectId: "gpsaccionascl2025",
             storageBucket: "gpsaccionascl2025.appspot.com",
             messagingSenderId: "742246618721",
@@ -571,7 +571,7 @@
             [-33.4092635, -70.7895518],
             [-33.404626, -70.7897795],
             [-33.4045659, -70.7889574],
-            [-33.3965734, -极.7893183],
+            [-33.3965734, -70.7893183],
             [-33.3966737, -70.7910012],
             [-33.3970831, -70.790958],
             [-33.3971273, -70.7919677],
@@ -592,25 +592,25 @@
         ];
         
         const route2Coordinates = [
-            [-33.4096489, -70.7892732],
-            [-33.4093416, -70.7895579],
-            [-33.4046013, -70.7898303],
-            [-33.4045362, -70.7889762],
-            [-33.3966243, -70.7893156],
-            [-33.396535, -70.7894658],
-            [-33.3960629, -70.7895151],
-            [-33.3963403, -70.7977141],
-            [-33.3964389, -70.7977093],
-            [-33.3961615, -70.7895498],
-            [-33.3966124, -70.7895158],
-            [-33.3966597, -70.7909835],
-            [-33.3970632, -70.7911581],
-            [-33.3970881, -70.7919946],
-            [-33.4044896, -70.7915298],
-            [-33.4044823, -70.789894],
-            [-33.4092579, -70.7896023],
-            [-33.4096104, -70.7892531]
-        ];
+    [-33.4096489, -70.7892732],
+    [-33.4093416, -70.7895579],
+    [-33.4046013, -70.7898303],
+    [-33.4045362, -70.7889762],
+    [-33.3966243, -70.7893156],
+    [-33.396535, -70.7894658],
+    [-33.3960629, -70.7895151],
+    [-33.3963403, -70.7977141],
+    [-33.3964389, -70.7977093],
+    [-33.3961615, -70.7895498],
+    [-33.3966124, -70.7895158],
+    [-33.3966597, -70.7909835],
+    [-33.3970632, -70.7911581],
+    [-33.3970881, -70.7919946],
+    [-33.4044896, -70.7915298],
+    [-33.4044823, -70.789894],
+    [-33.4092579, -70.7896023],
+    [-33.4096104, -70.7892531]
+];
         
         const mapProviders = {
             esri: {
@@ -624,7 +624,7 @@
                 maxZoom: 20
             },
             osm: {
-                url: 'https://{s}.tile.openstreetmap.org/{极}/{x}/{y}.png',
+                url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
                 maxZoom: 19
             }
@@ -680,7 +680,7 @@
         }
         
         function setMapProvider(providerKey) {
-           极f (currentTileLayer) {
+            if (currentTileLayer) {
                 map.removeLayer(currentTileLayer);
             }
             
@@ -742,7 +742,7 @@
                 });
             }
             
-            const mapTouchOverlay = document.getElementById('mapTouch极verlay');
+            const mapTouchOverlay = document.getElementById('mapTouchOverlay');
             mapTouchOverlay.addEventListener('click', function() {
                 panel.classList.remove('visible');
             });
