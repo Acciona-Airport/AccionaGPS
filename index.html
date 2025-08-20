@@ -43,7 +43,6 @@
             height: 100vh;
             z-index: 1;
         }
-        /* Panel de Control de Flota */
         .control-panel-container {
             position: fixed;
             top: 15px;
@@ -51,6 +50,7 @@
             z-index: 1000;
             display: flex;
             overflow: hidden;
+            pointer-events: none;
         }
         .control-panel {
             background: rgba(255,255,255,0.95);
@@ -66,6 +66,7 @@
             max-height: 80vh;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
+            pointer-events: auto;
         }
         .control-panel.visible {
             transform: translateX(0);
@@ -84,6 +85,7 @@
             box-shadow: -3px 0 5px rgba(0,0,0,0.1);
             margin-left: 5px;
             flex-shrink: 0;
+            pointer-events: auto;
         }
         .toggle-panel:hover {
             background: var(--red-light);
@@ -145,11 +147,9 @@
         .logout-btn:hover {
             background: var(--red-dark);
         }
-        /* Panel de Diagnóstico GPS (OCULTO) */
         .diagnostic-panel-container {
             display: none;
         }
-        /* Estilos para los iconos de autos */
         .vehicle-icon {
             background-size: 70%;
             background-repeat: no-repeat;
@@ -170,7 +170,6 @@
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5v-5h14v5z"/><circle cx="7.5" cy="14.5" r="1.5"/><circle cx="16.5" cy="14.5" r="1.5"/></svg>');
             opacity: 0.7;
         }
-        /* Estilo para los marcadores en el mapa */
         .vehicle-marker {
             background-size: 70%;
             background-repeat: no-repeat;
@@ -190,7 +189,6 @@
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5v-5h14v5z"/><circle cx="7.5" cy="14.5" r="1.5"/><circle cx="16.5" cy="14.5" r="1.5"/></svg>');
             opacity: 0.7;
         }
-        /* Estilo para la etiqueta del marcador */
         .vehicle-label {
             position: absolute;
             bottom: -10px;
@@ -203,7 +201,6 @@
             text-shadow: 0 0 3px white;
             pointer-events: none;
         }
-        /* Estilos para el botón de actualización */
         .refresh-container {
             position: fixed;
             bottom: 20px;
@@ -248,7 +245,6 @@
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
-        /* Añadido: Selector de proveedor de mapas */
         .map-provider-selector {
             position: fixed;
             bottom: 70px;
@@ -265,7 +261,6 @@
             border-radius: 3px;
             border: 1px solid #ccc;
         }
-        /* Notificación de estado */
         .status-notification {
             position: fixed;
             top: 10px;
@@ -279,7 +274,6 @@
             display: none;
             font-size: 14px;
         }
-        /* Indicador de ubicación propia */
         .current-user-indicator {
             position: fixed;
             top: 10px;
@@ -293,8 +287,6 @@
             font-weight: bold;
             color: var(--red-dark);
         }
-        
-        /* Pulsating circle for user location */
         .pulse-circle {
             border-radius: 50%;
             background-color: var(--user-position-color);
@@ -311,8 +303,6 @@
             70% { transform: scale(2.5); opacity: 0; }
             100% { transform: scale(0.8); opacity: 0; }
         }
-        
-        /* Emergency location button */
         .emergency-locate-btn {
             position: fixed;
             bottom: 20px;
@@ -332,35 +322,40 @@
             justify-content: center;
             font-size: 24px;
         }
-        
-        /* Location accuracy circle */
         .accuracy-circle {
             fill: rgba(52, 152, 219, 0.2);
             stroke: rgba(52, 152, 219, 0.5);
             stroke-width: 1;
         }
-        
-        /* Ajuste para controles de zoom de Leaflet */
         .leaflet-control-zoom {
             margin-top: 80px !important;
         }
-        
-        /* Mejoras para dispositivos móviles */
         .leaflet-bar a {
             width: 40px !important;
             height: 40px !important;
             line-height: 40px !important;
             font-size: 24px !important;
         }
-        
-        /* Prevenir zoom no deseado en el mapa */
         .leaflet-container {
             touch-action: manipulation;
+        }
+        .map-touch-overlay {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 50px;
+            height: 100%;
+            z-index: 999;
+            display: none;
+        }
+        .control-panel.visible ~ .map-touch-overlay {
+            display: block;
         }
     </style>
 </head>
 <body>
     <div id="map"></div>
+    <div class="map-touch-overlay" id="mapTouchOverlay"></div>
     
     <div class="status-notification" id="statusNotification"></div>
     
@@ -368,7 +363,6 @@
         <span id="locationStatus">Buscando tu ubicación...</span>
     </div>
 
-    <!-- Panel de Diagnóstico GPS (OCULTO) -->
     <div class="diagnostic-panel-container">
         <div class="diagnostic-panel" id="diagnosticPanel">
             <h3 style="margin-top:0;color:var(--blue-dark);">📊 Diagnóstico GPS</h3>
@@ -408,7 +402,6 @@
 
     <button class="emergency-locate-btn" id="emergencyLocateBtn" title="Centrar en mi ubicación">📍</button>
 
-    <!-- Panel de Control de Flota (derecha) -->
     <div class="control-panel-container">
         <div class="control-panel" id="controlPanel">
             <h3 style="margin-top:0;color:var(--red-dark);">🚗 Flota Acciona</h3>
@@ -428,7 +421,6 @@
                 </div>
             </div>
             
-            <!-- Sección oculta para funcionarios -->
             <div id="other-vehicles-container" style="display: none;">
                 <h4 style="margin: 15px 0 10px 0; color: var(--red-dark);">Otros Vehículos</h4>
                 
@@ -489,7 +481,6 @@
         </button>
     </div>
 
-    <!-- Botón de actualización -->
     <div class="refresh-container">
         <button class="refresh-btn" id="refreshBtn">
             <svg class="refresh-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
@@ -499,7 +490,6 @@
         </button>
     </div>
 
-    <!-- Selector de proveedor de mapas -->
     <div class="map-provider-selector">
         <label for="mapProvider">Mapa:</label>
         <select id="mapProvider">
@@ -509,14 +499,12 @@
         </select>
     </div>
 
-    <!-- Firebase y Leaflet JS -->
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <script>
-        // Configuración Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyDT85qotm1EpAJzJzCFeoNwGyo-VKhM6dk",
             authDomain: "gpsaccionascl2025.firebaseapp.com",
@@ -527,11 +515,9 @@
             appId: "1:742246618721:web:72d0046987416800f07c20"
         };
 
-        // Inicializa Firebase
         const app = firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // Configuración del mapa
         const SCL_COORDS = [-33.3931, -70.7858];
         const INACTIVE_COORDS = [-33.409995, -70.788647];
         const ZOOM_INICIAL = 14;
@@ -550,7 +536,6 @@
         let lastKnownPosition = null;
         let locationUpdateInterval = null;
         
-        // Proveedores de mapas alternativos (solución al problema de User-Agent)
         const mapProviders = {
             esri: {
                 url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
@@ -569,7 +554,6 @@
             }
         };
         
-        // Verificar autenticación al cargar
         firebase.auth().onAuthStateChanged((user) => {
             if (!user) {
                 window.location.href = 'login.html';
@@ -583,19 +567,14 @@
                 initMap();
                 setupUI();
                 
-                // Mostrar solo la ubicación del usuario actual
                 document.getElementById('current-user-name').textContent = currentUserId;
                 
-                // Si es viewer, mostrar todos los vehículos
                 if (isViewer) {
                     document.getElementById('other-vehicles-container').style.display = 'block';
                     initializeAllMarkers();
                     startMonitoring();
                 } else {
-                    // Si es funcionario, mostrar solo su ubicación
                     initializeCurrentUserMarker();
-                    
-                    // Iniciar seguimiento GPS para el usuario actual
                     startGPSTracking(currentUserId);
                 }
             }
@@ -604,53 +583,44 @@
         function initMap() {
             map = L.map('map', {
                 zoomControl: true,
-                tap: false, // Mejora la interacción táctil
+                tap: false,
                 dragging: true
             }).setView(SCL_COORDS, ZOOM_INICIAL);
             
-            // Cargar el proveedor de mapas guardado o usar ESRI por defecto
             const savedProvider = localStorage.getItem('mapProvider') || 'esri';
             document.getElementById('mapProvider').value = savedProvider;
             setMapProvider(savedProvider);
             
-            // Marcador del aeropuerto
             L.marker(SCL_COORDS)
                 .addTo(map)
                 .bindPopup('✈️ Aeropuerto SCL')
                 .openPopup();
                 
-            // Crear marcador para la posición del usuario
             createUserPositionMarker(SCL_COORDS);
             
-            // Mejorar la interacción táctil en dispositivos móviles
             if (L.Browser.touch) {
                 map.doubleClickZoom.disable();
             }
         }
         
         function setMapProvider(providerKey) {
-            // Eliminar la capa actual si existe
             if (currentTileLayer) {
                 map.removeLayer(currentTileLayer);
             }
             
-            // Obtener la configuración del proveedor
             const provider = mapProviders[providerKey];
             
-            // Añadir la nueva capa
             currentTileLayer = L.tileLayer(provider.url, {
                 attribution: provider.attribution,
                 maxZoom: provider.maxZoom
             }).addTo(map);
             
-            // Guardar la preferencia
             localStorage.setItem('mapProvider', providerKey);
         }
         
         function setupUI() {
             document.getElementById('logoutBtn').addEventListener('click', logout);
             
-            // Configurar paneles (ambos ocultos al inicio)
             const panel = document.getElementById('controlPanel');
             const toggleBtn = document.getElementById('togglePanel');
             
@@ -658,7 +628,6 @@
                 panel.classList.toggle('visible');
             });
             
-            // Configurar botón de actualización
             const refreshBtn = document.getElementById('refreshBtn');
             refreshBtn.addEventListener('click', function() {
                 refreshBtn.classList.add('loading');
@@ -671,25 +640,20 @@
                 }, 500);
             });
             
-            // Configurar selector de proveedor de mapas
             document.getElementById('mapProvider').addEventListener('change', function(e) {
                 setMapProvider(e.target.value);
             });
             
-            // Configurar botón de forzar ubicación
             document.getElementById('forceLocationBtn').addEventListener('click', function() {
                 forceLocationUpdate();
             });
             
-            // Configurar botón de emergencia para centrar en ubicación
             document.getElementById('emergencyLocateBtn').addEventListener('click', function() {
                 centerOnUserLocation();
             });
             
-            // Detectar cambios de visibilidad de la página
             document.addEventListener('visibilitychange', handleVisibilityChange);
             
-            // Detectar eventos de bloqueo/desbloqueo de pantalla
             if ('wakeLock' in navigator) {
                 document.addEventListener('visibilitychange', async () => {
                     if (document.visibilityState === 'visible') {
@@ -697,6 +661,11 @@
                     }
                 });
             }
+            
+            const mapTouchOverlay = document.getElementById('mapTouchOverlay');
+            mapTouchOverlay.addEventListener('click', function() {
+                panel.classList.remove('visible');
+            });
         }
         
         function handleVisibilityChange() {
@@ -706,7 +675,6 @@
                 notification.style.display = 'block';
                 setTimeout(() => { notification.style.display = 'none'; }, 3000);
                 
-                // Reforzar la obtención de ubicación cuando la app vuelve a primer plano
                 if (!isViewer) {
                     forceLocationUpdate();
                 }
@@ -721,14 +689,11 @@
             try {
                 if ('wakeLock' in navigator) {
                     wakeLock = await navigator.wakeLock.request('screen');
-                    console.log('Wake Lock activado para evitar que la pantalla se apague');
                     
                     wakeLock.addEventListener('release', () => {
-                        console.log('Wake Lock liberado');
                     });
                 }
             } catch (err) {
-                console.error('Error activando Wake Lock:', err);
             }
         }
         
@@ -747,7 +712,6 @@
         }
         
         function createUserPositionMarker(coords) {
-            // Eliminar marcador existente si hay uno
             if (userPositionMarker) {
                 map.removeLayer(userPositionMarker);
             }
@@ -755,7 +719,6 @@
                 map.removeLayer(userAccuracyCircle);
             }
             
-            // Crear un icono personalizado para la posición del usuario
             const userIcon = L.divIcon({
                 className: 'user-position-marker',
                 html: `
@@ -766,12 +729,10 @@
                 iconAnchor: [10, 10]
             });
             
-            // Crear el marcador
             userPositionMarker = L.marker(coords, { icon: userIcon, zIndexOffset: 1000 })
                 .addTo(map)
                 .bindPopup('<b>Tu ubicación actual</b>');
                 
-            // Centrar el mapa en la ubicación del usuario
             map.setView(coords, 16);
         }
         
@@ -782,23 +743,20 @@
                 userPositionMarker.setLatLng(coords);
             }
             
-            // Actualizar círculo de precisión
             if (userAccuracyCircle) {
                 map.removeLayer(userAccuracyCircle);
             }
             
-            if (accuracy && accuracy < 1000) { // Solo mostrar si la precisión es razonable
+            if (accuracy && accuracy < 1000) {
                 userAccuracyCircle = L.circle(coords, {
                     radius: accuracy,
                     className: 'accuracy-circle'
                 }).addTo(map);
             }
             
-            // Actualizar coordenadas en el panel
             document.getElementById('current-user-coords').textContent = 
                 `${coords[0].toFixed(6)}, ${coords[1].toFixed(6)}`;
                 
-            // Actualizar diagnóstico
             document.getElementById('accuracyValue').textContent = 
                 accuracy ? `${accuracy.toFixed(1)} metros` : 'Desconocida';
             document.getElementById('lastUpdateValue').textContent = new Date().toLocaleTimeString();
@@ -808,26 +766,20 @@
             if (gpsInterval) clearInterval(gpsInterval);
             if (locationUpdateInterval) clearInterval(locationUpdateInterval);
             
-            // Solicitar Wake Lock para evitar que la pantalla se apague
             requestWakeLock();
             
-            // Iniciar seguimiento de ubicación inmediatamente
             updatePosition(mobileId);
             
-            // Configurar intervalo de actualización de ubicación
             locationUpdateInterval = setInterval(() => {
                 updatePosition(mobileId);
             }, 5000);
             
-            // Configurar seguimiento de geolocalización en segundo plano
             setupBackgroundGeolocation(mobileId);
             
-            // Forzar una actualización adicional después de 2 segundos
             setTimeout(() => updatePosition(mobileId), 2000);
         }
         
         function setupBackgroundGeolocation(mobileId) {
-            // Usar la API de Geolocalización con configuraciones para segundo plano
             if ('geolocation' in navigator) {
                 const geoOptions = {
                     enableHighAccuracy: true,
@@ -835,7 +787,6 @@
                     timeout: 10000
                 };
                 
-                // Iniciar watchPosition para obtener actualizaciones continuas
                 if (backgroundGeolocationWatchId !== null) {
                     navigator.geolocation.clearWatch(backgroundGeolocationWatchId);
                 }
@@ -852,7 +803,6 @@
                         savePosition(mobileId, coords, accuracy);
                     },
                     (error) => {
-                        console.error('Error en watchPosition:', error);
                         updateDiagnostic('bad', `Error: ${getGeolocationErrorText(error)}`);
                         updateStatus(mobileId, 'offline');
                     },
@@ -865,7 +815,6 @@
         
         function updatePosition(mobileId) {
             if (navigator.geolocation) {
-                // Método 1: getCurrentPosition con timeout corto
                 navigator.geolocation.getCurrentPosition(
                     position => {
                         const coords = [
@@ -878,9 +827,6 @@
                         savePosition(mobileId, coords, accuracy);
                     },
                     error => {
-                        console.error('Error GPS con getCurrentPosition:', error);
-                        
-                        // Método 2: Intentar con opciones menos estrictas
                         navigator.geolocation.getCurrentPosition(
                             position => {
                                 const coords = [
