@@ -803,16 +803,26 @@
             // Ocultar/mostrar elementos según el rol
             document.getElementById('other-vehicles-container').style.display = isViewer ? 'block' : 'none';
             document.getElementById('routeSelector').style.display = isViewer ? 'block' : 'none';
-            document.getElementById('emergencyLocateBtn').style.display = isViewer ? 'none' : 'flex';
+            // Ajuste para que el botón de ubicación de emergencia sea visible para el Admin
+            document.getElementById('emergencyLocateBtn').style.display = isAdmin ? 'flex' : (isViewer ? 'none' : 'flex');
             document.getElementById('adminNav').style.display = isAdmin ? 'flex' : 'none';
             document.getElementById('dashboardPanel').style.display = 'none';
             document.getElementById('historyPanel').style.display = 'none';
             
             initMap();
-            if (isViewer) {
+            
+            // Lógica actualizada para manejar a los usuarios "Admin"
+            if (isAdmin) {
+                // Un admin es un visor y un rastreador a la vez
+                startViewerUpdates();
+                initViewerDashboard();
+                startGPSLocationTracking();
+            } else if (isViewer) {
+                // Otros visores (como Jefes de Carrusel)
                 startViewerUpdates();
                 initViewerDashboard();
             } else {
+                // Usuarios regulares (funcionarios)
                 startGPSLocationTracking();
             }
             
