@@ -24,6 +24,13 @@
             --blue-dark: #1976d2;
             --route1-color: #e74c3c;
             --route2-color: #9b59b6;
+            --dashboard-bg: #f8f9fa;
+            --dashboard-card: #ffffff;
+            --dashboard-text: #333333;
+            --dashboard-border: #e0e0e0;
+            --shift1-color: #3498db;
+            --shift2-color: #9b59b6;
+            --shift3-color: #e67e22;
         }
         * {
             -webkit-tap-highlight-color: transparent;
@@ -456,6 +463,116 @@
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(211, 47, 47, 0.3);
         }
+        
+        /* Dashboard para Admin */
+        .admin-dashboard {
+            display: none;
+            background: var(--dashboard-card);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 1px solid var(--dashboard-border);
+        }
+        .admin-dashboard h4 {
+            color: var(--red-dark);
+            margin-top: 0;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--dashboard-border);
+        }
+        .dashboard-tabs {
+            display: flex;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--dashboard-border);
+        }
+        .dashboard-tab {
+            padding: 8px 15px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            font-weight: 500;
+        }
+        .dashboard-tab.active {
+            border-bottom-color: var(--red-primary);
+            color: var(--red-dark);
+        }
+        .dashboard-content {
+            display: none;
+        }
+        .dashboard-content.active {
+            display: block;
+        }
+        .lap-counter {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: var(--dashboard-bg);
+            border-radius: 6px;
+        }
+        .lap-counter h5 {
+            margin: 0 0 8px 0;
+            color: var(--dashboard-text);
+            font-size: 14px;
+        }
+        .lap-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        .lap-stat {
+            text-align: center;
+            padding: 8px;
+            border-radius: 4px;
+            background: var(--dashboard-card);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .lap-stat.shift1 {
+            border-top: 3px solid var(--shift1-color);
+        }
+        .lap-stat.shift2 {
+            border-top: 3px solid var(--shift2-color);
+        }
+        .lap-stat.shift3 {
+            border-top: 3px solid var(--shift3-color);
+        }
+        .lap-count {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+        .lap-label {
+            font-size: 11px;
+            color: #666;
+        }
+        .dashboard-metrics {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .metric-card {
+            padding: 10px;
+            background: var(--dashboard-bg);
+            border-radius: 6px;
+            text-align: center;
+        }
+        .metric-value {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .metric-label {
+            font-size: 12px;
+            color: #666;
+        }
+        .start-point-marker {
+            background-color: #ffeb3b;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            animation: pulse 2s infinite;
+        }
     </style>
 </head>
 <body>
@@ -519,6 +636,110 @@
     <div class="control-panel-container">
         <div class="control-panel" id="controlPanel">
             <h3 style="margin-top:0;color:var(--red-dark);">🚗 Flota Acciona</h3>
+            
+            <div class="admin-dashboard" id="adminDashboard">
+                <h4>📊 Dashboard Administrador</h4>
+                
+                <div class="dashboard-tabs">
+                    <div class="dashboard-tab active" data-tab="laps">Vueltas</div>
+                    <div class="dashboard-tab" data-tab="metrics">Métricas</div>
+                </div>
+                
+                <div class="dashboard-content active" id="lapsContent">
+                    <div class="lap-counter" id="movil1Laps">
+                        <h5>Móvil 1</h5>
+                        <div class="lap-stats">
+                            <div class="lap-stat shift1">
+                                <div class="lap-count" id="movil1Shift1">0</div>
+                                <div class="lap-label">13:00 - 22:00</div>
+                            </div>
+                            <div class="lap-stat shift2">
+                                <div class="lap-count" id="movil1Shift2">0</div>
+                                <div class="lap-label">22:00 - 06:00</div>
+                            </div>
+                            <div class="lap-stat shift3">
+                                <div class="lap-count" id="movil1Shift3">0</div>
+                                <div class="lap-label">06:00 - 13:00</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="lap-counter" id="movil2Laps">
+                        <h5>Móvil 2</h5>
+                        <div class="lap-stats">
+                            <div class="lap-stat shift1">
+                                <div class="lap-count" id="movil2Shift1">0</div>
+                                <div class="lap-label">13:00 - 22:00</div>
+                            </div>
+                            <div class="lap-stat shift2">
+                                <div class="lap-count" id="movil2Shift2">0</div>
+                                <div class="lap-label">22:00 - 06:00</div>
+                            </div>
+                            <div class="lap-stat shift3">
+                                <div class="lap-count" id="movil2Shift3">0</div>
+                                <div class="lap-label">06:00 - 13:00</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="lap-counter" id="movil3Laps">
+                        <h5>Móvil 3</h5>
+                        <div class="lap-stats">
+                            <div class="lap-stat shift1">
+                                <div class="lap-count" id="movil3Shift1">0</div>
+                                <div class="lap-label">13:00 - 22:00</div>
+                            </div>
+                            <div class="lap-stat shift2">
+                                <div class="lap-count" id="movil3Shift2">0</div>
+                                <div class="lap-label">22:00 - 06:00</div>
+                            </div>
+                            <div class="lap-stat shift3">
+                                <div class="lap-count" id="movil3Shift3">0</div>
+                                <div class="lap-label">06:00 - 13:00</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="lap-counter" id="movil4Laps">
+                        <h5>Móvil 4</h5>
+                        <div class="lap-stats">
+                            <div class="lap-stat shift1">
+                                <div class="lap-count" id="movil4Shift1">0</div>
+                                <div class="lap-label">13:00 - 22:00</div>
+                            </div>
+                            <div class="lap-stat shift2">
+                                <div class="lap-count" id="movil4Shift2">0</div>
+                                <div class="lap-label">22:00 - 06:00</div>
+                            </div>
+                            <div class="lap-stat shift3">
+                                <div class="lap-count" id="movil4Shift3">0</div>
+                                <div class="lap-label">06:00 - 13:00</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="dashboard-content" id="metricsContent">
+                    <div class="dashboard-metrics">
+                        <div class="metric-card">
+                            <div class="metric-value" id="totalLaps">0</div>
+                            <div class="metric-label">Total Vueltas Hoy</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="activeVehicles">0</div>
+                            <div class="metric-label">Vehículos Activos</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="avgLapTime">--</div>
+                            <div class="metric-label">Tiempo Promedio</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="lastUpdate">--</div>
+                            <div class="metric-label">Última Actualización</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             
             <div class="vehicle-card">
                 <div class="vehicle-name">
@@ -642,6 +863,8 @@
 
         const SCL_COORDS = [-33.3931, -70.7858];
         const INACTIVE_COORDS = [-33.409995, -70.788647];
+        const START_POINT = [-33.409455, -70.789421];
+        const DETECTION_RADIUS = 100; // metros
         const ZOOM_INICIAL = 14;
         let map;
         let currentTileLayer;
@@ -662,6 +885,15 @@
         let viewerUpdateInterval = null;
         let currentRouteLayer = null;
         let vehicleNames = {};
+        
+        // Variables para el conteo de vueltas
+        let lapCounters = {
+            Movil1: { shift1: 0, shift2: 0, shift3: 0, lastLapTime: null, isNearStart: false },
+            Movil2: { shift1: 0, shift2: 0, shift3: 0, lastLapTime: null, isNearStart: false },
+            Movil3: { shift1: 0, shift2: 0, shift3: 0, lastLapTime: null, isNearStart: false },
+            Movil4: { shift1: 0, shift2: 0, shift3: 0, lastLapTime: null, isNearStart: false }
+        };
+        let startPointMarker = null;
         
         const route1Coordinates = [
             [-33.4095444, -70.7893019],
@@ -762,6 +994,13 @@
             const displayName = (currentUserId === 'Funcionarios') ? 'Yo' : (vehicleNames[currentUserId] || currentUserId);
             document.getElementById('current-user-name').textContent = displayName;
             
+            // Mostrar dashboard si es admin
+            if (currentUserId === 'Admin') {
+                document.getElementById('adminDashboard').style.display = 'block';
+                loadLapCounters();
+                setupDashboardTabs();
+            }
+            
             if (isViewer) {
                 document.getElementById('other-vehicles-container').style.display = 'block';
                 updateVehicleNamesInUI();
@@ -771,6 +1010,152 @@
                 initializeCurrentUserMarker();
                 startGPSTracking(currentUserId);
             }
+        }
+        
+        function setupDashboardTabs() {
+            const tabs = document.querySelectorAll('.dashboard-tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remover clase active de todas las pestañas
+                    tabs.forEach(t => t.classList.remove('active'));
+                    // Añadir clase active a la pestaña clickeada
+                    tab.classList.add('active');
+                    
+                    // Ocultar todos los contenidos
+                    document.querySelectorAll('.dashboard-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    // Mostrar el contenido correspondiente
+                    const tabId = tab.getAttribute('data-tab');
+                    document.getElementById(`${tabId}Content`).classList.add('active');
+                });
+            });
+        }
+        
+        function loadLapCounters() {
+            const today = new Date().toISOString().split('T')[0];
+            database.ref(`lapCounters/${today}`).once('value')
+                .then(snapshot => {
+                    const data = snapshot.val();
+                    if (data) {
+                        Object.keys(data).forEach(vehicle => {
+                            if (lapCounters[vehicle]) {
+                                if (data[vehicle].shift1) lapCounters[vehicle].shift1 = data[vehicle].shift1;
+                                if (data[vehicle].shift2) lapCounters[vehicle].shift2 = data[vehicle].shift2;
+                                if (data[vehicle].shift3) lapCounters[vehicle].shift3 = data[vehicle].shift3;
+                                if (data[vehicle].lastLapTime) lapCounters[vehicle].lastLapTime = data[vehicle].lastLapTime;
+                                
+                                // Actualizar UI
+                                updateLapCounterUI(vehicle);
+                            }
+                        });
+                        updateMetrics();
+                    }
+                })
+                .catch(error => {
+                    console.error("Error al cargar contadores de vueltas:", error);
+                });
+        }
+        
+        function saveLapCounters() {
+            const today = new Date().toISOString().split('T')[0];
+            database.ref(`lapCounters/${today}`).set(lapCounters)
+                .then(() => {
+                    console.log("Contadores de vueltas guardados");
+                })
+                .catch(error => {
+                    console.error("Error al guardar contadores de vueltas:", error);
+                });
+        }
+        
+        function updateLapCounterUI(vehicle) {
+            const counter = lapCounters[vehicle];
+            document.getElementById(`${vehicle.toLowerCase()}Shift1`).textContent = counter.shift1;
+            document.getElementById(`${vehicle.toLowerCase()}Shift2`).textContent = counter.shift2;
+            document.getElementById(`${vehicle.toLowerCase()}Shift3`).textContent = counter.shift3;
+        }
+        
+        function updateMetrics() {
+            // Calcular total de vueltas
+            let totalLaps = 0;
+            Object.keys(lapCounters).forEach(vehicle => {
+                totalLaps += lapCounters[vehicle].shift1 + lapCounters[vehicle].shift2 + lapCounters[vehicle].shift3;
+            });
+            document.getElementById('totalLaps').textContent = totalLaps;
+            
+            // Calcular vehículos activos
+            let activeCount = 0;
+            Object.keys(vehicleCache).forEach(vehicle => {
+                if (vehicleCache[vehicle] && vehicleCache[vehicle].status === 'online') {
+                    activeCount++;
+                }
+            });
+            document.getElementById('activeVehicles').textContent = activeCount;
+            
+            // Actualizar última actualización
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+        }
+        
+        function checkLapCompletion(vehicle, coords) {
+            // Calcular distancia al punto de inicio
+            const distance = calculateDistance(
+                coords[0], coords[1],
+                START_POINT[0], START_POINT[1]
+            );
+            
+            // Si está cerca del punto de inicio y no estaba cerca previamente
+            if (distance <= DETECTION_RADIUS && !lapCounters[vehicle].isNearStart) {
+                lapCounters[vehicle].isNearStart = true;
+            }
+            // Si se alejó del punto de inicio después de haber estado cerca
+            else if (distance > DETECTION_RADIUS && lapCounters[vehicle].isNearStart) {
+                lapCounters[vehicle].isNearStart = false;
+                
+                // Registrar vuelta completada
+                registerLap(vehicle);
+            }
+        }
+        
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371000; // Radio de la Tierra en metros
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = 
+                Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+        
+        function registerLap(vehicle) {
+            const now = new Date();
+            const hour = now.getHours();
+            let shift;
+            
+            // Determinar turno según la hora
+            if (hour >= 13 && hour < 22) {
+                shift = 'shift1';
+            } else if (hour >= 22 || hour < 6) {
+                shift = 'shift2';
+            } else {
+                shift = 'shift3';
+            }
+            
+            // Incrementar contador
+            lapCounters[vehicle][shift]++;
+            
+            // Guardar tiempo de la última vuelta
+            lapCounters[vehicle].lastLapTime = now.getTime();
+            
+            // Actualizar UI y guardar en base de datos
+            updateLapCounterUI(vehicle);
+            updateMetrics();
+            saveLapCounters();
+            
+            // Mostrar notificación
+            showNotification(`¡${vehicle} completó una vuelta en el turno ${shift}!`, 5000);
         }
         
         function updateVehicleNamesInUI() {
@@ -800,6 +1185,16 @@
                 .bindPopup('✈️ Aeropuerto SCL')
                 .openPopup();
             createUserPositionMarker(SCL_COORDS);
+            
+            // Añadir marcador para el punto de inicio de vueltas
+            startPointMarker = L.marker(START_POINT, {
+                icon: L.divIcon({
+                    className: 'start-point-marker',
+                    iconSize: [16, 16],
+                    iconAnchor: [8, 8]
+                })
+            }).addTo(map)
+            .bindPopup('<b>Punto de inicio de vueltas</b><br>Coordenadas: -33.409455, -70.789421');
             
             if (L.Browser.touch) {
                 map.doubleClickZoom.disable();
@@ -1219,6 +1614,11 @@
             updateMarker(mobileId, coords, true);
             updateStatus(mobileId, 'online');
             
+            // Si es admin, verificar si se completó una vuelta
+            if (currentUserId === 'Admin') {
+                checkLapCompletion(mobileId, coords);
+            }
+            
             if (mobileId === currentUserId) {
                 map.setView(coords, Math.max(map.getZoom(), 16));
             }
@@ -1241,6 +1641,12 @@
                             if (!vehicleCache[mobileId] || vehicle.lastUpdate > vehicleCache[mobileId].lastUpdate) {
                                 vehicleCache[mobileId] = vehicle;
                                 newDataFound = true;
+                                
+                                // Si es admin, verificar si se completó una vuelta
+                                if (currentUserId === 'Admin') {
+                                    const coords = [vehicle.coords.lat, vehicle.coords.lng];
+                                    checkLapCompletion(mobileId, coords);
+                                }
                             }
                         }
                     });
@@ -1280,6 +1686,11 @@
                 }
             });
             updateVehicleNamesInUI();
+            
+            // Actualizar métricas si es admin
+            if (currentUserId === 'Admin') {
+                updateMetrics();
+            }
         }
 
         function checkConnectionStatus() {
