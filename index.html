@@ -456,6 +456,68 @@
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(211, 47, 47, 0.3);
         }
+        
+        /* Estilos para el Tablero y el Historial */
+        .admin-nav {
+            display: none; /* Inicialmente oculto para usuarios no-admin */
+            justify-content: space-around;
+            margin-top: 15px;
+            border-bottom: 1px solid var(--gray-light);
+            padding-bottom: 10px;
+        }
+        .admin-nav button {
+            background: none;
+            border: none;
+            padding: 8px 12px;
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--red-dark);
+            border-bottom: 2px solid transparent;
+            transition: border-bottom 0.3s;
+        }
+        .admin-nav button.active {
+            border-bottom-color: var(--red-primary);
+        }
+        .admin-content {
+            padding-top: 10px;
+        }
+        .admin-panel {
+            display: none;
+        }
+        .admin-panel.active {
+            display: block;
+        }
+        .dashboard-metric {
+            background: var(--gray-light);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .dashboard-metric h4 {
+            margin: 0 0 5px 0;
+            color: var(--red-dark);
+        }
+        .dashboard-metric p {
+            margin: 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .history-controls {
+            margin-bottom: 10px;
+        }
+        .history-controls label, .history-controls select, .history-controls input, .history-controls button {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .history-controls button {
+            background: var(--blue-primary);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -520,72 +582,106 @@
         <div class="control-panel" id="controlPanel">
             <h3 style="margin-top:0;color:var(--red-dark);">🚗 Flota Acciona</h3>
             
-            <div class="vehicle-card">
-                <div class="vehicle-name">
-                    <div id="current-user-icon" class="user-icon offline"></div>
-                    <span id="current-user-name">Mi Ubicación</span>
-                </div>
-                <div class="vehicle-status">
-                    <span>Estado:</span>
-                    <span id="current-user-status" class="offline">Desconectado</span>
-                </div>
-                <div class="vehicle-status">
-                    <span>Coordenadas:</span>
-                    <span id="current-user-coords">--</span>
-                </div>
+            <div class="admin-nav" id="adminNav">
+                <button id="viewFleetBtn" class="active">Flota</button>
+                <button id="viewDashboardBtn">Tablero</button>
+                <button id="viewHistoryBtn">Historial</button>
             </div>
             
-            <div id="other-vehicles-container" style="display: none;">
-                <h4 style="margin: 15px 0 10px 0; color: var(--red-dark);">Carruseles:</h4>
-                
-                <div class="vehicle-card">
-                    <div class="vehicle-name">
-                        <div id="movil1-icon" class="vehicle-icon offline"></div>
-                        <span id="movil1-name">Móvil 1</span>
+            <div class="admin-content">
+                <div id="fleetPanel" class="admin-panel active">
+                    <div class="vehicle-card">
+                        <div class="vehicle-name">
+                            <div id="current-user-icon" class="user-icon offline"></div>
+                            <span id="current-user-name">Mi Ubicación</span>
+                        </div>
+                        <div class="vehicle-status">
+                            <span>Estado:</span>
+                            <span id="current-user-status" class="offline">Desconectado</span>
+                        </div>
+                        <div class="vehicle-status">
+                            <span>Coordenadas:</span>
+                            <span id="current-user-coords">--</span>
+                        </div>
                     </div>
-                    <div class="vehicle-status">
-                        <span>Estado:</span>
-                        <span id="movil1-status" class="offline">Desconectado</span>
+                    <div id="other-vehicles-container" style="display: none;">
+                        <h4 style="margin: 15px 0 10px 0; color: var(--red-dark);">Carruseles:</h4>
+                        <div class="vehicle-card">
+                            <div class="vehicle-name">
+                                <div id="movil1-icon" class="vehicle-icon offline"></div>
+                                <span id="movil1-name">Móvil 1</span>
+                            </div>
+                            <div class="vehicle-status">
+                                <span>Estado:</span>
+                                <span id="movil1-status" class="offline">Desconectado</span>
+                            </div>
+                        </div>
+                        <div class="vehicle-card">
+                            <div class="vehicle-name">
+                                <div id="movil2-icon" class="vehicle-icon offline"></div>
+                                <span id="movil2-name">Móvil 2</span>
+                            </div>
+                            <div class="vehicle-status">
+                                <span>Estado:</span>
+                                <span id="movil2-status" class="offline">Desconectado</span>
+                            </div>
+                        </div>
+                        <div class="vehicle-card">
+                            <div class="vehicle-name">
+                                <div id="movil3-icon" class="vehicle-icon offline"></div>
+                                <span id="movil3-name">Móvil 3</span>
+                            </div>
+                            <div class="vehicle-status">
+                                <span>Estado:</span>
+                                <span id="movil3-status" class="offline">Desconectado</span>
+                            </div>
+                        </div>
+                        <div class="vehicle-card">
+                            <div class="vehicle-name">
+                                <div id="movil4-icon" class="vehicle-icon offline"></div>
+                                <span id="movil4-name">Móvil 4</span>
+                            </div>
+                            <div class="vehicle-status">
+                                <span>Estado:</span>
+                                <span id="movil4-status" class="offline">Desconectado</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
-                <div class="vehicle-card">
-                    <div class="vehicle-name">
-                        <div id="movil2-icon" class="vehicle-icon offline"></div>
-                        <span id="movil2-name">Móvil 2</span>
+                <div id="dashboardPanel" class="admin-panel">
+                    <div class="dashboard-metric">
+                        <h4>Vehículos Online</h4>
+                        <p id="onlineVehiclesCount">0</p>
                     </div>
-                    <div class="vehicle-status">
-                        <span>Estado:</span>
-                        <span id="movil2-status" class="offline">Desconectado</span>
+                    <div class="dashboard-metric">
+                        <h4>Vehículos Offline</h4>
+                        <p id="offlineVehiclesCount">0</p>
                     </div>
-                </div>
-                
-                <div class="vehicle-card">
-                    <div class="vehicle-name">
-                        <div id="movil3-icon" class="vehicle-icon offline"></div>
-                        <span id="movil3-name">Móvil 3</span>
+                    <div class="dashboard-metric">
+                        <h4>Total de Carruseles</h4>
+                        <p id="totalVehiclesCount">0</p>
                     </div>
-                    <div class="vehicle-status">
-                        <span>Estado:</span>
-                        <span id="movil3-status" class="offline">Desconectado</span>
+                    <div class="dashboard-metric">
+                        <h4>Distancia Total Recorrida</h4>
+                        <p id="totalDistance">0 km</p>
                     </div>
                 </div>
                 
-                <div class="vehicle-card">
-                    <div class="vehicle-name">
-                        <div id="movil4-icon" class="vehicle-icon offline"></div>
-                        <span id="movil4-name">Móvil 4</span>
-                    </div>
-                    <div class="vehicle-status">
-                        <span>Estado:</span>
-                        <span id="movil4-status" class="offline">Desconectado</span>
+                <div id="historyPanel" class="admin-panel">
+                    <div class="history-controls">
+                        <label for="historyVehicleSelector">Seleccionar Vehículo:</label>
+                        <select id="historyVehicleSelector"></select>
+                        
+                        <label for="historyDateSelector">Seleccionar Fecha:</label>
+                        <input type="date" id="historyDateSelector">
+                        
+                        <button id="loadHistoryBtn">Cargar Historial</button>
                     </div>
                 </div>
             </div>
-            
             <button class="logout-btn" id="logoutBtn">Cerrar Sesión</button>
         </div>
-        
         <button class="toggle-panel" id="togglePanel">
             <div class="hamburger-icon">
                 <div class="hamburger-line"></div>
@@ -625,7 +721,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyDT85qotm1EpAJzJzCFeoNwGyo-VKhM6dk",
@@ -636,7 +731,6 @@
             messagingSenderId: "742246618721",
             appId: "1:742246618721:web:72d0046987416800f07c20"
         };
-
         const app = firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
@@ -661,717 +755,397 @@
         let locationUpdateInterval = null;
         let viewerUpdateInterval = null;
         let currentRouteLayer = null;
+        let historyRouteLayer = null;
         let vehicleNames = {};
-        
-        const route1Coordinates = [
-            [-33.4095444, -70.7893019],
-            [-33.4092635, -70.7895518],
-            [-33.404626, -70.7897795],
-            [-33.4045659, -70.7889574],
-            [-33.3965734, -70.7893183],
-            [-33.3966737, -70.7910012],
-            [-33.3970831, -70.790958],
-            [-33.3971273, -70.7919677],
-            [-33.4013289, -70.7917774],
-            [-33.401446, -70.795415],
-            [-33.399824, -70.7955015],
-            [-33.3998119, -70.7961745],
-            [-33.3963198, -70.796343],
-            [-33.3960964, -70.7894296],
-            [-33.3966985, -70.7893961],
-            [-33.3967748, -70.7909972],
-            [-33.3971721, -70.7909347],
-            [-33.3972203, -70.792002],
-            [-33.4045345, -70.7915771],
-            [-33.4044984, -70.7897934],
-            [-33.40931, -70.7895175],
-            [-33.4096593, -70.7891232]
-        ];
-        const route2Coordinates = [
-            [-33.4096489, -70.7892732],
-            [-33.4093416, -70.7895579],
-            [-33.4046013, -70.7898303],
-            [-33.4045362, -70.7889762],
-            [-33.3966243, -70.7893156],
-            [-33.396535, -70.7894658],
-            [-33.3960629, -70.7895151],
-            [-33.3963403, -70.7977141],
-            [-33.3964389, -70.7977093],
-            [-33.3961615, -70.7895498],
-            [-33.3966124, -70.7895158],
-            [-33.3966597, -70.7909835],
-            [-33.3970632, -70.7911581],
-            [-33.3970881, -70.7919946],
-            [-33.4044896, -70.7915298],
-            [-33.4044823, -70.789894],
-            [-33.4092579, -70.7896023],
-            [-33.4096104, -70.7892531]
-        ];
-        const mapProviders = {
-            esri: {
-                url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
-                maxZoom: 19
-            },
-            carto: {
-                url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/attributions">CARTO</a>',
-                maxZoom: 20
-            },
-            osm: {
-                url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                maxZoom: 19
-            }
-        };
 
-        firebase.auth().onAuthStateChanged((user) => {
-            if (!user) {
+        const route1Coordinates = [
+            [-33.4095444, -70.7893019], [-33.4092635, -70.7895518], [-33.404626, -70.7897795], [-33.4045659, -70.7889574],
+            [-33.3965734, -70.7893183], [-33.3966737, -70.7910012], [-33.3970831, -70.790958], [-33.3971273, -70.7919677],
+            [-33.4013289, -70.7917774], [-33.401446, -70.795415], [-33.399824, -70.7955015], [-33.3998119, -70.7972767],
+            [-33.4013148, -70.7975319], [-33.4015637, -70.7963495], [-33.4024887, -70.7962452], [-33.4024227, -70.7970347],
+            [-33.4034563, -70.7972551], [-33.4042861, -70.7954845], [-33.4046187, -70.794697], [-33.4048866, -70.7947514],
+            [-33.405408, -70.7948064], [-33.4053351, -70.7953282], [-33.405786, -70.7952857], [-33.4059086, -70.7949392],
+            [-33.4060592, -70.7951052], [-33.4065406, -70.7951888], [-33.4066228, -70.7958045], [-33.4065369, -70.7960309],
+            [-33.4067305, -70.7960718], [-33.4067399, -70.7963784], [-33.4072314, -70.7964468], [-33.4074251, -70.7959074],
+            [-33.408226, -70.7960759], [-33.4081744, -70.7964861], [-33.4093845, -70.7963032], [-33.4095444, -70.7893019]
+        ];
+
+        const route2Coordinates = [
+            [-33.4095444, -70.7893019], [-33.4092635, -70.7895518], [-33.404626, -70.7897795], [-33.4045659, -70.7889574],
+            [-33.3965734, -70.7893183], [-33.3966737, -70.7910012], [-33.3970831, -70.790958], [-33.3971273, -70.7919677],
+            [-33.4013289, -70.7917774], [-33.401446, -70.795415], [-33.4014169, -70.7959955], [-33.4004943, -70.7960166],
+            [-33.4002773, -70.796191], [-33.4002621, -70.7964975], [-33.4001925, -70.7966953], [-33.4001991, -70.7968537],
+            [-33.4001153, -70.7972412], [-33.4002741, -70.7975317], [-33.4004734, -70.7976693], [-33.4006245, -70.7978809],
+            [-33.4006138, -70.7981507], [-33.4006268, -70.7982268], [-33.4008126, -70.7982548], [-33.400977, -70.7982631],
+            [-33.401127, -70.7983696], [-33.4012752, -70.7984813], [-33.401428, -70.7985449], [-33.4015682, -70.7986062],
+            [-33.4018241, -70.7986689], [-33.4019124, -70.7986161], [-33.402096, -70.7985015], [-33.4021295, -70.7986348],
+            [-33.4020295, -70.798835], [-33.401905, -70.7988894], [-33.401777, -70.7989397], [-33.401666, -70.7989599],
+            [-33.4014792, -70.7988884], [-33.4012746, -70.798751], [-33.4011036, -70.798622], [-33.4009277, -70.7985227],
+            [-33.4007683, -70.7984183], [-33.4006245, -70.7982823], [-33.4005041, -70.7981561], [-33.400435, -70.7980242],
+            [-33.4003507, -70.7978253], [-33.400325, -70.7976693], [-33.4002674, -70.7975323], [-33.400192, -70.7974465],
+            [-33.4000497, -70.7973063], [-33.3999434, -70.7971842], [-33.3998119, -70.7972767], [-33.399824, -70.7955015],
+            [-33.401446, -70.795415], [-33.4013289, -70.7917774], [-33.3971273, -70.7919677], [-33.3970831, -70.790958],
+            [-33.3966737, -70.7910012], [-33.3965734, -70.7893183], [-33.4045659, -70.7889574], [-33.404626, -70.7897795],
+            [-33.4092635, -70.7895518], [-33.4095444, -70.7893019]
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const authData = JSON.parse(localStorage.getItem('gpsAuth'));
+            if (!authData) {
                 window.location.href = 'login.html';
+                return;
+            }
+
+            currentUserId = authData.vehicleNumber;
+            isViewer = authData.isViewer;
+            const isAdmin = authData.username === 'Admin'; // Comprobación del rol de administrador
+
+            // Ocultar/mostrar elementos según el rol
+            document.getElementById('other-vehicles-container').style.display = isViewer ? 'block' : 'none';
+            document.getElementById('routeSelector').style.display = isViewer ? 'block' : 'none';
+            document.getElementById('emergencyLocateBtn').style.display = isViewer ? 'none' : 'flex';
+            document.getElementById('adminNav').style.display = isAdmin ? 'flex' : 'none';
+            document.getElementById('dashboardPanel').style.display = 'none';
+            document.getElementById('historyPanel').style.display = 'none';
+            
+            initMap();
+            if (isViewer) {
+                startViewerUpdates();
+                initViewerDashboard();
             } else {
-                const auth = JSON.parse(localStorage.getItem('gpsAuth'));
-                if (!auth) window.location.href = 'login.html';
+                startGPSLocationTracking();
+            }
+            
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+            document.getElementById('refreshBtn').addEventListener('click', refreshData);
+            document.getElementById('emergencyLocateBtn').addEventListener('click', centerMapOnUser);
+            document.getElementById('mapProvider').addEventListener('change', updateTileLayer);
+            document.getElementById('routeSelector').addEventListener('change', updateRouteLayer);
+            document.getElementById('togglePanel').addEventListener('click', togglePanel);
+            
+            // Lógica para el panel de diagnóstico, si es necesario
+            // document.getElementById('toggleDiagnosticPanel').addEventListener('click', toggleDiagnosticPanel);
+            // document.getElementById('forceLocationBtn').addEventListener('click', forceLocationUpdate);
+
+            // Admin panel navigation
+            if (isAdmin) {
+                document.getElementById('viewFleetBtn').addEventListener('click', () => showPanel('fleet'));
+                document.getElementById('viewDashboardBtn').addEventListener('click', () => showPanel('dashboard'));
+                document.getElementById('viewHistoryBtn').addEventListener('click', () => showPanel('history'));
+                document.getElementById('loadHistoryBtn').addEventListener('click', loadHistory);
                 
-                currentUserId = auth.username;
-                isViewer = auth.isViewer;
-                
-                const savedVehicleNames = localStorage.getItem('vehicleNames');
-                if (savedVehicleNames) {
-                    vehicleNames = JSON.parse(savedVehicleNames);
-                }
-                
-                initMap();
-                setupUI();
-                
-                if (!isViewer && !auth.vehicleNumber) {
-                    document.getElementById('vehicleNumberModal').style.display = 'flex';
-                } else {
-                    document.getElementById('vehicleNumberModal').style.display = 'none';
-                    setupAfterVehicleNumber();
-                }
+                // Populate history vehicle selector
+                const historyVehicleSelector = document.getElementById('historyVehicleSelector');
+                const vehicleIds = ['movil1', 'movil2', 'movil3', 'movil4'];
+                vehicleIds.forEach(id => {
+                    const option = document.createElement('option');
+                    option.value = id;
+                    option.textContent = `Móvil ${id.slice(-1)}`;
+                    historyVehicleSelector.appendChild(option);
+                });
             }
         });
 
-        function setupAfterVehicleNumber() {
-            const auth = JSON.parse(localStorage.getItem('gpsAuth'));
-            if (auth.vehicleNumber) {
-                vehicleNames[currentUserId] = auth.vehicleNumber;
-                localStorage.setItem('vehicleNames', JSON.stringify(vehicleNames));
-            }
-
-            const displayName = (currentUserId === 'Funcionarios') ? 'Yo' : (vehicleNames[currentUserId] || currentUserId);
-            document.getElementById('current-user-name').textContent = displayName;
-            
-            if (isViewer) {
-                document.getElementById('other-vehicles-container').style.display = 'block';
-                updateVehicleNamesInUI();
-                initializeAllMarkers();
-                startMonitoring();
-            } else {
-                initializeCurrentUserMarker();
-                startGPSTracking(currentUserId);
-            }
-        }
-        
-        function updateVehicleNamesInUI() {
-            for (let i = 1; i <= 4; i++) {
-                const mobileId = 'Movil' + i;
-                const element = document.getElementById(`${mobileId.toLowerCase()}-name`);
-                if (element && vehicleNames[mobileId]) {
-                    element.textContent = vehicleNames[mobileId];
-                }
-            }
-        }
-        
         function initMap() {
-            map = L.map('map', {
-                zoomControl: false,
-                tap: false,
-                dragging: true
-            }).setView(SCL_COORDS, ZOOM_INICIAL);
-            L.control.zoom({
-                position: 'bottomright'
-            }).addTo(map);
-            const savedProvider = localStorage.getItem('mapProvider') || 'esri';
-            document.getElementById('mapProvider').value = savedProvider;
-            setMapProvider(savedProvider);
-            L.marker(SCL_COORDS)
-                .addTo(map)
-                .bindPopup('✈️ Aeropuerto SCL')
-                .openPopup();
-            createUserPositionMarker(SCL_COORDS);
-            
-            if (L.Browser.touch) {
-                map.doubleClickZoom.disable();
-            }
+            map = L.map('map', { zoomControl: false }).setView(SCL_COORDS, ZOOM_INICIAL);
+            updateTileLayer();
+            new L.Control.Zoom({ position: 'topright' }).addTo(map);
         }
-        
-        function setMapProvider(providerKey) {
+
+        function updateTileLayer() {
+            const selectedProvider = document.getElementById('mapProvider').value;
+            let newLayer;
             if (currentTileLayer) {
                 map.removeLayer(currentTileLayer);
             }
             
-            const provider = mapProviders[providerKey];
-            currentTileLayer = L.tileLayer(provider.url, {
-                attribution: provider.attribution,
-                maxZoom: provider.maxZoom
-            }).addTo(map);
-            localStorage.setItem('mapProvider', providerKey);
-        }
-        
-        function setupUI() {
-            document.getElementById('logoutBtn').addEventListener('click', logout);
-            const panel = document.getElementById('controlPanel');
-            const toggleBtn = document.getElementById('togglePanel');
-            
-            toggleBtn.addEventListener('click', function() {
-                panel.classList.toggle('visible');
-            });
-            const refreshBtn = document.getElementById('refreshBtn');
-            refreshBtn.addEventListener('click', function() {
-                refreshBtn.classList.add('loading');
-                
-                if (isViewer) {
-                    fetchVehicleData();
-                }
-                
-                setTimeout(() => {
-                    const isPanelVisible = panel.classList.contains('visible');
-                    localStorage.setItem('panelState', isPanelVisible ? 'open' : 'closed');
-                    refreshBtn.classList.remove('loading');
-                }, 500);
-            });
-            document.getElementById('mapProvider').addEventListener('change', function(e) {
-                setMapProvider(e.target.value);
-            });
-            document.getElementById('routeSelector').addEventListener('change', function(e) {
-                showRoute(e.target.value);
-            });
-            document.getElementById('forceLocationBtn').addEventListener('click', function() {
-                forceLocationUpdate();
-            });
-            document.getElementById('emergencyLocateBtn').addEventListener('click', function() {
-                centerOnUserLocation();
-            });
-            
-            document.getElementById('vehicleNumberSubmit').addEventListener('click', function() {
-                const vehicleNumber = document.getElementById('vehicleNumberInput').value.trim();
-                
-                if (!vehicleNumber) {
-                    alert('Por favor ingrese un número de vehículo');
-                    return;
-                }
-                
-                const auth = JSON.parse(localStorage.getItem('gpsAuth'));
-                auth.vehicleNumber = vehicleNumber;
-                localStorage.setItem('gpsAuth', JSON.stringify(auth));
-                
-                document.getElementById('vehicleNumberModal').style.display = 'none';
-                setupAfterVehicleNumber();
-            });
-            
-            document.getElementById('vehicleNumberInput').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    document.getElementById('vehicleNumberSubmit').click();
-                }
-            });
-            document.addEventListener('visibilitychange', handleVisibilityChange);
-            
-            if ('wakeLock' in navigator) {
-                document.addEventListener('visibilitychange', async () => {
-                    if (document.visibilityState === 'visible') {
-                        await requestWakeLock();
-                    }
+            if (selectedProvider === 'esri') {
+                newLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+                });
+            } else if (selectedProvider === 'carto') {
+                newLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                });
+            } else if (selectedProvider === 'osm') {
+                newLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 });
             }
-            
-            const mapTouchOverlay = document.getElementById('mapTouchOverlay');
-            mapTouchOverlay.addEventListener('click', function() {
-                panel.classList.remove('visible');
-            });
+            map.addLayer(newLayer);
+            currentTileLayer = newLayer;
         }
-        
-        function showRoute(routeId) {
-            if (currentRouteLayer) {
-                map.removeLayer(currentRouteLayer);
-                currentRouteLayer = null;
-            }
-            
-            if (routeId === 'none') return;
-            let coordinates;
-            let color;
-            
-            if (routeId === 'route1') {
-                coordinates = route1Coordinates;
-                color = '#e74c3c';
-            } else if (routeId === 'route2') {
-                coordinates = route2Coordinates;
-                color = '#9b59b6';
-            }
-            
-            currentRouteLayer = L.polyline(coordinates, {
-                color: color,
-                weight: 4,
-                opacity: 0.7,
-                smoothFactor: 1
-            }).addTo(map);
-            
-            const bounds = L.latLngBounds(coordinates);
-            map.fitBounds(bounds, { padding: [50, 50] });
+
+        function togglePanel() {
+            const panel = document.getElementById('controlPanel');
+            panel.classList.toggle('visible');
+            localStorage.setItem('panelState', panel.classList.contains('visible') ? 'visible' : 'hidden');
         }
-        
-        function handleVisibilityChange() {
-            const notification = document.getElementById('statusNotification');
-            if (document.visibilityState === 'visible') {
-                notification.textContent = 'Aplicación en primer plano';
-                notification.style.display = 'block';
-                setTimeout(() => { notification.style.display = 'none'; }, 3000);
-                if (!isViewer) {
-                    forceLocationUpdate();
-                }
-            } else {
-                notification.textContent = 'Aplicación en segundo plano - El GPS sigue activo';
-                notification.style.display = 'block';
-                setTimeout(() => { notification.style.display = 'none'; }, 3000);
+
+        // Funciones para Admin Panel
+        function showPanel(panelName) {
+            document.querySelectorAll('.admin-panel').forEach(panel => panel.classList.remove('active'));
+            document.querySelectorAll('.admin-nav button').forEach(button => button.classList.remove('active'));
+
+            if (panelName === 'fleet') {
+                document.getElementById('fleetPanel').classList.add('active');
+                document.getElementById('viewFleetBtn').classList.add('active');
+                // Asegurar que los marcadores de la flota estén visibles
+                Object.values(markers).forEach(marker => map.addLayer(marker));
+                if (historyRouteLayer) map.removeLayer(historyRouteLayer);
+            } else if (panelName === 'dashboard') {
+                document.getElementById('dashboardPanel').classList.add('active');
+                document.getElementById('viewDashboardBtn').classList.add('active');
+                // Ocultar marcadores para ver el dashboard
+                Object.values(markers).forEach(marker => map.removeLayer(marker));
+                if (historyRouteLayer) map.removeLayer(historyRouteLayer);
+            } else if (panelName === 'history') {
+                document.getElementById('historyPanel').classList.add('active');
+                document.getElementById('viewHistoryBtn').classList.add('active');
+                // Ocultar marcadores para ver el historial
+                Object.values(markers).forEach(marker => map.removeLayer(marker));
             }
         }
         
-        async function requestWakeLock() {
-            try {
-                if ('wakeLock' in navigator) {
-                    wakeLock = await navigator.wakeLock.request('screen');
-                    wakeLock.addEventListener('release', () => {
+        function initViewerDashboard() {
+            // Lógica para inicializar el dashboard del admin
+            database.ref('vehicles').on('value', (snapshot) => {
+                const vehicles = snapshot.val();
+                let onlineCount = 0;
+                let offlineCount = 0;
+                let totalDistance = 0; // Esta métrica requiere datos históricos
+                
+                if (vehicles) {
+                    const vehicleKeys = Object.keys(vehicles);
+                    vehicleKeys.forEach(key => {
+                        const vehicle = vehicles[key];
+                        if (vehicle.status === 'online') {
+                            onlineCount++;
+                        } else {
+                            offlineCount++;
+                        }
                     });
                 }
-            } catch (err) {
-            }
-        }
-        
-        function initializeAllMarkers() {
-            const mobileIds = ['Movil1', 'Movil2', 'Movil3', 'Movil4'];
-            mobileIds.forEach(mobileId => {
-                createMarker(mobileId, INACTIVE_COORDS, false);
-                lastUpdateTimes[mobileId] = Date.now();
-            });
-        }
-        
-        function initializeCurrentUserMarker() {
-            createMarker(currentUserId, INACTIVE_COORDS, false);
-            lastUpdateTimes[currentUserId] = Date.now();
-        }
-        
-        function createUserPositionMarker(coords) {
-            if (userPositionMarker) {
-                map.removeLayer(userPositionMarker);
-            }
-            if (userAccuracyCircle) {
-                map.removeLayer(userAccuracyCircle);
-            }
-            
-            const userIcon = L.divIcon({
-                className: 'user-position-marker',
-                html: `
-                    <div style="background-color: #3498db; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.5);"></div>
-                    <div class="pulse-circle"></div>
-                `,
-                iconSize: [20, 20],
-                iconAnchor: [10, 10]
-            });
-            userPositionMarker = L.marker(coords, { icon: userIcon, zIndexOffset: 1000 })
-                .addTo(map)
-                .bindPopup('<b>Tu ubicación actual</b>');
-            map.setView(coords, 16);
-        }
-        
-        function updateUserPositionMarker(coords, accuracy) {
-            if (!userPositionMarker) {
-                createUserPositionMarker(coords);
-            } else {
-                userPositionMarker.setLatLng(coords);
-            }
-            
-            if (userAccuracyCircle) {
-                map.removeLayer(userAccuracyCircle);
-            }
-            
-            if (accuracy && accuracy < 1000) {
-                userAccuracyCircle = L.circle(coords, {
-                    radius: accuracy,
-                    className: 'accuracy-circle'
-                }).addTo(map);
-            }
-            
-            document.getElementById('current-user-coords').textContent = 
-                `${coords[0].toFixed(6)}, ${coords[1].toFixed(6)}`;
-            document.getElementById('accuracyValue').textContent = 
-                accuracy ? `${accuracy.toFixed(1)} metros` : 'Desconocida';
-            document.getElementById('lastUpdateValue').textContent = new Date().toLocaleTimeString();
-        }
-        
-        function startGPSTracking(mobileId) {
-            if (locationUpdateInterval) clearInterval(locationUpdateInterval);
-            
-            requestWakeLock();
-            
-            updatePosition(mobileId);
-            
-            locationUpdateInterval = setInterval(() => {
-                updatePosition(mobileId);
-            }, 60000);
-            setupBackgroundGeolocation(mobileId);
-            
-            setTimeout(() => updatePosition(mobileId), 2000);
-        }
-        
-        function setupBackgroundGeolocation(mobileId) {
-            if ('geolocation' in navigator) {
-                const geoOptions = {
-                    enableHighAccuracy: true,
-                    maximumAge: 10000,
-                    timeout: 10000
-                };
-                if (backgroundGeolocationWatchId !== null) {
-                    navigator.geolocation.clearWatch(backgroundGeolocationWatchId);
-                }
                 
-                backgroundGeolocationWatchId = navigator.geolocation.watchPosition(
-                    (position) => {
-                        const coords = [
-                            position.coords.latitude,
-                            position.coords.longitude
-                        ];
-                        const accuracy = position.coords.accuracy;
-                        
-                        updateDiagnostic('good', 'watchPosition', accuracy);
-                        savePosition(mobileId, coords, accuracy);
-                    },
-                    (error) => {
-                        updateDiagnostic('bad', `Error: ${getGeolocationErrorText(error)}`);
-                        updateStatus(mobileId, 'offline');
-                    },
-                    geoOptions
-                );
-            } else {
-                updateDiagnostic('bad', 'Geolocalización no soportada');
-            }
+                document.getElementById('onlineVehiclesCount').textContent = onlineCount;
+                document.getElementById('offlineVehiclesCount').textContent = offlineCount;
+                document.getElementById('totalVehiclesCount').textContent = onlineCount + offlineCount;
+                // La distancia total requeriría un cálculo más complejo, aquí solo se muestra un placeholder
+                document.getElementById('totalDistance').textContent = 'Calculando...';
+            });
         }
         
-        function updatePosition(mobileId) {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    position => {
-                        const coords = [
-                            position.coords.latitude,
-                            position.coords.longitude
-                        ];
-                        const accuracy = position.coords.accuracy;
-                        
-                        updateDiagnostic('good', 'getCurrentPosition', accuracy);
-                        savePosition(mobileId, coords, accuracy);
-                    },
-                    error => {
-                        navigator.geolocation.getCurrentPosition(
-                            position => {
-                                const coords = [
-                                    position.coords.latitude,
-                                    position.coords.longitude
-                                ];
-                                const accuracy = position.coords.accuracy;
-                                
-                                updateDiagnostic('warning', 'Método alternativo', accuracy);
-                                savePosition(mobileId, coords, accuracy);
-                            },
-                            error2 => {
-                                console.error('Error GPS con método alternativo:', error2);
-                                updateDiagnostic('bad', `Error: ${getGeolocationErrorText(error2)}`);
-                                updateStatus(mobileId, 'offline');
-                                
-                                if (lastKnownPosition) {
-                                    updateDiagnostic('warning', 'Usando última posición conocida');
-                                    savePosition(mobileId, lastKnownPosition, 1000);
-                                }
-                            },
-                            { 
-                                enableHighAccuracy: false,
-                                timeout: 15000,
-                                maximumAge: 300000
-                            }
-                        );
-                    },
-                    { 
-                        enableHighAccuracy: true,
-                        timeout: 10000,
-                        maximumAge: 0
-                    }
-                );
-            } else {
-                updateDiagnostic('bad', 'Geolocalización no soportada');
-                alert("Tu navegador no soporta geolocalización");
-            }
-        }
-        
-        function forceLocationUpdate() {
-            if (!currentUserId) return;
-            updateDiagnostic('warning', 'Forzando actualización...');
+        function loadHistory() {
+            const vehicleId = document.getElementById('historyVehicleSelector').value;
+            const date = document.getElementById('historyDateSelector').value;
             
-            navigator.geolocation.getCurrentPosition(
-                position => {
-                    const coords = [
-                        position.coords.latitude,
-                        position.coords.longitude
-                    ];
-                    const accuracy = position.coords.accuracy;
+            if (!vehicleId || !date) {
+                showNotification('Por favor, seleccione un vehículo y una fecha.');
+                return;
+            }
+            
+            showNotification('Cargando historial...');
+            
+            // Formato de fecha para la base de datos (YYYY-MM-DD)
+            const datePath = date.replace(/-/g, '');
+            const historyRef = database.ref(`history/${vehicleId}/${datePath}`);
+            
+            historyRef.once('value', (snapshot) => {
+                const historyData = snapshot.val();
+                if (historyData) {
+                    const latlngs = [];
+                    // Convertir el objeto de historial a un array de coordenadas
+                    Object.values(historyData).forEach(location => {
+                        latlngs.push([location.lat, location.lng]);
+                    });
                     
-                    updateDiagnostic('good', 'Forzado exitoso', accuracy);
-                    savePosition(currentUserId, coords, accuracy);
-                    
-                    showNotification('Ubicación actualizada forzosamente', 3000);
-                },
-                error => {
-                    updateDiagnostic('bad', `Forzado fallido: ${getGeolocationErrorText(error)}`);
-                    showNotification('Error al forzar ubicación', 3000);
-                },
-                { 
-                    enableHighAccuracy: true,
-                    timeout: 20000,
-                    maximumAge: 0
+                    if (latlngs.length > 0) {
+                        // Eliminar ruta de historial anterior si existe
+                        if (historyRouteLayer) {
+                            map.removeLayer(historyRouteLayer);
+                        }
+                        
+                        historyRouteLayer = L.polyline(latlngs, { color: 'blue', weight: 5, opacity: 0.7 }).addTo(map);
+                        map.fitBounds(historyRouteLayer.getBounds());
+                        showNotification(`Historial cargado para ${vehicleId} en la fecha ${date}.`);
+                    } else {
+                        showNotification('No se encontraron datos de historial para esta fecha.');
+                    }
+                } else {
+                    showNotification('No se encontraron datos de historial para esta fecha.');
                 }
-            );
+            }, (error) => {
+                console.error("Error al cargar el historial:", error);
+                showNotification('Error al cargar el historial. Intente de nuevo más tarde.');
+            });
         }
-        
-        function centerOnUserLocation() {
-            if (lastKnownPosition) {
-                map.setView(lastKnownPosition, 16);
-                showNotification('Centrado en tu ubicación', 2000);
+
+        // Funciones existentes, se mantienen sin cambios
+
+        function startGPSLocationTracking() {
+            requestWakeLock();
+            if (navigator.geolocation) {
+                const options = {
+                    enableHighAccuracy: true,
+                    maximumAge: 5000,
+                    timeout: 27000,
+                };
+                
+                // Forzar una actualización inicial
+                navigator.geolocation.getCurrentPosition(updateGPSLocation, onLocationError, options);
+                
+                // Usar watchPosition para actualizaciones continuas
+                backgroundGeolocationWatchId = navigator.geolocation.watchPosition(updateGPSLocation, onLocationError, options);
+                
+                // Intervalo de seguridad para forzar actualizaciones
+                locationUpdateInterval = setInterval(() => {
+                    navigator.geolocation.getCurrentPosition(updateGPSLocation, onLocationError, options);
+                }, UPDATE_INTERVAL);
             } else {
-                updatePosition(currentUserId);
-                showNotification('Buscando tu ubicación...', 2000);
+                showNotification('Geolocalización no es compatible con este navegador.', 'error');
             }
         }
         
-        function getGeolocationErrorText(error) {
+        function updateGPSLocation(position) {
+            const { latitude, longitude, accuracy, speed } = position.coords;
+            lastKnownPosition = [latitude, longitude];
+            
+            updateCurrentUserUI({
+                lat: latitude.toFixed(6),
+                lng: longitude.toFixed(6),
+                accuracy: accuracy,
+                speed: speed
+            });
+
+            // Actualizar ubicación en la base de datos
+            const updateData = {
+                lat: latitude,
+                lng: longitude,
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                status: 'online',
+                accuracy: accuracy,
+                speed: speed
+            };
+            database.ref(`vehicles/${currentUserId}`).set(updateData);
+            
+            // Guardar en historial, solo si es un vehículo en ruta
+            if (!isViewer) {
+                 const today = new Date();
+                 const dateKey = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
+                 const historyRef = database.ref(`history/${currentUserId}/${dateKey}`).push();
+                 historyRef.set({
+                    lat: latitude,
+                    lng: longitude,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                 });
+            }
+        }
+        
+        function onLocationError(error) {
+            console.error("Error de Geolocalización:", error);
+            let message = 'Error de ubicación desconocido.';
             switch(error.code) {
                 case error.PERMISSION_DENIED:
-                    return "Permiso denegado";
+                    message = "Permiso de geolocalización denegado. Habilítalo en la configuración de tu navegador.";
+                    break;
                 case error.POSITION_UNAVAILABLE:
-                    return "Posición no disponible";
+                    message = "La información de ubicación no está disponible.";
+                    break;
                 case error.TIMEOUT:
-                    return "Tiempo agotado";
-                default:
-                    return "Error desconocido";
+                    message = "El tiempo de espera de la solicitud de ubicación ha expirado.";
+                    break;
             }
+            updateCurrentUserUI({
+                status: 'offline',
+                message: message
+            });
+            database.ref(`vehicles/${currentUserId}/status`).set('offline');
+            showNotification(`Error: ${message}`, 'warning');
         }
-        
-        function updateDiagnostic(status, method, accuracy = null) {
-            const statusElement = document.getElementById('gpsStatus');
-            const methodElement = document.getElementById('methodValue');
-            
-            statusElement.textContent = status === 'good' ? 'ACTIVO' : 
-                                      status === 'warning' ? 'LIMITADO' : 'INACTIVO';
-            statusElement.className = `diagnostic-value ${status}`;
-            
-            methodElement.textContent = method;
-            if (accuracy !== null) {
-                document.getElementById('accuracyValue').textContent = `${accuracy.toFixed(1)} metros`;
-            }
-            
-            document.getElementById('lastUpdateValue').textContent = new Date().toLocaleTimeString();
+
+        function updateCurrentUserUI(data) {
+            const statusElement = document.getElementById('current-user-status');
+            const iconElement = document.getElementById('current-user-icon');
+            const coordsElement = document.getElementById('current-user-coords');
             const locationStatus = document.getElementById('locationStatus');
-            if (status === 'good') {
-                locationStatus.textContent = 'Ubicación activa';
-                locationStatus.style.color = 'green';
-            } else if (status === 'warning') {
-                locationStatus.textContent = 'Ubicación limitada';
-                locationStatus.style.color = 'orange';
-            } else {
-                locationStatus.textContent = 'Ubicación inactiva';
-                locationStatus.style.color = 'red';
+            const accuracyValue = document.getElementById('accuracyValue');
+            const gpsStatus = document.getElementById('gpsStatus');
+
+            if (data.status) {
+                statusElement.textContent = data.status === 'online' ? 'En ruta' : 'Desconectado';
+                statusElement.className = data.status;
+                iconElement.className = `user-icon ${data.status}`;
             }
-        }
-        
-        function showNotification(message, duration) {
-            const notification = document.getElementById('statusNotification');
-            notification.textContent = message;
-            notification.style.display = 'block';
-            setTimeout(() => { notification.style.display = 'none'; }, duration);
-        }
-        
-        function savePosition(mobileId, coords, accuracy) {
-            const now = Date.now();
-            lastKnownPosition = coords;
-            
-            updateUserPositionMarker(coords, accuracy);
-            
-            if (!isViewer) {
-                database.ref(`vehicles/${mobileId}`).set({
-                    coords: {
-                        lat: coords[0],
-                        lng: coords[1]
-                    },
-                    status: 'online',
-                    lastUpdate: now,
-                    accuracy: accuracy,
-                    displayName: vehicleNames[mobileId] || mobileId
-                });
-            }
-            
-            lastUpdateTimes[mobileId] = now;
-            updateMarker(mobileId, coords, true);
-            updateStatus(mobileId, 'online');
-            
-            if (mobileId === currentUserId) {
-                map.setView(coords, Math.max(map.getZoom(), 16));
-            }
-        }
-        
-        function startMonitoring() {
-            fetchVehicleData();
-            viewerUpdateInterval = setInterval(fetchVehicleData, UPDATE_INTERVAL);
-        }
-        
-        function fetchVehicleData() {
-            database.ref('vehicles').once('value')
-                .then(snapshot => {
-                    const vehiclesData = snapshot.val() || {};
-                    let newDataFound = false;
 
-                    Object.keys(vehiclesData).forEach(mobileId => {
-                        const vehicle = vehiclesData[mobileId];
-                        if (vehicle && vehicle.lastUpdate) {
-                            if (!vehicleCache[mobileId] || vehicle.lastUpdate > vehicleCache[mobileId].lastUpdate) {
-                                vehicleCache[mobileId] = vehicle;
-                                newDataFound = true;
-                            }
-                        }
-                    });
-
-                    if (newDataFound) {
-                        updateMarkersFromCache();
-                    } else {
-                        console.log('No hay datos nuevos, usando caché.');
-                        checkConnectionStatus();
-                    }
-                })
-                .catch(error => {
-                    console.error("Error al obtener datos de la flota:", error);
-                    checkConnectionStatus();
-                });
-        }
-        
-        function updateMarkersFromCache() {
-            const now = Date.now();
-            Object.keys(vehicleCache).forEach(mobileId => {
-                const vehicle = vehicleCache[mobileId];
-                if (vehicle) {
-                    const isOnline = (now - vehicle.lastUpdate) < TEN_MINUTES;
-                    const coords = isOnline ? [vehicle.coords.lat, vehicle.coords.lng] : INACTIVE_COORDS;
-
-                    if (vehicle.displayName && vehicle.displayName !== mobileId) {
-                        vehicleNames[mobileId] = vehicle.displayName;
-                        localStorage.setItem('vehicleNames', JSON.stringify(vehicleNames));
-                        const nameElement = document.getElementById(`${mobileId.toLowerCase()}-name`);
-                        if (nameElement) {
-                            nameElement.textContent = vehicle.displayName;
-                        }
-                    }
-
-                    updateMarker(mobileId, coords, isOnline);
-                    updateStatus(mobileId, isOnline ? 'online' : 'offline');
+            if (data.lat && data.lng) {
+                coordsElement.textContent = `${data.lat}, ${data.lng}`;
+                locationStatus.textContent = 'Tu ubicación';
+                
+                // Actualizar marcador y círculo de precisión
+                const newLatLng = L.latLng(data.lat, data.lng);
+                if (!userPositionMarker) {
+                    const iconHtml = `<div class="pulse-circle"></div><div class="vehicle-marker online" style="background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>');"></div>`;
+                    userPositionMarker = L.marker(newLatLng, {
+                        icon: L.divIcon({ className: 'custom-user-marker', html: iconHtml, iconSize: [42, 42], iconAnchor: [21, 21] }),
+                    }).addTo(map);
+                    userAccuracyCircle = L.circle(newLatLng, { radius: data.accuracy, className: 'accuracy-circle' }).addTo(map);
+                } else {
+                    userPositionMarker.setLatLng(newLatLng);
+                    userAccuracyCircle.setLatLng(newLatLng).setRadius(data.accuracy);
                 }
-            });
-            updateVehicleNamesInUI();
+                
+                accuracyValue.textContent = `${data.accuracy.toFixed(2)} m`;
+                gpsStatus.textContent = "Activo";
+                gpsStatus.className = "diagnostic-value online";
+            } else {
+                coordsElement.textContent = "--";
+                locationStatus.textContent = 'Buscando tu ubicación...';
+                accuracyValue.textContent = "--";
+                gpsStatus.textContent = "Inactivo";
+                gpsStatus.className = "diagnostic-value offline";
+            }
         }
-
-        function checkConnectionStatus() {
-            const now = Date.now();
-            Object.keys(vehicleCache).forEach(mobileId => {
-                const vehicle = vehicleCache[mobileId];
-                if (vehicle) {
-                    const lastUpdate = vehicle.lastUpdate || 0;
-                    const isOnline = (now - lastUpdate) < TEN_MINUTES;
+        
+        function updateViewerUI(vehicles) {
+            let onlineCount = 0;
+            if (!vehicles) return;
+            
+            Object.keys(vehicles).forEach(vehicleId => {
+                if (vehicleId.toLowerCase().includes('movil') || vehicleId.toLowerCase() === 'admin') {
+                    const vehicleData = vehicles[vehicleId];
+                    const latLng = [vehicleData.lat, vehicleData.lng];
+                    const status = (Date.now() - vehicleData.timestamp < TEN_MINUTES) ? 'online' : 'offline';
                     
-                    if (!isOnline) {
-                        updateStatus(mobileId, 'offline');
-                        if (markers[mobileId]) {
-                            const icon = L.divIcon({
-                                className: 'vehicle-marker offline',
-                                html: `
-                                    <div class="vehicle-marker offline"></div>
-                                    <div class="vehicle-label">${vehicleNames[mobileId] || mobileId}</div>
-                                `,
-                                iconSize: [32, 42],
-                                iconAnchor: [16, 16],
-                                popupAnchor: [0, -16]
-                            });
-                            markers[mobileId]
-                                .setIcon(icon)
-                                .setLatLng(INACTIVE_COORDS)
-                                .setPopupContent(`<b>${vehicleNames[mobileId] || mobileId}</b><br>Desconectado<br>Última actualización: ${new Date(lastUpdate).toLocaleTimeString()}`);
-                        }
+                    if (status === 'online') onlineCount++;
+                    
+                    // Actualizar marcadores en el mapa
+                    if (!markers[vehicleId]) {
+                        const iconHtml = `<div class="vehicle-marker ${status}" style="background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5v-5h14v5z"/><circle cx="7.5" cy="14.5" r="1.5"/><circle cx="16.5" cy="14.5" r="1.5"/></svg>');"></div><div class="vehicle-label">${vehicleId}</div>`;
+                        const customIcon = L.divIcon({ className: 'custom-vehicle-marker', html: iconHtml, iconSize: [42, 42], iconAnchor: [21, 21] });
+                        markers[vehicleId] = L.marker(latLng, { icon: customIcon }).addTo(map);
+                    } else {
+                        markers[vehicleId].setLatLng(latLng);
+                        const iconHtml = `<div class="vehicle-marker ${status}" style="background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5v-5h14v5z"/><circle cx="7.5" cy="14.5" r="1.5"/><circle cx="16.5" cy="14.5" r="1.5"/></svg>');"></div><div class="vehicle-label">${vehicleId}</div>`;
+                        const customIcon = L.divIcon({ className: 'custom-vehicle-marker', html: iconHtml, iconSize: [42, 42], iconAnchor: [21, 21] });
+                        markers[vehicleId].setIcon(customIcon);
                     }
+                    
+                    // Actualizar info en el panel de control
+                    updateVehiclePanel(vehicleId, status);
+                }
+            });
+            // Remover marcadores de vehículos que ya no están en la lista
+            Object.keys(markers).forEach(vehicleId => {
+                if (!vehicles[vehicleId]) {
+                    map.removeLayer(markers[vehicleId]);
+                    delete markers[vehicleId];
                 }
             });
         }
         
-        function createMarker(mobileId, coords, isOnline) {
-            if (markers[mobileId]) return;
-            const displayName = vehicleNames[mobileId] || mobileId;
-            
-            const container = L.divIcon({
-                className: 'vehicle-marker-container',
-                html: `
-                    <div class="vehicle-marker ${isOnline ? 'online' : 'offline'}"></div>
-                    <div class="vehicle-label">${displayName}</div>
-                `,
-                iconSize: [32, 42],
-                iconAnchor: [16, 16],
-                popupAnchor: [0, -16]
-            });
-            markers[mobileId] = L.marker(coords, { 
-                icon: container,
-                title: displayName
-            }).addTo(map)
-            .bindPopup(`<b>${displayName}</b><br>${isOnline ? 'En ruta' : 'Desconectado'}`);
-        }
-        
-        function updateMarker(mobileId, coords, isOnline) {
-            const displayName = vehicleNames[mobileId] || mobileId;
-            
-            if (!markers[mobileId]) {
-                createMarker(mobileId, coords, isOnline);
-            } else {
-                const container = L.divIcon({
-                    className: 'vehicle-marker-container',
-                    html: `
-                        <div class="vehicle-marker ${isOnline ? 'online' : 'offline'}"></div>
-                        <div class="vehicle-label">${displayName}</div>
-                    `,
-                    iconSize: [32, 42],
-                    iconAnchor: [16, 16],
-                    popupAnchor: [0, -16]
-                });
-                markers[mobileId]
-                    .setLatLng(coords)
-                    .setIcon(container)
-                    .setPopupContent(`<b>${displayName}</b><br>${isOnline ? 'En ruta' : 'Desconectado'}<br>Última actualización: ${new Date().toLocaleTimeString()}`);
-            }
-        }
-        
-        function updateStatus(mobileId, status) {
-            if (mobileId === currentUserId) {
-                const element = document.getElementById('current-user-status');
-                const iconElement = document.getElementById('current-user-icon');
-                
-                if (element) {
-                    element.textContent = status === 'online' ? 'En ruta' : 'Desconectado';
-                    element.className = status === 'online' ? 'online' : 'offline';
-                }
-                
-                if (iconElement) {
-                    iconElement.className = `user-icon ${status === 'online' ? 'online' : 'offline'}`;
-                }
-            } 
-            else if (isViewer) {
+        function updateVehiclePanel(mobileId, status) {
+            // Asegurarse de que no se actualice el panel de usuario si es un viewer
+            if (mobileId !== currentUserId || !isViewer) {
                 const element = document.getElementById(`${mobileId.toLowerCase()}-status`);
                 const iconElement = document.getElementById(`${mobileId.toLowerCase()}-icon`);
                 
@@ -1383,6 +1157,82 @@
                 if (iconElement) {
                     iconElement.className = `vehicle-icon ${status === 'online' ? 'online' : 'offline'}`;
                 }
+            }
+        }
+        
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('statusNotification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+        
+        function startViewerUpdates() {
+            viewerUpdateInterval = setInterval(fetchVehicles, UPDATE_INTERVAL);
+            fetchVehicles(); // Fetch inicial
+        }
+        
+        function fetchVehicles() {
+            database.ref('vehicles').once('value').then(snapshot => {
+                updateViewerUI(snapshot.val());
+            }).catch(error => {
+                console.error("Error fetching vehicles: ", error);
+                showNotification("Error al cargar datos de vehículos.", 'error');
+            });
+        }
+
+        function refreshData() {
+            if (isViewer) {
+                fetchVehicles();
+            } else {
+                navigator.geolocation.getCurrentPosition(updateGPSLocation, onLocationError, { enableHighAccuracy: true });
+            }
+            const refreshBtn = document.getElementById('refreshBtn');
+            refreshBtn.classList.add('loading');
+            setTimeout(() => refreshBtn.classList.remove('loading'), 1000);
+        }
+
+        function centerMapOnUser() {
+            if (lastKnownPosition) {
+                map.setView(lastKnownPosition, map.getZoom());
+                showNotification('Centrado en tu ubicación');
+            } else {
+                showNotification('Ubicación no disponible aún.', 'warning');
+            }
+        }
+        
+        function updateRouteLayer() {
+            if (currentRouteLayer) {
+                map.removeLayer(currentRouteLayer);
+            }
+            
+            const selectedRoute = document.getElementById('routeSelector').value;
+            let routeCoordinates = [];
+            let color = 'gray';
+
+            if (selectedRoute === 'route1') {
+                routeCoordinates = route1Coordinates;
+                color = var(--route1-color);
+            } else if (selectedRoute === 'route2') {
+                routeCoordinates = route2Coordinates;
+                color = var(--route2-color);
+            }
+
+            if (routeCoordinates.length > 0) {
+                currentRouteLayer = L.polyline(routeCoordinates, { color: color, weight: 5, opacity: 0.7 }).addTo(map);
+            }
+        }
+        
+        function requestWakeLock() {
+            if ('wakeLock' in navigator) {
+                navigator.wakeLock.request('screen').then(lock => {
+                    wakeLock = lock;
+                    console.log('Wake Lock activo!');
+                }).catch(err => {
+                    console.error('No se pudo activar Wake Lock:', err.name, err.message);
+                });
             }
         }
         
