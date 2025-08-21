@@ -81,10 +81,8 @@
             animation-delay: 0.5s;
         }
         @keyframes pulse {
-            0% { transform: translateX(-50%) scale(1);
-                opacity: 1; }
-            100% { transform: translateX(-50%) scale(1.5);
-                opacity: 0; }
+            0% { transform: translateX(-50%) scale(1); opacity: 1; }
+            100% { transform: translateX(-50%) scale(1.5); opacity: 0; }
         }
         h1 {
             color: var(--red-dark);
@@ -226,7 +224,6 @@
                     <option value="Movil3">Móvil 3</option>
                     <option value="Movil4">Móvil 4</option>
                     <option value="Funcionarios">Funcionarios</option>
-                    <option value="Admin">Admin</option>
                 </select>
             </div>
             
@@ -254,7 +251,6 @@
 
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     
     <script>
         const firebaseConfig = {
@@ -266,21 +262,20 @@
             messagingSenderId: "742246618721",
             appId: "1:742246618721:web:72d0046987416800f07c20"
         };
-        firebase.initializeApp(firebaseConfig);
 
-        const FUNCIONARIOS_PASSWORD = "123456";
-        const ADMIN_PASSWORD = "Admin234452";
-        let currentUsername = "";
+        firebase.initializeApp(firebaseConfig);
 
         const userEmails = {
             "Movil1": "movil1@gpsacciona.com",
             "Movil2": "movil2@gpsacciona.com", 
             "Movil3": "movil3@gpsacciona.com",
             "Movil4": "movil4@gpsacciona.com",
-            "Funcionarios": "funcionarios@gpsacciona.com",
-            "Admin": "admin@acciona.com"
+            "Funcionarios": "funcionarios@gpsacciona.com"
         };
-        
+
+        const FUNCIONARIOS_PASSWORD = "123456";
+        let currentUsername = "";
+
         document.getElementById('username').addEventListener('change', function() {
             const username = this.value;
             const autoLoginNotice = document.getElementById('autoLoginNotice');
@@ -303,7 +298,7 @@
             e.preventDefault();
             
             const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
+            let password = document.getElementById('password').value;
             const errorElement = document.getElementById('errorMessage');
 
             if (!username) {
@@ -312,38 +307,29 @@
                 return;
             }
 
-            // Authentication logic
-            let email, userPassword;
-
-            if (username === 'Admin') {
-                email = userEmails['Admin'];
-                userPassword = ADMIN_PASSWORD;
-            } else if (username === 'Funcionarios') {
-                email = userEmails['Funcionarios'];
-                userPassword = FUNCIONARIOS_PASSWORD;
-            } else {
-                email = userEmails[username];
-                userPassword = password; // For other users, password is typed
+            if (username === 'Funcionarios' && !password) {
+                password = FUNCIONARIOS_PASSWORD;
+                document.getElementById('password').value = password;
             }
 
-            if (password !== userPassword) {
-                errorElement.textContent = 'Contraseña incorrecta';
+            if (!password) {
+                errorElement.textContent = 'Ingrese la contraseña';
                 errorElement.style.display = 'block';
                 return;
             }
 
-            firebase.auth().signInWithEmailAndPassword(email, userPassword)
+            const email = userEmails[username];
+            
+            firebase.auth().signInWithEmailAndPassword(email, password)
                 .then((userCredential) => {
                     currentUsername = username;
+                    
                     if (username === 'Funcionarios') {
                         localStorage.setItem('gpsAuth', JSON.stringify({
                             username,
                             isViewer: true,
                             uid: userCredential.user.uid
                         }));
-                        window.location.href = 'index.html';
-                    } else if (username === 'Admin') {
-                        localStorage.setItem('adminAuth', JSON.stringify({ isAdmin: true, uid: userCredential.user.uid }));
                         window.location.href = 'index.html';
                     } else {
                         document.getElementById('vehicleNumberModal').style.display = 'flex';
@@ -368,7 +354,7 @@
                 return;
             }
             
-            localStorage.setItem('gpsAuth', JSON.JSON.stringify({
+            localStorage.setItem('gpsAuth', JSON.stringify({
                 username: currentUsername,
                 vehicleNumber: vehicleNumber,
                 isViewer: false,
