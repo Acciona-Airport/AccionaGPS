@@ -309,37 +309,17 @@
                 return;
             }
 
-            let email, userPassword;
+            const email = userEmails[username];
 
-            if (username === 'Admin') {
-                email = userEmails['Admin'];
-                userPassword = ADMIN_PASSWORD;
-            } else if (username === 'Funcionarios') {
-                email = userEmails['Funcionarios'];
-                userPassword = FUNCIONARIOS_PASSWORD;
-            } else {
-                email = userEmails[username];
-                userPassword = password;
-            }
-
-            if (password !== userPassword) {
-                errorElement.textContent = 'Contraseña incorrecta';
-                errorElement.style.display = 'block';
-                return;
-            }
-
-            firebase.auth().signInWithEmailAndPassword(email, userPassword)
+            firebase.auth().signInWithEmailAndPassword(email, password)
                 .then((userCredential) => {
                     currentUsername = username;
-                    if (username === 'Funcionarios') {
+                    if (username === 'Funcionarios' || username === 'Admin') {
                         localStorage.setItem('gpsAuth', JSON.stringify({
                             username,
                             isViewer: true,
                             uid: userCredential.user.uid
                         }));
-                        window.location.href = 'index.html';
-                    } else if (username === 'Admin') {
-                        localStorage.setItem('adminAuth', JSON.stringify({ isAdmin: true, uid: userCredential.user.uid }));
                         window.location.href = 'index.html';
                     } else {
                         document.getElementById('vehicleNumberModal').style.display = 'flex';
