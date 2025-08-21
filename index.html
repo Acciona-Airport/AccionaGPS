@@ -188,7 +188,7 @@
         }
         .vehicle-marker.offline {
             background-color: #95a5a6;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5v-5h14v5z"/><circle cx="7.5" cy="14.5" r="1.5"/><circle cx="16.5" cy="14.5" r="1.5"/></svg>');
+            background-image: url('data:image/svg+xulum,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5v-5h14v5z"/><circle cx="7.5" cy="14.5" r="1.5"/><circle cx="16.5" cy="14.5" r="1.5"/></svg>');
             opacity: 0.7;
         }
         .vehicle-label {
@@ -379,7 +379,6 @@
             display: none !important;
         }
         
-        /* Modal para ingreso de número de vehículo */
         .vehicle-modal {
             position: fixed;
             top: 0;
@@ -437,7 +436,6 @@
     </style>
 </head>
 <body>
-    <!-- Modal para ingreso de número de vehículo -->
     <div class="vehicle-modal" id="vehicleModal">
         <div class="vehicle-modal-content">
             <h3>Ingrese Número de Vehículo</h3>
@@ -505,7 +503,7 @@
 
     <div class="control-panel-container">
         <div class="control-panel" id="controlPanel">
-            <h3 style="margin-top:0;color:var(--red-dark);">🚗 Flota Acciona</h3>
+            <h3 style="margin-top:0;color:var(--red-dark;">🚗 Flota Acciona</h3>
             
             <div class="vehicle-card">
                 <div class="vehicle-name">
@@ -637,7 +635,7 @@
         let lastKnownPosition = null;
         let locationUpdateInterval = null;
         let currentRouteLayer = null;
-        let vehicleNumbers = {}; // Almacena los números de vehículo personalizados
+        let vehicleNumbers = {};
         
         const route1Coordinates = [
             [-33.4095444, -70.7893019],
@@ -713,16 +711,16 @@
                 currentUserId = auth.username;
                 isViewer = auth.isViewer;
                 
-                // Verificar si ya tiene un número de vehículo guardado
+                const isMobileUser = ['Movil1', 'Movil2', 'Movil3', 'Movil4'].includes(currentUserId);
                 const savedVehicleNumber = localStorage.getItem(`vehicleNumber_${currentUserId}`);
                 
-                if (savedVehicleNumber) {
-                    // Si ya tiene un número guardado, continuar con la aplicación
-                    vehicleNumbers[currentUserId] = savedVehicleNumber;
-                    initApplication();
-                } else {
-                    // Mostrar modal para ingresar número de vehículo
+                if (isMobileUser && !savedVehicleNumber) {
                     showVehicleNumberModal();
+                } else {
+                    if (savedVehicleNumber) {
+                        vehicleNumbers[currentUserId] = savedVehicleNumber;
+                    }
+                    initApplication();
                 }
             }
         });
@@ -737,11 +735,8 @@
             submitBtn.addEventListener('click', function() {
                 const vehicleNumber = input.value.trim();
                 if (vehicleNumber) {
-                    // Guardar número de vehículo
                     vehicleNumbers[currentUserId] = vehicleNumber;
                     localStorage.setItem(`vehicleNumber_${currentUserId}`, vehicleNumber);
-                    
-                    // Ocultar modal y continuar con la aplicación
                     modal.style.display = 'none';
                     initApplication();
                 } else {
@@ -749,7 +744,6 @@
                 }
             });
             
-            // Permitir enviar con Enter
             input.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     submitBtn.click();
@@ -761,7 +755,6 @@
             initMap();
             setupUI();
             
-            // Actualizar nombre del usuario actual con el número de vehículo
             document.getElementById('current-user-name').textContent = 
                 vehicleNumbers[currentUserId] || currentUserId;
             
@@ -922,9 +915,6 @@
             try {
                 if ('wakeLock' in navigator) {
                     wakeLock = await navigator.wakeLock.request('screen');
-                    
-                    wakeLock.addEventListener('release', () => {
-                    });
                 }
             } catch (err) {
             }
@@ -1205,7 +1195,6 @@
                     status: 'online',
                     lastUpdate: now,
                     accuracy: accuracy,
-                    // Guardar también el número de vehículo personalizado
                     vehicleNumber: vehicleNumbers[mobileId] || mobileId
                 });
             }
@@ -1231,10 +1220,8 @@
                         const now = Date.now();
                         lastUpdateTimes[mobileId] = vehicle.lastUpdate || now;
                         
-                        // Guardar el número de vehículo personalizado si está disponible
                         if (vehicle.vehicleNumber) {
                             vehicleNumbers[mobileId] = vehicle.vehicleNumber;
-                            // Actualizar el nombre mostrado en la interfaz
                             const nameElement = document.getElementById(`${mobileId.toLowerCase()}-name`);
                             if (nameElement) {
                                 nameElement.textContent = vehicle.vehicleNumber;
@@ -1371,7 +1358,6 @@
             firebase.auth().signOut();
             localStorage.removeItem('gpsAuth');
             localStorage.removeItem('panelState');
-            // No eliminar el número de vehículo para mantenerlo en futuras sesiones
             window.location.href = 'login.html';
         }
     </script>
