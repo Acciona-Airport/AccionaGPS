@@ -592,7 +592,6 @@
         </select>
     </div>
 
-    <!-- Modal para número de vehículo -->
     <div class="vehicle-number-modal" id="vehicleNumberModal">
         <div class="vehicle-number-form">
             <h2>Ingrese número de vehículo</h2>
@@ -627,18 +626,21 @@
         let currentTileLayer;
         const markers = {};
         const lastUpdateTimes = {};
+        const vehicleCache = {};
         let gpsInterval;
         let wakeLock = null;
         let backgroundGeolocationWatchId = null;
         const TEN_MINUTES = 10 * 60 * 1000;
+        const UPDATE_INTERVAL = 30000;
         let currentUserId = null;
         let isViewer = false;
         let userPositionMarker = null;
         let userAccuracyCircle = null;
         let lastKnownPosition = null;
         let locationUpdateInterval = null;
+        let viewerUpdateInterval = null;
         let currentRouteLayer = null;
-        let vehicleNames = {}; // Almacenará los nombres personalizados de los vehículos
+        let vehicleNames = {};
         
         const route1Coordinates = [
             [-33.4095444, -70.7893019],
@@ -664,7 +666,6 @@
             [-33.40931, -70.7895175],
             [-33.4096593, -70.7891232]
         ];
-        
         const route2Coordinates = [
             [-33.4096489, -70.7892732],
             [-33.4093416, -70.7895579],
@@ -685,7 +686,6 @@
             [-33.4092579, -70.7896023],
             [-33.4096104, -70.7892531]
         ];
-        
         const mapProviders = {
             esri: {
                 url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
@@ -703,7 +703,7 @@
                 maxZoom: 19
             }
         };
-        
+
         firebase.auth().onAuthStateChanged((user) => {
             if (!user) {
                 window.location.href = 'login.html';
@@ -714,7 +714,6 @@
                 currentUserId = auth.username;
                 isViewer = auth.isViewer;
                 
-                // Cargar nombres de vehículos si existen
                 const savedVehicleNames = localStorage.getItem('vehicleNames');
                 if (savedVehicleNames) {
                     vehicleNames = JSON.parse(savedVehicleNames);
@@ -723,7 +722,6 @@
                 initMap();
                 setupUI();
                 
-                // Mostrar modal para ingresar número de vehículo si es necesario
                 if (!isViewer && !auth.vehicleNumber) {
                     document.getElementById('vehicleNumberModal').style.display = 'flex';
                 } else {
@@ -732,11 +730,9 @@
                 }
             }
         });
-        
+
         function setupAfterVehicleNumber() {
             const auth = JSON.parse(localStorage.getItem('gpsAuth'));
-            
-            // Actualizar nombre del vehículo actual si existe un número
             if (auth.vehicleNumber) {
                 vehicleNames[currentUserId] = auth.vehicleNumber;
                 localStorage.setItem('vehicleNames', JSON.stringify(vehicleNames));
@@ -757,7 +753,6 @@
         }
         
         function updateVehicleNamesInUI() {
-            // Actualizar nombres en la interfaz según los nombres personalizados guardados
             for (let i = 1; i <= 4; i++) {
                 const mobileId = 'Movil' + i;
                 const element = document.getElementById(`${mobileId.toLowerCase()}-name`);
@@ -773,20 +768,16 @@
                 tap: false,
                 dragging: true
             }).setView(SCL_COORDS, ZOOM_INICIAL);
-            
             L.control.zoom({
                 position: 'bottomright'
             }).addTo(map);
-            
             const savedProvider = localStorage.getItem('mapProvider') || 'esri';
             document.getElementById('mapProvider').value = savedProvider;
             setMapProvider(savedProvider);
-            
             L.marker(SCL_COORDS)
                 .addTo(map)
                 .bindPopup('✈️ Aeropuerto SCL')
                 .openPopup();
-                
             createUserPositionMarker(SCL_COORDS);
             
             if (L.Browser.touch) {
@@ -800,54 +791,48 @@
             }
             
             const provider = mapProviders[providerKey];
-            
             currentTileLayer = L.tileLayer(provider.url, {
                 attribution: provider.attribution,
                 maxZoom: provider.maxZoom
             }).addTo(map);
-            
             localStorage.setItem('mapProvider', providerKey);
         }
         
         function setupUI() {
             document.getElementById('logoutBtn').addEventListener('click', logout);
-            
             const panel = document.getElementById('controlPanel');
             const toggleBtn = document.getElementById('togglePanel');
             
             toggleBtn.addEventListener('click', function() {
                 panel.classList.toggle('visible');
             });
-            
             const refreshBtn = document.getElementById('refreshBtn');
             refreshBtn.addEventListener('click', function() {
                 refreshBtn.classList.add('loading');
                 
+                if (isViewer) {
+                    fetchVehicleData();
+                }
+                
                 setTimeout(() => {
                     const isPanelVisible = panel.classList.contains('visible');
                     localStorage.setItem('panelState', isPanelVisible ? 'open' : 'closed');
-                    
-                    window.location.reload();
+                    refreshBtn.classList.remove('loading');
                 }, 500);
             });
-            
             document.getElementById('mapProvider').addEventListener('change', function(e) {
                 setMapProvider(e.target.value);
             });
-            
             document.getElementById('routeSelector').addEventListener('change', function(e) {
                 showRoute(e.target.value);
             });
-            
             document.getElementById('forceLocationBtn').addEventListener('click', function() {
                 forceLocationUpdate();
             });
-            
             document.getElementById('emergencyLocateBtn').addEventListener('click', function() {
                 centerOnUserLocation();
             });
             
-            // Eventos para el modal de número de vehículo
             document.getElementById('vehicleNumberSubmit').addEventListener('click', function() {
                 const vehicleNumber = document.getElementById('vehicleNumberInput').value.trim();
                 
@@ -856,12 +841,10 @@
                     return;
                 }
                 
-                // Guardar el número de vehículo en localStorage
                 const auth = JSON.parse(localStorage.getItem('gpsAuth'));
                 auth.vehicleNumber = vehicleNumber;
                 localStorage.setItem('gpsAuth', JSON.stringify(auth));
                 
-                // Ocultar el modal y continuar con la configuración
                 document.getElementById('vehicleNumberModal').style.display = 'none';
                 setupAfterVehicleNumber();
             });
@@ -871,7 +854,6 @@
                     document.getElementById('vehicleNumberSubmit').click();
                 }
             });
-            
             document.addEventListener('visibilitychange', handleVisibilityChange);
             
             if ('wakeLock' in navigator) {
@@ -895,7 +877,6 @@
             }
             
             if (routeId === 'none') return;
-            
             let coordinates;
             let color;
             
@@ -924,7 +905,6 @@
                 notification.textContent = 'Aplicación en primer plano';
                 notification.style.display = 'block';
                 setTimeout(() => { notification.style.display = 'none'; }, 3000);
-                
                 if (!isViewer) {
                     forceLocationUpdate();
                 }
@@ -939,7 +919,6 @@
             try {
                 if ('wakeLock' in navigator) {
                     wakeLock = await navigator.wakeLock.request('screen');
-                    
                     wakeLock.addEventListener('release', () => {
                     });
                 }
@@ -949,7 +928,6 @@
         
         function initializeAllMarkers() {
             const mobileIds = ['Movil1', 'Movil2', 'Movil3', 'Movil4'];
-            
             mobileIds.forEach(mobileId => {
                 createMarker(mobileId, INACTIVE_COORDS, false);
                 lastUpdateTimes[mobileId] = Date.now();
@@ -978,11 +956,9 @@
                 iconSize: [20, 20],
                 iconAnchor: [10, 10]
             });
-            
             userPositionMarker = L.marker(coords, { icon: userIcon, zIndexOffset: 1000 })
                 .addTo(map)
                 .bindPopup('<b>Tu ubicación actual</b>');
-                
             map.setView(coords, 16);
         }
         
@@ -1006,14 +982,12 @@
             
             document.getElementById('current-user-coords').textContent = 
                 `${coords[0].toFixed(6)}, ${coords[1].toFixed(6)}`;
-                
             document.getElementById('accuracyValue').textContent = 
                 accuracy ? `${accuracy.toFixed(1)} metros` : 'Desconocida';
             document.getElementById('lastUpdateValue').textContent = new Date().toLocaleTimeString();
         }
         
         function startGPSTracking(mobileId) {
-            if (gpsInterval) clearInterval(gpsInterval);
             if (locationUpdateInterval) clearInterval(locationUpdateInterval);
             
             requestWakeLock();
@@ -1023,7 +997,6 @@
             locationUpdateInterval = setInterval(() => {
                 updatePosition(mobileId);
             }, 60000);
-            
             setupBackgroundGeolocation(mobileId);
             
             setTimeout(() => updatePosition(mobileId), 2000);
@@ -1036,7 +1009,6 @@
                     maximumAge: 10000,
                     timeout: 10000
                 };
-                
                 if (backgroundGeolocationWatchId !== null) {
                     navigator.geolocation.clearWatch(backgroundGeolocationWatchId);
                 }
@@ -1119,7 +1091,6 @@
         
         function forceLocationUpdate() {
             if (!currentUserId) return;
-            
             updateDiagnostic('warning', 'Forzando actualización...');
             
             navigator.geolocation.getCurrentPosition(
@@ -1179,13 +1150,11 @@
             statusElement.className = `diagnostic-value ${status}`;
             
             methodElement.textContent = method;
-            
             if (accuracy !== null) {
                 document.getElementById('accuracyValue').textContent = `${accuracy.toFixed(1)} metros`;
             }
             
             document.getElementById('lastUpdateValue').textContent = new Date().toLocaleTimeString();
-            
             const locationStatus = document.getElementById('locationStatus');
             if (status === 'good') {
                 locationStatus.textContent = 'Ubicación activa';
@@ -1208,7 +1177,6 @@
         
         function savePosition(mobileId, coords, accuracy) {
             const now = Date.now();
-            
             lastKnownPosition = coords;
             
             updateUserPositionMarker(coords, accuracy);
@@ -1222,7 +1190,7 @@
                     status: 'online',
                     lastUpdate: now,
                     accuracy: accuracy,
-                    displayName: vehicleNames[mobileId] || mobileId // Guardar nombre personalizado
+                    displayName: vehicleNames[mobileId] || mobileId
                 });
             }
             
@@ -1236,65 +1204,89 @@
         }
         
         function startMonitoring() {
-            setInterval(checkConnectionStatus, 120000);
-            
-            database.ref('vehicles').on('value', (snapshot) => {
-                const vehiclesData = snapshot.val() || {};
-                
-                Object.keys(vehiclesData).forEach(mobileId => {
-                    const vehicle = vehiclesData[mobileId];
-                    if (vehicle && vehicle.coords) {
-                        const now = Date.now();
-                        lastUpdateTimes[mobileId] = vehicle.lastUpdate || now;
-                        
-                        const isOnline = (now - (vehicle.lastUpdate || 0)) < TEN_MINUTES;
-                        const coords = isOnline ? 
-                            [vehicle.coords.lat, vehicle.coords.lng] : 
-                            INACTIVE_COORDS;
-                        
-                        // Actualizar nombre personalizado si existe en Firebase
-                        if (vehicle.displayName && vehicle.displayName !== mobileId) {
-                            vehicleNames[mobileId] = vehicle.displayName;
-                            localStorage.setItem('vehicleNames', JSON.stringify(vehicleNames));
-                            
-                            // Actualizar en la UI
-                            const nameElement = document.getElementById(`${mobileId.toLowerCase()}-name`);
-                            if (nameElement) {
-                                nameElement.textContent = vehicle.displayName;
-                            }
-                        }
-                        
-                        updateMarker(mobileId, coords, isOnline);
-                        updateStatus(mobileId, isOnline ? 'online' : 'offline');
-                    }
-                });
-                
-                // Actualizar nombres en la UI
-                updateVehicleNamesInUI();
-            });
+            fetchVehicleData();
+            viewerUpdateInterval = setInterval(fetchVehicleData, UPDATE_INTERVAL);
         }
         
+        function fetchVehicleData() {
+            database.ref('vehicles').once('value')
+                .then(snapshot => {
+                    const vehiclesData = snapshot.val() || {};
+                    let newDataFound = false;
+
+                    Object.keys(vehiclesData).forEach(mobileId => {
+                        const vehicle = vehiclesData[mobileId];
+                        if (vehicle && vehicle.lastUpdate) {
+                            if (!vehicleCache[mobileId] || vehicle.lastUpdate > vehicleCache[mobileId].lastUpdate) {
+                                vehicleCache[mobileId] = vehicle;
+                                newDataFound = true;
+                            }
+                        }
+                    });
+
+                    if (newDataFound) {
+                        updateMarkersFromCache();
+                    } else {
+                        console.log('No hay datos nuevos, usando caché.');
+                        checkConnectionStatus();
+                    }
+                })
+                .catch(error => {
+                    console.error("Error al obtener datos de la flota:", error);
+                    checkConnectionStatus();
+                });
+        }
+        
+        function updateMarkersFromCache() {
+            const now = Date.now();
+            Object.keys(vehicleCache).forEach(mobileId => {
+                const vehicle = vehicleCache[mobileId];
+                if (vehicle) {
+                    const isOnline = (now - vehicle.lastUpdate) < TEN_MINUTES;
+                    const coords = isOnline ? [vehicle.coords.lat, vehicle.coords.lng] : INACTIVE_COORDS;
+
+                    if (vehicle.displayName && vehicle.displayName !== mobileId) {
+                        vehicleNames[mobileId] = vehicle.displayName;
+                        localStorage.setItem('vehicleNames', JSON.stringify(vehicleNames));
+                        const nameElement = document.getElementById(`${mobileId.toLowerCase()}-name`);
+                        if (nameElement) {
+                            nameElement.textContent = vehicle.displayName;
+                        }
+                    }
+
+                    updateMarker(mobileId, coords, isOnline);
+                    updateStatus(mobileId, isOnline ? 'online' : 'offline');
+                }
+            });
+            updateVehicleNamesInUI();
+        }
+
         function checkConnectionStatus() {
             const now = Date.now();
-            Object.keys(lastUpdateTimes).forEach(mobileId => {
-                const lastUpdate = lastUpdateTimes[mobileId] || 0;
-                if ((now - lastUpdate) > TEN_MINUTES) {
-                    updateStatus(mobileId, 'offline');
-                    if (markers[mobileId]) {
-                        const icon = L.divIcon({
-                            className: 'vehicle-marker offline',
-                            html: `
-                                <div class="vehicle-marker offline"></div>
-                                <div class="vehicle-label">${vehicleNames[mobileId] || mobileId}</div>
-                            `,
-                            iconSize: [32, 42],
-                            iconAnchor: [16, 16],
-                            popupAnchor: [0, -16]
-                        });
-                        markers[mobileId]
-                            .setIcon(icon)
-                            .setLatLng(INACTIVE_COORDS)
-                            .setPopupContent(`<b>${vehicleNames[mobileId] || mobileId}</b><br>Desconectado<br>Última actualización: ${new Date(lastUpdate).toLocaleTimeString()}`);
+            Object.keys(vehicleCache).forEach(mobileId => {
+                const vehicle = vehicleCache[mobileId];
+                if (vehicle) {
+                    const lastUpdate = vehicle.lastUpdate || 0;
+                    const isOnline = (now - lastUpdate) < TEN_MINUTES;
+                    
+                    if (!isOnline) {
+                        updateStatus(mobileId, 'offline');
+                        if (markers[mobileId]) {
+                            const icon = L.divIcon({
+                                className: 'vehicle-marker offline',
+                                html: `
+                                    <div class="vehicle-marker offline"></div>
+                                    <div class="vehicle-label">${vehicleNames[mobileId] || mobileId}</div>
+                                `,
+                                iconSize: [32, 42],
+                                iconAnchor: [16, 16],
+                                popupAnchor: [0, -16]
+                            });
+                            markers[mobileId]
+                                .setIcon(icon)
+                                .setLatLng(INACTIVE_COORDS)
+                                .setPopupContent(`<b>${vehicleNames[mobileId] || mobileId}</b><br>Desconectado<br>Última actualización: ${new Date(lastUpdate).toLocaleTimeString()}`);
+                        }
                     }
                 }
             });
@@ -1302,7 +1294,6 @@
         
         function createMarker(mobileId, coords, isOnline) {
             if (markers[mobileId]) return;
-            
             const displayName = vehicleNames[mobileId] || mobileId;
             
             const container = L.divIcon({
@@ -1315,7 +1306,6 @@
                 iconAnchor: [16, 16],
                 popupAnchor: [0, -16]
             });
-
             markers[mobileId] = L.marker(coords, { 
                 icon: container,
                 title: displayName
@@ -1339,7 +1329,6 @@
                     iconAnchor: [16, 16],
                     popupAnchor: [0, -16]
                 });
-
                 markers[mobileId]
                     .setLatLng(coords)
                     .setIcon(container)
@@ -1379,6 +1368,7 @@
         function logout() {
             if (gpsInterval) clearInterval(gpsInterval);
             if (locationUpdateInterval) clearInterval(locationUpdateInterval);
+            if (viewerUpdateInterval) clearInterval(viewerUpdateInterval);
             if (backgroundGeolocationWatchId !== null) {
                 navigator.geolocation.clearWatch(backgroundGeolocationWatchId);
             }
@@ -1396,4 +1386,3 @@
     </script>
 </body>
 </html>
-
