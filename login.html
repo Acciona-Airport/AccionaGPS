@@ -32,264 +32,322 @@
             max-width: 400px;
             padding: 40px 30px;
             border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(244, 67, 54, 0.15);
+            box-shadow: 0 10px 30px rgba(244, 67, 54, 0.1);
+            border: 1px solid rgba(244, 67, 54, 0.1);
             text-align: center;
         }
-        h2 {
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+        .logo-pin {
+            width: 40px;
+            height: 40px;
+            background: var(--red-primary);
+            border-radius: 50% 50% 50% 0;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%) rotate(-45deg);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .logo-pin::after {
+            content: '';
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
+        .logo-circle {
+            width: 60px;
+            height: 60px;
+            border: 2px solid var(--red-primary);
+            border-radius: 50%;
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: pulse 2s infinite;
+        }
+        .logo-circle.inner {
+            width: 70px;
+            height: 70px;
+            opacity: 0.6;
+            animation-delay: 0.5s;
+        }
+        @keyframes pulse {
+            0% { transform: translateX(-50%) scale(1); opacity: 1; }
+            100% { transform: translateX(-50%) scale(1.5); opacity: 0; }
+        }
+        h1 {
             color: var(--red-dark);
             margin-bottom: 25px;
-            font-size: 1.8em;
+            font-weight: 600;
         }
-        .input-group {
+        .form-group {
             margin-bottom: 20px;
             text-align: left;
         }
         label {
             display: block;
             margin-bottom: 8px;
-            font-weight: 600;
-            color: #555;
+            color: var(--red-dark);
+            font-weight: 500;
         }
-        input[type="email"],
-        input[type="password"],
-        select {
+        select, input {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #ccc;
+            padding: 12px 15px;
+            border: 2px solid var(--gray-light);
             border-radius: 8px;
-            font-size: 1em;
-            transition: border-color 0.3s;
+            font-size: 16px;
+            transition: all 0.3s;
         }
-        input[type="email"]:focus,
-        input[type="password"]:focus,
-        select:focus {
-            outline: none;
+        select:focus, input:focus {
             border-color: var(--red-primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.2);
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background: var(--red-primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: var(--red-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(211, 47, 47, 0.3);
+        }
+        .error-message {
+            color: var(--red-dark);
+            margin-top: 15px;
+            font-size: 14px;
+            display: none;
+        }
+        .auto-login-notice {
+            background-color: var(--red-light);
+            color: var(--red-dark);
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 15px;
+            font-size: 14px;
+            display: none;
         }
         .password-disabled {
             background-color: #f0f0f0;
             cursor: not-allowed;
         }
-        .password-disabled::placeholder {
-            color: #999;
-        }
-        button {
+        .vehicle-number-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            padding: 12px;
-            background: var(--red-primary);
-            color: var(--white);
-            border: none;
-            border-radius: 8px;
-            font-size: 1.1em;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        button:hover {
-            background: var(--red-dark);
-        }
-        .error-message {
-            color: var(--red-dark);
-            margin-top: 15px;
-            font-size: 0.9em;
-            font-weight: 500;
-        }
-        .vehicle-prompt {
-            margin-top: 25px;
-            padding: 20px;
-            background: var(--gray-light);
-            border-radius: 8px;
-        }
-        .vehicle-prompt h3 {
-            color: var(--red-primary);
-            margin-bottom: 10px;
-        }
-        .auto-login-notice {
-            background-color: var(--red-light);
-            color: var(--red-dark);
-            border-left: 5px solid var(--red-primary);
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 5px;
-            font-size: 0.9em;
-            text-align: left;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
             display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .vehicle-number-form {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .vehicle-number-form h2 {
+            color: var(--red-dark);
+            margin-bottom: 20px;
+        }
+        .vehicle-number-input {
+            width: 100%;
+            padding: 15px;
+            margin: 15px 0;
+            border: 2px solid var(--gray-light);
+            border-radius: 8px;
+            font-size: 18px;
+            text-align: center;
+        }
+        .vehicle-number-input:focus {
+            border-color: var(--red-primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.2);
+        }
+        .vehicle-number-submit {
+            background: var(--red-primary);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .vehicle-number-submit:hover {
+            background: var(--red-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(211, 47, 47, 0.3);
         }
     </style>
-    <script src="https://www.gstatic.com/firebasejs/7.21.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/7.21.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/7.21.0/firebase-database.js"></script>
 </head>
 <body>
     <div class="login-container">
-        <h2>Login GPS Acciona</h2>
-        <div id="loginForm">
-            <div class="input-group">
+        <div class="logo">
+            <div class="logo-circle inner"></div>
+            <div class="logo-circle"></div>
+            <div class="logo-pin"></div>
+        </div>
+        <h1>Acceso GPS Acciona</h1>
+        <form id="loginForm">
+            <div class="form-group">
                 <label for="username">Usuario</label>
-                <select id="username">
+                <select id="username" required>
+                    <option value="">Seleccione vehículo...</option>
                     <option value="Movil1">Móvil 1</option>
                     <option value="Movil2">Móvil 2</option>
                     <option value="Movil3">Móvil 3</option>
                     <option value="Movil4">Móvil 4</option>
-                    <option value="Movil5">Móvil 5</option>
-                    <option value="Movil6">Móvil 6</option>
                     <option value="Funcionarios">Funcionarios</option>
-                    <option value="Admin">Admin</option>
                 </select>
             </div>
-            <div class="input-group">
-                <label for="email">Correo Electrónico</label>
-                <input type="email" id="email" placeholder="Ingresa tu correo" required>
-            </div>
-            <div class="input-group">
+            
+            <div class="form-group">
                 <label for="password">Contraseña</label>
-                <input type="password" id="password" placeholder="Ingresa tu contraseña" required>
+                <input type="password" id="password" required>
             </div>
-            <button id="loginButton">Iniciar Sesión</button>
-            <p id="errorMessage" class="error-message"></p>
-        </div>
-
-        <div id="viewerPrompt" style="display: none;">
-            <p><strong>ATENCIÓN:</strong> El rol de "Funcionarios" es solo de visualización. No se enviará ubicación.</p>
-            <button id="viewerButton">Continuar como Visualizador</button>
-        </div>
-
-        <div id="vehiclePrompt" class="vehicle-prompt" style="display: none;">
-            <h3>Asignar Número de Vehículo</h3>
-            <div class="input-group">
-                <label for="vehicleNumberInput">Número de Vehículo</label>
-                <input type="text" id="vehicleNumberInput" placeholder="Ej: 112">
+            
+            <div class="auto-login-notice" id="autoLoginNotice">
+                Acceso automático para Funcionarios.
             </div>
-            <button id="vehicleNumberSubmit">Confirmar</button>
-        </div>
-        <div id="autoLoginNotice" class="auto-login-notice">
-            <p><strong>Aviso:</strong> La contraseña para "Funcionarios" y "Admin" se completa automáticamente. No es necesario ingresarla.</p>
+            
+            <button type="submit">Ingresar al Sistema</button>
+            <div class="error-message" id="errorMessage"></div>
+        </form>
+    </div>
+
+    <div class="vehicle-number-modal" id="vehicleNumberModal">
+        <div class="vehicle-number-form">
+            <h2>Ingrese número de vehículo</h2>
+            <input type="text" class="vehicle-number-input" id="vehicleNumberInput" placeholder="Ej: 6142" maxlength="10">
+            <button class="vehicle-number-submit" id="vehicleNumberSubmit">Continuar</button>
         </div>
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    
     <script>
-        const FUNCIONARIOS_PASSWORD = 'Funcionarios234452';
-        const ADMIN_PASSWORD = 'Admin234452'; // Contraseña del usuario Admin
-        
-        // Configura tu Firebase aquí
         const firebaseConfig = {
-            apiKey: "TU_API_KEY",
-            authDomain: "TU_AUTH_DOMAIN",
-            databaseURL: "TU_DATABASE_URL",
-            projectId: "TU_PROJECT_ID",
-            storageBucket: "TU_STORAGE_BUCKET",
-            messagingSenderId: "TU_MESSAGING_SENDER_ID",
-            appId: "TU_APP_ID"
+            apiKey: "AIzaSyDT85qotm1EpAJzJzCFeoNwGyo-VKhM6dk",
+            authDomain: "gpsaccionascl2025.firebaseapp.com",
+            databaseURL: "https://gpsaccionascl2025-default-rtdb.firebaseio.com",
+            projectId: "gpsaccionascl2025",
+            storageBucket: "gpsaccionascl2025.appspot.com",
+            messagingSenderId: "742246618721",
+            appId: "1:742246618721:web:72d0046987416800f07c20"
         };
 
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
+        firebase.initializeApp(firebaseConfig);
 
-        const usernameSelect = document.getElementById('username');
-        const emailInput = document.getElementById('email');
-        const passwordInput = document.getElementById('password');
-        const loginButton = document.getElementById('loginButton');
-        const errorMessage = document.getElementById('errorMessage');
+        const userEmails = {
+            "Movil1": "movil1@gpsacciona.com",
+            "Movil2": "movil2@gpsacciona.com", 
+            "Movil3": "movil3@gpsacciona.com",
+            "Movil4": "movil4@gpsacciona.com",
+            "Funcionarios": "funcionarios@gpsacciona.com"
+        };
 
-        usernameSelect.addEventListener('change', () => {
-            const selectedUsername = usernameSelect.value;
+        const FUNCIONARIOS_PASSWORD = "123456";
+        let currentUsername = "";
+
+        document.getElementById('username').addEventListener('change', function() {
+            const username = this.value;
             const autoLoginNotice = document.getElementById('autoLoginNotice');
-
-            if (selectedUsername === 'Funcionarios') {
-                emailInput.value = 'viewer@acciona.com';
+            const passwordInput = document.getElementById('password');
+            
+            if (username === 'Funcionarios') {
+                autoLoginNotice.style.display = 'block';
                 passwordInput.value = FUNCIONARIOS_PASSWORD;
                 passwordInput.setAttribute('readonly', 'true');
                 passwordInput.classList.add('password-disabled');
-                autoLoginNotice.style.display = 'block';
-            } else if (selectedUsername === 'Admin') {
-                emailInput.value = 'admin@acciona.com';
-                passwordInput.value = ADMIN_PASSWORD;
-                passwordInput.setAttribute('readonly', 'true');
-                passwordInput.classList.add('password-disabled');
-                autoLoginNotice.style.display = 'block';
             } else {
-                emailInput.value = '';
+                autoLoginNotice.style.display = 'none';
                 passwordInput.value = '';
                 passwordInput.removeAttribute('readonly');
                 passwordInput.classList.remove('password-disabled');
-                autoLoginNotice.style.display = 'none';
             }
         });
 
-        loginButton.addEventListener('click', () => {
-            const email = emailInput.value;
-            const password = passwordInput.value;
-            const currentUsername = usernameSelect.value;
-
-            errorMessage.textContent = '';
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
             
-            if (currentUsername === 'Funcionarios') {
-                document.getElementById('loginForm').style.display = 'none';
-                document.getElementById('viewerPrompt').style.display = 'block';
+            const username = document.getElementById('username').value;
+            let password = document.getElementById('password').value;
+            const errorElement = document.getElementById('errorMessage');
+
+            if (!username) {
+                errorElement.textContent = 'Seleccione un usuario válido';
+                errorElement.style.display = 'block';
                 return;
             }
 
-            if (currentUsername === 'Admin') {
-                // Iniciar sesión como administrador
-                firebase.auth().signInWithEmailAndPassword(email, password)
-                    .then((userCredential) => {
-                        const user = userCredential.user;
-                        localStorage.setItem('gpsAuth', JSON.stringify({
-                            username: currentUsername,
-                            isAdmin: true, // Se marca como administrador
-                            isViewer: false,
-                            uid: user.uid
-                        }));
-                        window.location.href = 'index.html';
-                    })
-                    .catch((error) => {
-                        errorMessage.textContent = error.message;
-                    });
+            if (username === 'Funcionarios' && !password) {
+                password = FUNCIONARIOS_PASSWORD;
+                document.getElementById('password').value = password;
+            }
+
+            if (!password) {
+                errorElement.textContent = 'Ingrese la contraseña';
+                errorElement.style.display = 'block';
                 return;
             }
 
-            // Lógica de inicio de sesión para los demás móviles
+            const email = userEmails[username];
+            
             firebase.auth().signInWithEmailAndPassword(email, password)
                 .then((userCredential) => {
-                    const user = userCredential.user;
-                    localStorage.setItem('tempAuth', JSON.stringify({
-                        username: currentUsername,
-                        uid: user.uid,
-                        isViewer: false,
-                        isAdmin: false
-                    }));
-                    document.getElementById('loginForm').style.display = 'none';
-                    document.getElementById('vehiclePrompt').style.display = 'block';
+                    currentUsername = username;
+                    
+                    if (username === 'Funcionarios') {
+                        localStorage.setItem('gpsAuth', JSON.stringify({
+                            username,
+                            isViewer: true,
+                            uid: userCredential.user.uid
+                        }));
+                        window.location.href = 'index.html';
+                    } else {
+                        document.getElementById('vehicleNumberModal').style.display = 'flex';
+                    }
                 })
                 .catch((error) => {
-                    errorMessage.textContent = error.message;
-                });
-        });
-        
-        document.getElementById('viewerButton').addEventListener('click', () => {
-            const userEmail = 'viewer@acciona.com';
-            const userPassword = FUNCIONARIOS_PASSWORD;
-            
-            firebase.auth().signInWithEmailAndPassword(userEmail, userPassword)
-                .then((userCredential) => {
-                    const user = userCredential.user;
-                    localStorage.setItem('gpsAuth', JSON.stringify({
-                        username: 'Funcionarios',
-                        isViewer: true,
-                        isAdmin: false,
-                        uid: user.uid
-                    }));
-                    window.location.href = 'index.html';
-                })
-                .catch((error) => {
-                    errorMessage.textContent = error.message;
+                    console.error("Error de autenticación:", error);
+                    errorElement.textContent = 'Usuario o contraseña incorrectos';
+                    errorElement.style.display = 'block';
+                    
+                    setTimeout(() => {
+                        errorElement.style.display = 'none';
+                    }, 3000);
                 });
         });
 
         document.getElementById('vehicleNumberSubmit').addEventListener('click', function() {
             const vehicleNumber = document.getElementById('vehicleNumberInput').value.trim();
-            const tempAuth = JSON.parse(localStorage.getItem('tempAuth'));
             
             if (!vehicleNumber) {
                 alert('Por favor ingrese un número de vehículo');
@@ -297,14 +355,12 @@
             }
             
             localStorage.setItem('gpsAuth', JSON.stringify({
-                username: tempAuth.username,
+                username: currentUsername,
                 vehicleNumber: vehicleNumber,
                 isViewer: false,
-                isAdmin: false,
-                uid: tempAuth.uid
+                uid: firebase.auth().currentUser.uid
             }));
             
-            localStorage.removeItem('tempAuth');
             window.location.href = 'index.html';
         });
 
@@ -315,23 +371,15 @@
         });
 
         window.addEventListener('load', function() {
-            const selectedUsername = usernameSelect.value;
-            const autoLoginNotice = document.getElementById('autoLoginNotice');
-
-            if (selectedUsername === 'Funcionarios') {
-                emailInput.value = 'viewer@acciona.com';
-                passwordInput.value = FUNCIONARIOS_PASSWORD;
-                passwordInput.setAttribute('readonly', 'true');
-                passwordInput.classList.add('password-disabled');
-                autoLoginNotice.style.display = 'block';
-            } else if (selectedUsername === 'Admin') {
-                emailInput.value = 'admin@acciona.com';
-                passwordInput.value = ADMIN_PASSWORD;
-                passwordInput.setAttribute('readonly', 'true');
-                passwordInput.classList.add('password-disabled');
-                autoLoginNotice.style.display = 'block';
+            const usernameSelect = document.getElementById('username');
+            if (usernameSelect.value === 'Funcionarios') {
+                document.getElementById('autoLoginNotice').style.display = 'block';
+                document.getElementById('password').value = FUNCIONARIOS_PASSWORD;
+                document.getElementById('password').setAttribute('readonly', 'true');
+                document.getElementById('password').classList.add('password-disabled');
             }
         });
     </script>
 </body>
 </html>
+
