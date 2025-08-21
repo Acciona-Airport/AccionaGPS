@@ -487,9 +487,6 @@
             cursor: pointer;
             border-bottom: 2px solid transparent;
             font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 5px;
         }
         .dashboard-tab.active {
             border-bottom-color: var(--red-primary);
@@ -640,9 +637,9 @@
                 <h4>📊 Dashboard Administrador</h4>
                 
                 <div class="dashboard-tabs">
-                    <div class="dashboard-tab active" data-tab="laps">🔄</div>
-                    <div class="dashboard-tab" data-tab="metrics">📈</div>
-                    <div class="dashboard-tab" data-tab="performance">⚙️</div>
+                    <div class="dashboard-tab active" data-tab="laps">Vueltas</div>
+                    <div class="dashboard-tab" data-tab="metrics">Métricas</div>
+                    <div class="dashboard-tab" data-tab="performance">Rendimiento</div>
                 </div>
                 
                 <div class="dashboard-content active" id="lapsContent">
@@ -747,7 +744,7 @@
                             <div class="metric-label">Distancia Total</div>
                         </div>
                         <div class="metric-card">
-                            <div class="metric-value" id="avgSpeed">20 km/h</div>
+                            <div class="metric-value" id="avgSpeed">0 km/h</div>
                             <div class="metric-label">Velocidad Promedio</div>
                         </div>
                         <div class="metric-card">
@@ -1093,7 +1090,7 @@
             });
             document.getElementById('totalDistance').textContent = totalDistance + ' km';
             
-            document.getElementById('avgSpeed').textContent = '20 km/h';
+            document.getElementById('avgSpeed').textContent = '40 km/h';
             document.getElementById('fuelEfficiency').textContent = '5.2 km/L';
             document.getElementById('operatingHours').textContent = '8.5 h';
         }
@@ -1728,7 +1725,7 @@
                 className: 'vehicle-marker-container',
                 html: `
                     <div class="vehicle-marker ${isOnline ? 'online' : 'offline'}"></div>
-                    <div class="vehicle-label">${displayName</div>
+                    <div class="vehicle-label">${displayName}</div>
                 `,
                 iconSize: [32, 42],
                 iconAnchor: [16, 16],
@@ -1784,7 +1781,7 @@
                 
                 if (element) {
                     element.textContent = status === 'online' ? 'En ruta' : 'Desconectado';
-                    element.className = status === 'online' : 'online' : 'offline';
+                    element.className = status === 'online' ? 'online' : 'offline';
                 }
                 
                 if (iconElement) {
