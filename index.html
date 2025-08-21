@@ -904,7 +904,7 @@
             if ('geolocation' in navigator) {
                 const geoOptions = {
                     enableHighAccuracy: true,
-                    maximumAge: 0,
+                    maximumAge: 10000,
                     timeout: 10000
                 };
                 
@@ -1247,6 +1247,7 @@
     </script>
 </body>
 </html>
+
 
 
 
