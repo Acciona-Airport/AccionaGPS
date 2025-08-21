@@ -81,8 +81,10 @@
             animation-delay: 0.5s;
         }
         @keyframes pulse {
-            0% { transform: translateX(-50%) scale(1); opacity: 1; }
-            100% { transform: translateX(-50%) scale(1.5); opacity: 0; }
+            0% { transform: translateX(-50%) scale(1);
+                opacity: 1; }
+            100% { transform: translateX(-50%) scale(1.5);
+                opacity: 0; }
         }
         h1 {
             color: var(--red-dark);
@@ -197,42 +199,48 @@
             cursor: pointer;
             font-size: 16px;
             font-weight: 600;
+            transition: all 0.3s;
+        }
+        .vehicle-number-submit:hover {
+            background: var(--red-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(211, 47, 47, 0.3);
         }
     </style>
 </head>
 <body>
     <div class="login-container">
         <div class="logo">
-            <div class="logo-pin"></div>
             <div class="logo-circle inner"></div>
             <div class="logo-circle"></div>
+            <div class="logo-pin"></div>
         </div>
-        <h1>Inicio de Sesión</h1>
+        <h1>Acceso GPS Acciona</h1>
         <form id="loginForm">
             <div class="form-group">
-                <label for="username">Usuario:</label>
-                <select id="username" name="username">
+                <label for="username">Usuario</label>
+                <select id="username" required>
+                    <option value="">Seleccione vehículo...</option>
+                    <option value="Movil1">Móvil 1</option>
+                    <option value="Movil2">Móvil 2</option>
+                    <option value="Movil3">Móvil 3</option>
+                    <option value="Movil4">Móvil 4</option>
                     <option value="Funcionarios">Funcionarios</option>
                     <option value="Admin">Admin</option>
-                    <option value="Mauricio">Mauricio</option>
-                    <option value="Maria Jose">Maria Jose</option>
-                    <option value="Guillermo">Guillermo</option>
-                    <option value="Eduardo">Eduardo</option>
-                    <option value="Alvaro">Alvaro</option>
-                    <option value="Felipe">Felipe</option>
-                    <option value="Daniela">Daniela</option>
-                    <option value="Pedro">Pedro</option>
                 </select>
             </div>
+            
             <div class="form-group">
-                <label for="password">Contraseña:</label>
-                <input type="password" id="password" name="password" placeholder="Ingrese su contraseña">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" required>
             </div>
-            <button type="submit" id="loginBtn">Iniciar Sesión</button>
-            <div id="autoLoginNotice" class="auto-login-notice">
-                Inicio de sesión automático para este usuario.
+            
+            <div class="auto-login-notice" id="autoLoginNotice">
+                Acceso automático para Funcionarios.
             </div>
-            <div id="errorMessage" class="error-message"></div>
+            
+            <button type="submit">Ingresar al Sistema</button>
+            <div class="error-message" id="errorMessage"></div>
         </form>
     </div>
 
@@ -243,116 +251,113 @@
             <button class="vehicle-number-submit" id="vehicleNumberSubmit">Continuar</button>
         </div>
     </div>
-    
+
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    
     <script>
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            databaseURL: "YOUR_DATABASE_URL",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyDT85qotm1EpAJzJzCFeoNwGyo-VKhM6dk",
+            authDomain: "gpsaccionascl2025.firebaseapp.com",
+            databaseURL: "https://gpsaccionascl2025-default-rtdb.firebaseio.com",
+            projectId: "gpsaccionascl2025",
+            storageBucket: "gpsaccionascl2025.appspot.com",
+            messagingSenderId: "742246618721",
+            appId: "1:742246618721:web:72d0046987416800f07c20"
         };
         firebase.initializeApp(firebaseConfig);
 
-        const FUNCIONARIOS_PASSWORD = 'password';
-        const ADMIN_PASSWORD = 'Admin234452';
-        const USERS = {
-            'Mauricio': 'mauricio123',
-            'Maria Jose': 'mariajose123',
-            'Guillermo': 'guillermo123',
-            'Eduardo': 'eduardo123',
-            'Alvaro': 'alvaro123',
-            'Felipe': 'felipe123',
-            'Daniela': 'daniela123',
-            'Pedro': 'pedro123'
+        const FUNCIONARIOS_PASSWORD = "123456";
+        const ADMIN_PASSWORD = "Admin234452";
+        let currentUsername = "";
+
+        const userEmails = {
+            "Movil1": "movil1@gpsacciona.com",
+            "Movil2": "movil2@gpsacciona.com", 
+            "Movil3": "movil3@gpsacciona.com",
+            "Movil4": "movil4@gpsacciona.com",
+            "Funcionarios": "funcionarios@gpsacciona.com",
+            "Admin": "admin@acciona.com"
         };
-
-        let currentUsername = '';
-        let isViewer = false;
         
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const errorMessage = document.getElementById('errorMessage');
-
-            errorMessage.style.display = 'none';
-
-            let email, userPassword;
-            let isAdminUser = false;
-
-            if (username === 'Admin') {
-                email = `admin@example.com`; // Dummy email for Firebase auth
-                userPassword = ADMIN_PASSWORD;
-                isAdminUser = true;
-            } else if (username === 'Funcionarios') {
-                email = `funcionarios@example.com`; // Dummy email
-                userPassword = FUNCIONARIOS_PASSWORD;
-                isViewer = true;
-            } else {
-                email = `${username.toLowerCase().replace(/ /g, '')}@example.com`;
-                userPassword = USERS[username];
-            }
-
-            if (userPassword === password || (username === 'Funcionarios' && password === FUNCIONARIOS_PASSWORD)) {
-                firebase.auth().signInWithEmailAndPassword(email, userPassword)
-                    .then((userCredential) => {
-                        currentUsername = username;
-                        
-                        if (isAdminUser) {
-                            localStorage.setItem('adminAuth', JSON.stringify({ isAdmin: true, uid: userCredential.user.uid }));
-                            window.location.href = 'index.html';
-                        } else if (isViewer) {
-                            localStorage.setItem('gpsAuth', JSON.stringify({ username: currentUsername, isViewer: true, uid: userCredential.user.uid }));
-                            window.location.href = 'index.html';
-                        } else {
-                            document.getElementById('vehicleNumberModal').style.display = 'flex';
-                        }
-                    })
-                    .catch((error) => {
-                        console.error("Firebase auth error:", error);
-                        // Create user if not exists
-                        firebase.auth().createUserWithEmailAndPassword(email, userPassword)
-                            .then((userCredential) => {
-                                currentUsername = username;
-                                if (isAdminUser) {
-                                    localStorage.setItem('adminAuth', JSON.stringify({ isAdmin: true, uid: userCredential.user.uid }));
-                                    window.location.href = 'index.html';
-                                } else {
-                                    document.getElementById('vehicleNumberModal').style.display = 'flex';
-                                }
-                            })
-                            .catch((error) => {
-                                errorMessage.textContent = 'Usuario o contraseña incorrectos.';
-                                errorMessage.style.display = 'block';
-                            });
-                    });
-            } else {
-                errorMessage.textContent = 'Contraseña incorrecta.';
-                errorMessage.style.display = 'block';
-            }
-        });
-
         document.getElementById('username').addEventListener('change', function() {
-            const passwordInput = document.getElementById('password');
+            const username = this.value;
             const autoLoginNotice = document.getElementById('autoLoginNotice');
+            const passwordInput = document.getElementById('password');
             
-            if (this.value === 'Funcionarios') {
+            if (username === 'Funcionarios') {
+                autoLoginNotice.style.display = 'block';
                 passwordInput.value = FUNCIONARIOS_PASSWORD;
                 passwordInput.setAttribute('readonly', 'true');
                 passwordInput.classList.add('password-disabled');
-                autoLoginNotice.style.display = 'block';
             } else {
+                autoLoginNotice.style.display = 'none';
                 passwordInput.value = '';
                 passwordInput.removeAttribute('readonly');
                 passwordInput.classList.remove('password-disabled');
-                autoLoginNotice.style.display = 'none';
             }
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorElement = document.getElementById('errorMessage');
+
+            if (!username) {
+                errorElement.textContent = 'Seleccione un usuario válido';
+                errorElement.style.display = 'block';
+                return;
+            }
+
+            // Authentication logic
+            let email, userPassword;
+
+            if (username === 'Admin') {
+                email = userEmails['Admin'];
+                userPassword = ADMIN_PASSWORD;
+            } else if (username === 'Funcionarios') {
+                email = userEmails['Funcionarios'];
+                userPassword = FUNCIONARIOS_PASSWORD;
+            } else {
+                email = userEmails[username];
+                userPassword = password; // For other users, password is typed
+            }
+
+            if (password !== userPassword) {
+                errorElement.textContent = 'Contraseña incorrecta';
+                errorElement.style.display = 'block';
+                return;
+            }
+
+            firebase.auth().signInWithEmailAndPassword(email, userPassword)
+                .then((userCredential) => {
+                    currentUsername = username;
+                    if (username === 'Funcionarios') {
+                        localStorage.setItem('gpsAuth', JSON.stringify({
+                            username,
+                            isViewer: true,
+                            uid: userCredential.user.uid
+                        }));
+                        window.location.href = 'index.html';
+                    } else if (username === 'Admin') {
+                        localStorage.setItem('adminAuth', JSON.stringify({ isAdmin: true, uid: userCredential.user.uid }));
+                        window.location.href = 'index.html';
+                    } else {
+                        document.getElementById('vehicleNumberModal').style.display = 'flex';
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error de autenticación:", error);
+                    errorElement.textContent = 'Usuario o contraseña incorrectos';
+                    errorElement.style.display = 'block';
+                    
+                    setTimeout(() => {
+                        errorElement.style.display = 'none';
+                    }, 3000);
+                });
         });
 
         document.getElementById('vehicleNumberSubmit').addEventListener('click', function() {
@@ -363,7 +368,7 @@
                 return;
             }
             
-            localStorage.setItem('gpsAuth', JSON.stringify({
+            localStorage.setItem('gpsAuth', JSON.JSON.stringify({
                 username: currentUsername,
                 vehicleNumber: vehicleNumber,
                 isViewer: false,
