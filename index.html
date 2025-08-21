@@ -1106,7 +1106,7 @@
         }
         
         function startMonitoring() {
-            setInterval(checkConnectionStatus, 60000);
+            setInterval(checkConnectionStatus, 120000);
             
             database.ref('vehicles').on('value', (snapshot) => {
                 const vehiclesData = snapshot.val() || {};
@@ -1247,6 +1247,7 @@
     </script>
 </body>
 </html>
+
 
 
 
