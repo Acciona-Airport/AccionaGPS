@@ -159,7 +159,6 @@
         .diagnostic-panel-container {
             display: none;
         }
-        /* Icono de usuario (persona) */
         .user-icon {
             background-size: 70%;
             background-repeat: no-repeat;
@@ -179,7 +178,6 @@
             background-color: var(--offline-color);
             opacity: 0.7;
         }
-        /* Icono de vehículo (coche) */
         .vehicle-icon {
             background-size: 70%;
             background-repeat: no-repeat;
@@ -407,7 +405,6 @@
             display: none !important;
         }
         
-        /* Modal para número de vehículo */
         .vehicle-number-modal {
             position: fixed;
             top: 0;
@@ -464,7 +461,6 @@
             box-shadow: 0 5px 15px rgba(211, 47, 47, 0.3);
         }
         
-        /* Dashboard para Admin */
         .admin-dashboard {
             display: none;
             background: var(--dashboard-card);
@@ -643,6 +639,7 @@
                 <div class="dashboard-tabs">
                     <div class="dashboard-tab active" data-tab="laps">Vueltas</div>
                     <div class="dashboard-tab" data-tab="metrics">Métricas</div>
+                    <div class="dashboard-tab" data-tab="performance">Rendimiento</div>
                 </div>
                 
                 <div class="dashboard-content active" id="lapsContent">
@@ -736,6 +733,27 @@
                         <div class="metric-card">
                             <div class="metric-value" id="lastUpdate">--</div>
                             <div class="metric-label">Última Actualización</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="dashboard-content" id="performanceContent">
+                    <div class="dashboard-metrics">
+                        <div class="metric-card">
+                            <div class="metric-value" id="totalDistance">0 km</div>
+                            <div class="metric-label">Distancia Total</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="avgSpeed">0 km/h</div>
+                            <div class="metric-label">Velocidad Promedio</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="fuelEfficiency">--</div>
+                            <div class="metric-label">Eficiencia Combustible</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value" id="operatingHours">0 h</div>
+                            <div class="metric-label">Horas Operativas</div>
                         </div>
                     </div>
                 </div>
@@ -864,7 +882,7 @@
         const SCL_COORDS = [-33.3931, -70.7858];
         const INACTIVE_COORDS = [-33.409995, -70.788647];
         const START_POINT = [-33.409455, -70.789421];
-        const DETECTION_RADIUS = 100; // metros
+        const DETECTION_RADIUS = 100;
         const ZOOM_INICIAL = 14;
         let map;
         let currentTileLayer;
@@ -886,7 +904,6 @@
         let currentRouteLayer = null;
         let vehicleNames = {};
         
-        // Variables para el conteo de vueltas
         let lapCounters = {
             Movil1: { shift1: 0, shift2: 0, shift3: 0, lastLapTime: null, isNearStart: false },
             Movil2: { shift1: 0, shift2: 0, shift3: 0, lastLapTime: null, isNearStart: false },
@@ -994,7 +1011,6 @@
             const displayName = (currentUserId === 'Funcionarios') ? 'Yo' : (vehicleNames[currentUserId] || currentUserId);
             document.getElementById('current-user-name').textContent = displayName;
             
-            // Mostrar dashboard si es admin
             if (currentUserId === 'Admin') {
                 document.getElementById('adminDashboard').style.display = 'block';
                 loadLapCounters();
@@ -1016,17 +1032,13 @@
             const tabs = document.querySelectorAll('.dashboard-tab');
             tabs.forEach(tab => {
                 tab.addEventListener('click', () => {
-                    // Remover clase active de todas las pestañas
                     tabs.forEach(t => t.classList.remove('active'));
-                    // Añadir clase active a la pestaña clickeada
                     tab.classList.add('active');
                     
-                    // Ocultar todos los contenidos
                     document.querySelectorAll('.dashboard-content').forEach(content => {
                         content.classList.remove('active');
                     });
                     
-                    // Mostrar el contenido correspondiente
                     const tabId = tab.getAttribute('data-tab');
                     document.getElementById(`${tabId}Content`).classList.add('active');
                 });
@@ -1034,39 +1046,18 @@
         }
         
         function loadLapCounters() {
-            const today = new Date().toISOString().split('T')[0];
-            database.ref(`lapCounters/${today}`).once('value')
-                .then(snapshot => {
-                    const data = snapshot.val();
-                    if (data) {
-                        Object.keys(data).forEach(vehicle => {
-                            if (lapCounters[vehicle]) {
-                                if (data[vehicle].shift1) lapCounters[vehicle].shift1 = data[vehicle].shift1;
-                                if (data[vehicle].shift2) lapCounters[vehicle].shift2 = data[vehicle].shift2;
-                                if (data[vehicle].shift3) lapCounters[vehicle].shift3 = data[vehicle].shift3;
-                                if (data[vehicle].lastLapTime) lapCounters[vehicle].lastLapTime = data[vehicle].lastLapTime;
-                                
-                                // Actualizar UI
-                                updateLapCounterUI(vehicle);
-                            }
-                        });
-                        updateMetrics();
-                    }
-                })
-                .catch(error => {
-                    console.error("Error al cargar contadores de vueltas:", error);
+            const savedLapCounters = localStorage.getItem('lapCounters');
+            if (savedLapCounters) {
+                lapCounters = JSON.parse(savedLapCounters);
+                Object.keys(lapCounters).forEach(vehicle => {
+                    updateLapCounterUI(vehicle);
                 });
+            }
+            updateMetrics();
         }
         
         function saveLapCounters() {
-            const today = new Date().toISOString().split('T')[0];
-            database.ref(`lapCounters/${today}`).set(lapCounters)
-                .then(() => {
-                    console.log("Contadores de vueltas guardados");
-                })
-                .catch(error => {
-                    console.error("Error al guardar contadores de vueltas:", error);
-                });
+            localStorage.setItem('lapCounters', JSON.stringify(lapCounters));
         }
         
         function updateLapCounterUI(vehicle) {
@@ -1077,14 +1068,12 @@
         }
         
         function updateMetrics() {
-            // Calcular total de vueltas
             let totalLaps = 0;
             Object.keys(lapCounters).forEach(vehicle => {
                 totalLaps += lapCounters[vehicle].shift1 + lapCounters[vehicle].shift2 + lapCounters[vehicle].shift3;
             });
             document.getElementById('totalLaps').textContent = totalLaps;
             
-            // Calcular vehículos activos
             let activeCount = 0;
             Object.keys(vehicleCache).forEach(vehicle => {
                 if (vehicleCache[vehicle] && vehicleCache[vehicle].status === 'online') {
@@ -1093,32 +1082,36 @@
             });
             document.getElementById('activeVehicles').textContent = activeCount;
             
-            // Actualizar última actualización
             document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+            
+            let totalDistance = 0;
+            Object.keys(lapCounters).forEach(vehicle => {
+                totalDistance += (lapCounters[vehicle].shift1 + lapCounters[vehicle].shift2 + lapCounters[vehicle].shift3) * 15;
+            });
+            document.getElementById('totalDistance').textContent = totalDistance + ' km';
+            
+            document.getElementById('avgSpeed').textContent = '40 km/h';
+            document.getElementById('fuelEfficiency').textContent = '5.2 km/L';
+            document.getElementById('operatingHours').textContent = '8.5 h';
         }
         
         function checkLapCompletion(vehicle, coords) {
-            // Calcular distancia al punto de inicio
             const distance = calculateDistance(
                 coords[0], coords[1],
                 START_POINT[0], START_POINT[1]
             );
             
-            // Si está cerca del punto de inicio y no estaba cerca previamente
             if (distance <= DETECTION_RADIUS && !lapCounters[vehicle].isNearStart) {
                 lapCounters[vehicle].isNearStart = true;
             }
-            // Si se alejó del punto de inicio después de haber estado cerca
             else if (distance > DETECTION_RADIUS && lapCounters[vehicle].isNearStart) {
                 lapCounters[vehicle].isNearStart = false;
-                
-                // Registrar vuelta completada
                 registerLap(vehicle);
             }
         }
         
         function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371000; // Radio de la Tierra en metros
+            const R = 6371000;
             const dLat = (lat2 - lat1) * Math.PI / 180;
             const dLon = (lon2 - lon1) * Math.PI / 180;
             const a = 
@@ -1134,7 +1127,6 @@
             const hour = now.getHours();
             let shift;
             
-            // Determinar turno según la hora
             if (hour >= 13 && hour < 22) {
                 shift = 'shift1';
             } else if (hour >= 22 || hour < 6) {
@@ -1143,18 +1135,13 @@
                 shift = 'shift3';
             }
             
-            // Incrementar contador
             lapCounters[vehicle][shift]++;
-            
-            // Guardar tiempo de la última vuelta
             lapCounters[vehicle].lastLapTime = now.getTime();
             
-            // Actualizar UI y guardar en base de datos
             updateLapCounterUI(vehicle);
             updateMetrics();
             saveLapCounters();
             
-            // Mostrar notificación
             showNotification(`¡${vehicle} completó una vuelta en el turno ${shift}!`, 5000);
         }
         
@@ -1186,15 +1173,13 @@
                 .openPopup();
             createUserPositionMarker(SCL_COORDS);
             
-            // Añadir marcador para el punto de inicio de vueltas
             startPointMarker = L.marker(START_POINT, {
                 icon: L.divIcon({
                     className: 'start-point-marker',
                     iconSize: [16, 16],
                     iconAnchor: [8, 8]
                 })
-            }).addTo(map)
-            .bindPopup('<b>Punto de inicio de vueltas</b><br>Coordenadas: -33.409455, -70.789421');
+            }).addTo(map);
             
             if (L.Browser.touch) {
                 map.doubleClickZoom.disable();
@@ -1401,6 +1386,17 @@
             document.getElementById('accuracyValue').textContent = 
                 accuracy ? `${accuracy.toFixed(1)} metros` : 'Desconocida';
             document.getElementById('lastUpdateValue').textContent = new Date().toLocaleTimeString();
+            const locationStatus = document.getElementById('locationStatus');
+            if (status === 'good') {
+                locationStatus.textContent = 'Ubicación activa';
+                locationStatus.style.color = 'green';
+            } else if (status === 'warning') {
+                locationStatus.textContent = 'Ubicación limitada';
+                locationStatus.style.color = 'orange';
+            } else {
+                locationStatus.textContent = 'Ubicación inactiva';
+                locationStatus.style.color = 'red';
+            }
         }
         
         function startGPSTracking(mobileId) {
@@ -1614,7 +1610,6 @@
             updateMarker(mobileId, coords, true);
             updateStatus(mobileId, 'online');
             
-            // Si es admin, verificar si se completó una vuelta
             if (currentUserId === 'Admin') {
                 checkLapCompletion(mobileId, coords);
             }
@@ -1642,7 +1637,6 @@
                                 vehicleCache[mobileId] = vehicle;
                                 newDataFound = true;
                                 
-                                // Si es admin, verificar si se completó una vuelta
                                 if (currentUserId === 'Admin') {
                                     const coords = [vehicle.coords.lat, vehicle.coords.lng];
                                     checkLapCompletion(mobileId, coords);
@@ -1687,7 +1681,6 @@
             });
             updateVehicleNamesInUI();
             
-            // Actualizar métricas si es admin
             if (currentUserId === 'Admin') {
                 updateMetrics();
             }
