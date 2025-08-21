@@ -82,9 +82,9 @@
         }
         @keyframes pulse {
             0% { transform: translateX(-50%) scale(1);
-            opacity: 1; }
+                opacity: 1; }
             100% { transform: translateX(-50%) scale(1.5);
-            opacity: 0; }
+                opacity: 0; }
         }
         h1 {
             color: var(--red-dark);
@@ -226,6 +226,7 @@
                     <option value="Movil3">Móvil 3</option>
                     <option value="Movil4">Móvil 4</option>
                     <option value="Funcionarios">Funcionarios</option>
+                    <option value="Admin">Admin</option>
                 </select>
             </div>
             
@@ -253,6 +254,7 @@
 
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     
     <script>
         const firebaseConfig = {
@@ -266,16 +268,19 @@
         };
         firebase.initializeApp(firebaseConfig);
 
+        const FUNCIONARIOS_PASSWORD = "123456";
+        const ADMIN_PASSWORD = "Admin234452";
+        let currentUsername = "";
+
         const userEmails = {
             "Movil1": "movil1@gpsacciona.com",
             "Movil2": "movil2@gpsacciona.com", 
             "Movil3": "movil3@gpsacciona.com",
             "Movil4": "movil4@gpsacciona.com",
-            "Funcionarios": "funcionarios@gpsacciona.com"
+            "Funcionarios": "funcionarios@gpsacciona.com",
+            "Admin": "admin@acciona.com"
         };
-        const FUNCIONARIOS_PASSWORD = "123456";
-        let currentUsername = "";
-
+        
         document.getElementById('username').addEventListener('change', function() {
             const username = this.value;
             const autoLoginNotice = document.getElementById('autoLoginNotice');
@@ -293,11 +298,12 @@
                 passwordInput.classList.remove('password-disabled');
             }
         });
+
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
             const username = document.getElementById('username').value;
-            let password = document.getElementById('password').value;
+            const password = document.getElementById('password').value;
             const errorElement = document.getElementById('errorMessage');
 
             if (!username) {
@@ -306,20 +312,27 @@
                 return;
             }
 
-            if (username === 'Funcionarios' && !password) {
-                password = FUNCIONARIOS_PASSWORD;
-                document.getElementById('password').value = password;
+            // Authentication logic
+            let email, userPassword;
+
+            if (username === 'Admin') {
+                email = userEmails['Admin'];
+                userPassword = ADMIN_PASSWORD;
+            } else if (username === 'Funcionarios') {
+                email = userEmails['Funcionarios'];
+                userPassword = FUNCIONARIOS_PASSWORD;
+            } else {
+                email = userEmails[username];
+                userPassword = password; // For other users, password is typed
             }
 
-            if (!password) {
-                errorElement.textContent = 'Ingrese la contraseña';
+            if (password !== userPassword) {
+                errorElement.textContent = 'Contraseña incorrecta';
                 errorElement.style.display = 'block';
                 return;
             }
 
-            const email = userEmails[username];
-            
-            firebase.auth().signInWithEmailAndPassword(email, password)
+            firebase.auth().signInWithEmailAndPassword(email, userPassword)
                 .then((userCredential) => {
                     currentUsername = username;
                     if (username === 'Funcionarios') {
@@ -328,6 +341,9 @@
                             isViewer: true,
                             uid: userCredential.user.uid
                         }));
+                        window.location.href = 'index.html';
+                    } else if (username === 'Admin') {
+                        localStorage.setItem('adminAuth', JSON.stringify({ isAdmin: true, uid: userCredential.user.uid }));
                         window.location.href = 'index.html';
                     } else {
                         document.getElementById('vehicleNumberModal').style.display = 'flex';
@@ -343,6 +359,7 @@
                     }, 3000);
                 });
         });
+
         document.getElementById('vehicleNumberSubmit').addEventListener('click', function() {
             const vehicleNumber = document.getElementById('vehicleNumberInput').value.trim();
             
@@ -351,7 +368,7 @@
                 return;
             }
             
-            localStorage.setItem('gpsAuth', JSON.stringify({
+            localStorage.setItem('gpsAuth', JSON.JSON.stringify({
                 username: currentUsername,
                 vehicleNumber: vehicleNumber,
                 isViewer: false,
@@ -360,11 +377,13 @@
             
             window.location.href = 'index.html';
         });
+
         document.getElementById('vehicleNumberInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 document.getElementById('vehicleNumberSubmit').click();
             }
         });
+
         window.addEventListener('load', function() {
             const usernameSelect = document.getElementById('username');
             if (usernameSelect.value === 'Funcionarios') {
