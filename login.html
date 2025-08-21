@@ -81,8 +81,10 @@
             animation-delay: 0.5s;
         }
         @keyframes pulse {
-            0% { transform: translateX(-50%) scale(1); opacity: 1; }
-            100% { transform: translateX(-50%) scale(1.5); opacity: 0; }
+            0% { transform: translateX(-50%) scale(1);
+            opacity: 1; }
+            100% { transform: translateX(-50%) scale(1.5);
+            opacity: 0; }
         }
         h1 {
             color: var(--red-dark);
@@ -262,7 +264,6 @@
             messagingSenderId: "742246618721",
             appId: "1:742246618721:web:72d0046987416800f07c20"
         };
-
         firebase.initializeApp(firebaseConfig);
 
         const userEmails = {
@@ -272,7 +273,6 @@
             "Movil4": "movil4@gpsacciona.com",
             "Funcionarios": "funcionarios@gpsacciona.com"
         };
-
         const FUNCIONARIOS_PASSWORD = "123456";
         let currentUsername = "";
 
@@ -293,7 +293,6 @@
                 passwordInput.classList.remove('password-disabled');
             }
         });
-
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -323,7 +322,6 @@
             firebase.auth().signInWithEmailAndPassword(email, password)
                 .then((userCredential) => {
                     currentUsername = username;
-                    
                     if (username === 'Funcionarios') {
                         localStorage.setItem('gpsAuth', JSON.stringify({
                             username,
@@ -345,7 +343,6 @@
                     }, 3000);
                 });
         });
-
         document.getElementById('vehicleNumberSubmit').addEventListener('click', function() {
             const vehicleNumber = document.getElementById('vehicleNumberInput').value.trim();
             
@@ -363,13 +360,11 @@
             
             window.location.href = 'index.html';
         });
-
         document.getElementById('vehicleNumberInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 document.getElementById('vehicleNumberSubmit').click();
             }
         });
-
         window.addEventListener('load', function() {
             const usernameSelect = document.getElementById('username');
             if (usernameSelect.value === 'Funcionarios') {
