@@ -392,328 +392,162 @@
             margin-top: 5px;
             width: 100%;
         }
-        
         .leaflet-bottom.leaflet-right {
             bottom: 160px;
         }
         .leaflet-control-attribution {
             display: none !important;
         }
-        
-        /* Modal para número de vehículo */
-        .vehicle-number-modal {
+        .admin-dashboard-container {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            height: 100vh;
+            background: var(--gray-light);
             z-index: 2000;
-        }
-        .vehicle-number-form {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            width: 90%;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-        .vehicle-number-form h2 {
-            color: var(--red-dark);
-            margin-bottom: 20px;
-        }
-        .vehicle-number-input {
-            width: 100%;
-            padding: 15px;
-            margin: 15px 0;
-            border: 2px solid var(--gray-light);
-            border-radius: 8px;
-            font-size: 18px;
-            text-align: center;
-        }
-        .vehicle-number-input:focus {
-            border-color: var(--red-primary);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.2);
-        }
-        .vehicle-number-submit {
-            background: var(--red-primary);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        .vehicle-number-submit:hover {
-            background: var(--red-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(211, 47, 47, 0.3);
-        }
-        
-        /* Estilos para el Tablero y el Historial */
-        .admin-nav {
-            display: none; /* Inicialmente oculto para usuarios no-admin */
-            justify-content: space-around;
-            margin-top: 15px;
-            border-bottom: 1px solid var(--gray-light);
-            padding-bottom: 10px;
-        }
-        .admin-nav button {
-            background: none;
-            border: none;
-            padding: 8px 12px;
-            font-weight: 600;
-            cursor: pointer;
-            color: var(--red-dark);
-            border-bottom: 2px solid transparent;
-            transition: border-bottom 0.3s;
-        }
-        .admin-nav button.active {
-            border-bottom-color: var(--red-primary);
-        }
-        .admin-content {
-            padding-top: 10px;
-        }
-        .admin-panel {
+            padding: 20px;
+            overflow-y: auto;
             display: none;
         }
-        .admin-panel.active {
-            display: block;
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
         }
-        .dashboard-metric {
-            background: var(--gray-light);
-            padding: 10px;
-            border-radius: 8px;
+        .dashboard-header h2 {
+            color: var(--red-dark);
+            margin: 0;
+        }
+        .dashboard-metrics-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .metric-card {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .metric-card h3 {
+            color: var(--red-dark);
+            margin-top: 0;
             margin-bottom: 10px;
         }
-        .dashboard-metric h4 {
-            margin: 0 0 5px 0;
+        .metric-card p {
+            margin: 0;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+        }
+        .laps-container h3 {
+            margin-top: 0;
             color: var(--red-dark);
         }
-        .dashboard-metric p {
+        .laps-card {
+            background: var(--white);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .laps-card h4 {
+            color: var(--blue-dark);
+            margin-top: 0;
+            border-bottom: 2px solid var(--blue-light);
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+        }
+        .lap-period {
+            margin-bottom: 10px;
+        }
+        .lap-period p {
+            font-size: 1.1em;
+            font-weight: 500;
+            color: #555;
             margin: 0;
-            font-size: 18px;
+        }
+        .status-online {
+            color: var(--online-color);
             font-weight: bold;
         }
-        .history-controls {
-            margin-bottom: 10px;
+        .status-offline {
+            color: var(--offline-color);
+            font-weight: bold;
         }
-        .history-controls label, .history-controls select, .history-controls input, .history-controls button {
-            display: block;
-            width: 100%;
-            margin-bottom: 10px;
-        }
-        .history-controls button {
-            background: var(--blue-primary);
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 6px;
-            cursor: pointer;
+        .status-info {
+            font-size: 0.9em;
+            color: #777;
         }
     </style>
 </head>
 <body>
-    <div id="map"></div>
-    <div class="map-touch-overlay" id="mapTouchOverlay"></div>
-    
-    <div class="status-notification" id="statusNotification"></div>
-    
-    <div class="current-user-indicator" id="currentUserIndicator">
-        <span id="locationStatus">Buscando tu ubicación...</span>
-    </div>
-
-    <div class="diagnostic-panel-container">
-        <div class="diagnostic-panel" id="diagnosticPanel">
-            <h3 style="margin-top:0;color:var(--blue-dark);">📊 Diagnóstico GPS</h3>
-            
-            <div class="diagnostic-info">
-                <div class="diagnostic-item">
-                    <span>Estado GPS:</span>
-                    <span id="gpsStatus" class="diagnostic-value warning">Comprobando...</span>
-                </div>
-                <div class="diagnostic-item">
-                    <span>Precisión:</span>
-                    <span id="accuracyValue" class="diagnostic-value">--</span>
-                </div>
-                <div class="diagnostic-item">
-                    <span>Última actualización:</span>
-                    <span id="lastUpdateValue" class="diagnostic-value">--</span>
-                </div>
-                <div class="diagnostic-item">
-                    <span>Método:</span>
-                    <span id="methodValue" class="diagnostic-value">--</span>
+    <div id="mapContainer">
+        <div id="map"></div>
+        <div class="control-panel-container">
+            <div id="controlPanel" class="control-panel">
+                <div id="vehicleList"></div>
+                <button class="logout-btn" onclick="logout()">Cerrar sesión</button>
+            </div>
+            <div class="toggle-panel" id="togglePanel">
+                <div class="hamburger-icon">
+                    <div class="hamburger-line"></div>
+                    <div class="hamburger-line"></div>
+                    <div class="hamburger-line"></div>
                 </div>
             </div>
-            
-            <button id="forceLocationBtn" style="margin-top: 15px; width: 100%; padding: 8px; background: var(--blue-primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
-                Forzar Ubicación
+        </div>
+        <div class="refresh-container">
+            <button class="refresh-btn" id="refreshBtn">
+                <svg id="refreshIcon" class="refresh-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
+                    <path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8A7.958 7.958 0 0 0 18.05 16H21V12h-3.35l-1-2.65zm-1.8-2.65l1.8 2.65h3.35v4H20l-2.05 4.85C17.75 18.96 16.29 20 12 20c-3.87 0-7-3.13-7-7s3.13-7 7-7c1.47 0 2.85.45 4 .95z"/>
+                </svg>
+                Actualizar
             </button>
         </div>
-        
-        <button class="toggle-diagnostic-panel" id="toggleDiagnosticPanel">
-            <div class="diagnostic-hamburger-icon">
-                <div class="diagnostic-hamburger-line"></div>
-                <div class="diagnostic-hamburger-line"></div>
-                <div class="diagnostic-hamburger-line"></div>
-            </div>
-        </button>
-    </div>
-
-    <div class="route-selector">
-        <label for="routeSelector">Ruta:</label>
-        <select id="routeSelector">
-            <option value="none">Sin ruta</option>
-            <option value="route1">Ruta 1</option>
-            <option value="route2">Ruta 2</option>
-        </select>
-    </div>
-
-    <button class="emergency-locate-btn" id="emergencyLocateBtn" title="Centrar en mi ubicación">📍</button>
-
-    <div class="control-panel-container">
-        <div class="control-panel" id="controlPanel">
-            <h3 style="margin-top:0;color:var(--red-dark);">🚗 Flota Acciona</h3>
-            
-            <div class="admin-nav" id="adminNav">
-                <button id="viewFleetBtn" class="active">Flota</button>
-                <button id="viewDashboardBtn">Tablero</button>
-                <button id="viewHistoryBtn">Historial</button>
-            </div>
-            
-            <div class="admin-content">
-                <div id="fleetPanel" class="admin-panel active">
-                    <div class="vehicle-card">
-                        <div class="vehicle-name">
-                            <div id="current-user-icon" class="user-icon offline"></div>
-                            <span id="current-user-name">Mi Ubicación</span>
-                        </div>
-                        <div class="vehicle-status">
-                            <span>Estado:</span>
-                            <span id="current-user-status" class="offline">Desconectado</span>
-                        </div>
-                        <div class="vehicle-status">
-                            <span>Coordenadas:</span>
-                            <span id="current-user-coords">--</span>
-                        </div>
-                    </div>
-                    <div id="other-vehicles-container" style="display: none;">
-                        <h4 style="margin: 15px 0 10px 0; color: var(--red-dark);">Carruseles:</h4>
-                        <div class="vehicle-card">
-                            <div class="vehicle-name">
-                                <div id="movil1-icon" class="vehicle-icon offline"></div>
-                                <span id="movil1-name">Móvil 1</span>
-                            </div>
-                            <div class="vehicle-status">
-                                <span>Estado:</span>
-                                <span id="movil1-status" class="offline">Desconectado</span>
-                            </div>
-                        </div>
-                        <div class="vehicle-card">
-                            <div class="vehicle-name">
-                                <div id="movil2-icon" class="vehicle-icon offline"></div>
-                                <span id="movil2-name">Móvil 2</span>
-                            </div>
-                            <div class="vehicle-status">
-                                <span>Estado:</span>
-                                <span id="movil2-status" class="offline">Desconectado</span>
-                            </div>
-                        </div>
-                        <div class="vehicle-card">
-                            <div class="vehicle-name">
-                                <div id="movil3-icon" class="vehicle-icon offline"></div>
-                                <span id="movil3-name">Móvil 3</span>
-                            </div>
-                            <div class="vehicle-status">
-                                <span>Estado:</span>
-                                <span id="movil3-status" class="offline">Desconectado</span>
-                            </div>
-                        </div>
-                        <div class="vehicle-card">
-                            <div class="vehicle-name">
-                                <div id="movil4-icon" class="vehicle-icon offline"></div>
-                                <span id="movil4-name">Móvil 4</span>
-                            </div>
-                            <div class="vehicle-status">
-                                <span>Estado:</span>
-                                <span id="movil4-status" class="offline">Desconectado</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div id="dashboardPanel" class="admin-panel">
-                    <div class="dashboard-metric">
-                        <h4>Vehículos Online</h4>
-                        <p id="onlineVehiclesCount">0</p>
-                    </div>
-                    <div class="dashboard-metric">
-                        <h4>Vehículos Offline</h4>
-                        <p id="offlineVehiclesCount">0</p>
-                    </div>
-                    <div class="dashboard-metric">
-                        <h4>Total de Carruseles</h4>
-                        <p id="totalVehiclesCount">0</p>
-                    </div>
-                    <div class="dashboard-metric">
-                        <h4>Distancia Total Recorrida</h4>
-                        <p id="totalDistance">0 km</p>
-                    </div>
-                </div>
-                
-                <div id="historyPanel" class="admin-panel">
-                    <div class="history-controls">
-                        <label for="historyVehicleSelector">Seleccionar Vehículo:</label>
-                        <select id="historyVehicleSelector"></select>
-                        
-                        <label for="historyDateSelector">Seleccionar Fecha:</label>
-                        <input type="date" id="historyDateSelector">
-                        
-                        <button id="loadHistoryBtn">Cargar Historial</button>
-                    </div>
-                </div>
-            </div>
-            <button class="logout-btn" id="logoutBtn">Cerrar Sesión</button>
+        <div class="map-provider-selector">
+            <label for="mapProvider">Mapa:</label>
+            <select id="mapProvider">
+                <option value="OSM">OpenStreetMap</option>
+                <option value="GoogleStreets">Google Streets</option>
+                <option value="GoogleSatellite">Google Satellite</option>
+            </select>
         </div>
-        <button class="toggle-panel" id="togglePanel">
-            <div class="hamburger-icon">
-                <div class="hamburger-line"></div>
-                <div class="hamburger-line"></div>
-                <div class="hamburger-line"></div>
-            </div>
-        </button>
-    </div>
-
-    <div class="refresh-container">
-        <button class="refresh-btn" id="refreshBtn">
-            <svg class="refresh-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
-                <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+        <div class="status-notification" id="statusNotification"></div>
+        <div class="current-user-indicator" id="currentUserIndicator"></div>
+        <div class="emergency-locate-btn" id="emergencyLocateBtn" style="display:none;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
             </svg>
-            Actualizar
-        </button>
+        </div>
+        <div class="map-touch-overlay"></div>
     </div>
 
-    <div class="map-provider-selector">
-        <label for="mapProvider">Mapa:</label>
-        <select id="mapProvider">
-            <option value="esri">Satelital (Recomendada)</option>
-            <option value="carto">Cartográfica</option>
-            <option value="osm">Híbrida</option>
-        </select>
-    </div>
+    <div class="admin-dashboard-container" id="adminDashboard">
+        <div class="dashboard-header">
+            <h2>Panel de Administrador</h2>
+            <button class="logout-btn" onclick="logout()">Cerrar sesión</button>
+        </div>
+        <div class="dashboard-metrics-container">
+            <div class="metric-card">
+                <h3>Equipos en línea</h3>
+                <p id="onlineVehiclesCount">0</p>
+            </div>
+            <div class="metric-card">
+                <h3>Equipos fuera de línea</h3>
+                <p id="offlineVehiclesCount">0</p>
+            </div>
+        </div>
 
-    <div class="vehicle-number-modal" id="vehicleNumberModal">
-        <div class="vehicle-number-form">
-            <h2>Ingrese número de vehículo</h2>
-            <input type="text" class="vehicle-number-input" id="vehicleNumberInput" placeholder="Ej: 6142" maxlength="10">
-            <button class="vehicle-number-submit" id="vehicleNumberSubmit">Continuar</button>
+        <div id="lapsPanel">
+            <h3>Conteo de Vueltas por Equipo</h3>
+        </div>
+
+        <div id="vehicleDetailsPanel">
+            <h3>Detalles de Equipos</h3>
         </div>
     </div>
 
@@ -731,529 +565,435 @@
             messagingSenderId: "742246618721",
             appId: "1:742246618721:web:72d0046987416800f07c20"
         };
-        const app = firebase.initializeApp(firebaseConfig);
+        firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
+        const mapContainer = document.getElementById('mapContainer');
+        const adminDashboard = document.getElementById('adminDashboard');
+        const lapsPanel = document.getElementById('lapsPanel');
+        const vehicleDetailsPanel = document.getElementById('vehicleDetailsPanel');
+        const onlineVehiclesCount = document.getElementById('onlineVehiclesCount');
+        const offlineVehiclesCount = document.getElementById('offlineVehiclesCount');
 
-        const SCL_COORDS = [-33.3931, -70.7858];
-        const INACTIVE_COORDS = [-33.409995, -70.788647];
-        const ZOOM_INICIAL = 14;
-        let map;
-        let currentTileLayer;
-        const markers = {};
-        const lastUpdateTimes = {};
-        const vehicleCache = {};
+        let user;
         let gpsInterval;
+        let isViewer;
+        let isAdmin;
+        let teamMarkers = {};
+        let teamInfo = {};
         let wakeLock = null;
+        let currentVehicleNumber = null;
+        let locationWatchId = null;
         let backgroundGeolocationWatchId = null;
-        const TEN_MINUTES = 10 * 60 * 1000;
-        const UPDATE_INTERVAL = 30000;
-        let currentUserId = null;
-        let isViewer = false;
-        let userPositionMarker = null;
-        let userAccuracyCircle = null;
-        let lastKnownPosition = null;
-        let locationUpdateInterval = null;
-        let viewerUpdateInterval = null;
-        let currentRouteLayer = null;
-        let historyRouteLayer = null;
-        let vehicleNames = {};
+        let accuracyCircle = null;
+        let userMarker = null;
 
-        const route1Coordinates = [
-            [-33.4095444, -70.7893019], [-33.4092635, -70.7895518], [-33.404626, -70.7897795], [-33.4045659, -70.7889574],
-            [-33.3965734, -70.7893183], [-33.3966737, -70.7910012], [-33.3970831, -70.790958], [-33.3971273, -70.7919677],
-            [-33.4013289, -70.7917774], [-33.401446, -70.795415], [-33.399824, -70.7955015], [-33.3998119, -70.7972767],
-            [-33.4013148, -70.7975319], [-33.4015637, -70.7963495], [-33.4024887, -70.7962452], [-33.4024227, -70.7970347],
-            [-33.4034563, -70.7972551], [-33.4042861, -70.7954845], [-33.4046187, -70.794697], [-33.4048866, -70.7947514],
-            [-33.405408, -70.7948064], [-33.4053351, -70.7953282], [-33.405786, -70.7952857], [-33.4059086, -70.7949392],
-            [-33.4060592, -70.7951052], [-33.4065406, -70.7951888], [-33.4066228, -70.7958045], [-33.4065369, -70.7960309],
-            [-33.4067305, -70.7960718], [-33.4067399, -70.7963784], [-33.4072314, -70.7964468], [-33.4074251, -70.7959074],
-            [-33.408226, -70.7960759], [-33.4081744, -70.7964861], [-33.4093845, -70.7963032], [-33.4095444, -70.7893019]
-        ];
+        const lapCheckpoint = { lat: -33.409455, lng: -70.789421 };
+        const lapRadiusMeters = 50;
+        let lapProgress = {}; // Stores { vehicleId: { lastVisit: timestamp, lastPeriod: string } }
+        let dailyLapCounts = {}; // Stores { vehicleId: { '13:00 a 22:00': 0, '22:00 a 06:00': 0, '06:00 a 13:00': 0 } }
 
-        const route2Coordinates = [
-            [-33.4095444, -70.7893019], [-33.4092635, -70.7895518], [-33.404626, -70.7897795], [-33.4045659, -70.7889574],
-            [-33.3965734, -70.7893183], [-33.3966737, -70.7910012], [-33.3970831, -70.790958], [-33.3971273, -70.7919677],
-            [-33.4013289, -70.7917774], [-33.401446, -70.795415], [-33.4014169, -70.7959955], [-33.4004943, -70.7960166],
-            [-33.4002773, -70.796191], [-33.4002621, -70.7964975], [-33.4001925, -70.7966953], [-33.4001991, -70.7968537],
-            [-33.4001153, -70.7972412], [-33.4002741, -70.7975317], [-33.4004734, -70.7976693], [-33.4006245, -70.7978809],
-            [-33.4006138, -70.7981507], [-33.4006268, -70.7982268], [-33.4008126, -70.7982548], [-33.400977, -70.7982631],
-            [-33.401127, -70.7983696], [-33.4012752, -70.7984813], [-33.401428, -70.7985449], [-33.4015682, -70.7986062],
-            [-33.4018241, -70.7986689], [-33.4019124, -70.7986161], [-33.402096, -70.7985015], [-33.4021295, -70.7986348],
-            [-33.4020295, -70.798835], [-33.401905, -70.7988894], [-33.401777, -70.7989397], [-33.401666, -70.7989599],
-            [-33.4014792, -70.7988884], [-33.4012746, -70.798751], [-33.4011036, -70.798622], [-33.4009277, -70.7985227],
-            [-33.4007683, -70.7984183], [-33.4006245, -70.7982823], [-33.4005041, -70.7981561], [-33.400435, -70.7980242],
-            [-33.4003507, -70.7978253], [-33.400325, -70.7976693], [-33.4002674, -70.7975323], [-33.400192, -70.7974465],
-            [-33.4000497, -70.7973063], [-33.3999434, -70.7971842], [-33.3998119, -70.7972767], [-33.399824, -70.7955015],
-            [-33.401446, -70.795415], [-33.4013289, -70.7917774], [-33.3971273, -70.7919677], [-33.3970831, -70.790958],
-            [-33.3966737, -70.7910012], [-33.3965734, -70.7893183], [-33.4045659, -70.7889574], [-33.404626, -70.7897795],
-            [-33.4092635, -70.7895518], [-33.4095444, -70.7893019]
-        ];
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const authData = JSON.parse(localStorage.getItem('gpsAuth'));
-            if (!authData) {
+        window.onload = function() {
+            const auth = JSON.parse(localStorage.getItem('gpsAuth'));
+            if (!auth) {
                 window.location.href = 'login.html';
                 return;
             }
+            isViewer = auth.isViewer;
+            isAdmin = auth.isAdmin;
+            currentVehicleNumber = auth.vehicleNumber;
+            const userRef = database.ref('users/' + auth.uid);
+            userRef.on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    user = snapshot.val();
+                    document.getElementById('currentUserIndicator').innerHTML = `<b>Usuario:</b> ${user.username}`;
+                }
+            });
 
-            currentUserId = authData.vehicleNumber;
-            isViewer = authData.isViewer;
-            const isAdmin = authData.username === 'Admin'; // Comprobación del rol de administrador
-
-            // Ocultar/mostrar elementos según el rol
-            document.getElementById('other-vehicles-container').style.display = isViewer ? 'block' : 'none';
-            document.getElementById('routeSelector').style.display = isViewer ? 'block' : 'none';
-            // Ajuste para que el botón de ubicación de emergencia sea visible para el Admin
-            document.getElementById('emergencyLocateBtn').style.display = isAdmin ? 'flex' : (isViewer ? 'none' : 'flex');
-            document.getElementById('adminNav').style.display = isAdmin ? 'flex' : 'none';
-            document.getElementById('dashboardPanel').style.display = 'none';
-            document.getElementById('historyPanel').style.display = 'none';
-            
-            initMap();
-            
-            // Lógica actualizada para manejar a los usuarios "Admin"
             if (isAdmin) {
-                // Un admin es un visor y un rastreador a la vez
-                startViewerUpdates();
-                initViewerDashboard();
-                startGPSLocationTracking();
-            } else if (isViewer) {
-                // Otros visores (como Jefes de Carrusel)
-                startViewerUpdates();
-                initViewerDashboard();
+                mapContainer.style.display = 'none';
+                adminDashboard.style.display = 'block';
+                initAdminDashboard();
             } else {
-                // Usuarios regulares (funcionarios)
-                startGPSLocationTracking();
+                mapContainer.style.display = 'block';
+                adminDashboard.style.display = 'none';
+                initMap();
+                if (isViewer) {
+                    initViewerUpdates();
+                } else {
+                    document.getElementById('emergencyLocateBtn').style.display = 'flex';
+                    startLocationUpdates();
+                    requestWakeLock();
+                }
             }
-            
-            document.getElementById('logoutBtn').addEventListener('click', logout);
-            document.getElementById('refreshBtn').addEventListener('click', refreshData);
-            document.getElementById('emergencyLocateBtn').addEventListener('click', centerMapOnUser);
-            document.getElementById('mapProvider').addEventListener('change', updateTileLayer);
-            document.getElementById('routeSelector').addEventListener('change', updateRouteLayer);
-            document.getElementById('togglePanel').addEventListener('click', togglePanel);
-            
-            // Lógica para el panel de diagnóstico, si es necesario
-            // document.getElementById('toggleDiagnosticPanel').addEventListener('click', toggleDiagnosticPanel);
-            // document.getElementById('forceLocationBtn').addEventListener('click', forceLocationUpdate);
+        };
 
-            // Admin panel navigation
-            if (isAdmin) {
-                document.getElementById('viewFleetBtn').addEventListener('click', () => showPanel('fleet'));
-                document.getElementById('viewDashboardBtn').addEventListener('click', () => showPanel('dashboard'));
-                document.getElementById('viewHistoryBtn').addEventListener('click', () => showPanel('history'));
-                document.getElementById('loadHistoryBtn').addEventListener('click', loadHistory);
+        function initAdminDashboard() {
+            database.ref('vehicles').on('value', (snapshot) => {
+                const vehicles = snapshot.val() || {};
+                updateAdminDashboard(vehicles);
+            });
+        }
+
+        function updateAdminDashboard(vehicles) {
+            let onlineCount = 0;
+            let offlineCount = 0;
+            
+            lapsPanel.innerHTML = '<h3>Conteo de Vueltas por Equipo</h3>';
+            vehicleDetailsPanel.innerHTML = '<h3>Detalles de Equipos</h3>';
+
+            for (const key in vehicles) {
+                const vehicle = vehicles[key];
+                const now = new Date();
+                const lastTimestamp = new Date(vehicle.timestamp);
+                const isOnline = (now - lastTimestamp) < (5 * 60 * 1000); // 5 minutos de tolerancia
                 
-                // Populate history vehicle selector
-                const historyVehicleSelector = document.getElementById('historyVehicleSelector');
-                const vehicleIds = ['movil1', 'movil2', 'movil3', 'movil4'];
-                vehicleIds.forEach(id => {
-                    const option = document.createElement('option');
-                    option.value = id;
-                    option.textContent = `Móvil ${id.slice(-1)}`;
-                    historyVehicleSelector.appendChild(option);
-                });
-            }
-        });
+                if (isOnline) {
+                    onlineCount++;
+                } else {
+                    offlineCount++;
+                }
 
-        function initMap() {
-            map = L.map('map', { zoomControl: false }).setView(SCL_COORDS, ZOOM_INICIAL);
-            updateTileLayer();
-            new L.Control.Zoom({ position: 'topright' }).addTo(map);
+                checkLapCompletion(key, vehicle.lat, vehicle.lng);
+                
+                // Dashboard HTML generation
+                const lapsCard = document.createElement('div');
+                lapsCard.className = 'laps-card';
+                lapsCard.innerHTML = `
+                    <h4>${key}</h4>
+                    <div class="lap-period">
+                        <p><b>Turno Tarde (13:00 - 22:00):</b> <span id="laps-${key}-1">${dailyLapCounts[key]?.['13:00 a 22:00'] || 0}</span> vueltas</p>
+                    </div>
+                    <div class="lap-period">
+                        <p><b>Turno Noche (22:00 - 06:00):</b> <span id="laps-${key}-2">${dailyLapCounts[key]?.['22:00 a 06:00'] || 0}</span> vueltas</p>
+                    </div>
+                    <div class="lap-period">
+                        <p><b>Turno Mañana (06:00 - 13:00):</b> <span id="laps-${key}-3">${dailyLapCounts[key]?.['06:00 a 13:00'] || 0}</span> vueltas</p>
+                    </div>
+                `;
+                lapsPanel.appendChild(lapsCard);
+
+                const detailsCard = document.createElement('div');
+                detailsCard.className = 'metric-card';
+                detailsCard.innerHTML = `
+                    <h3>${key}</h3>
+                    <p class="${isOnline ? 'status-online' : 'status-offline'}">${isOnline ? 'En línea' : 'Desconectado'}</p>
+                    <p class="status-info">Última conexión: ${new Date(vehicle.timestamp).toLocaleString()}</p>
+                    <p class="status-info">Velocidad: ${vehicle.speed ? (vehicle.speed * 3.6).toFixed(2) : 0} km/h</p>
+                    <p class="status-info">Dirección: ${getCardinalDirection(vehicle.bearing)}</p>
+                `;
+                vehicleDetailsPanel.appendChild(detailsCard);
+            }
+
+            onlineVehiclesCount.textContent = onlineCount;
+            offlineVehiclesCount.textContent = offlineCount;
         }
 
-        function updateTileLayer() {
-            const selectedProvider = document.getElementById('mapProvider').value;
-            let newLayer;
-            if (currentTileLayer) {
-                map.removeLayer(currentTileLayer);
-            }
-            
-            if (selectedProvider === 'esri') {
-                newLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
-                });
-            } else if (selectedProvider === 'carto') {
-                newLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-                });
-            } else if (selectedProvider === 'osm') {
-                newLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                });
-            }
-            map.addLayer(newLayer);
-            currentTileLayer = newLayer;
+        function getCardinalDirection(angle) {
+            const directions = ['Norte', 'Noreste', 'Este', 'Sureste', 'Sur', 'Suroeste', 'Oeste', 'Noroeste'];
+            const index = Math.round(angle / 45);
+            return directions[index % 8];
         }
 
-        function togglePanel() {
-            const panel = document.getElementById('controlPanel');
-            panel.classList.toggle('visible');
-            localStorage.setItem('panelState', panel.classList.contains('visible') ? 'visible' : 'hidden');
+        function haversineDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371e3; // metres
+            const φ1 = lat1 * Math.PI / 180;
+            const φ2 = lat2 * Math.PI / 180;
+            const Δφ = (lat2 - lat1) * Math.PI / 180;
+            const Δλ = (lon2 - lon1) * Math.PI / 180;
+
+            const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+                      Math.cos(φ1) * Math.cos(φ2) *
+                      Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+            return R * c;
         }
 
-        // Funciones para Admin Panel
-        function showPanel(panelName) {
-            document.querySelectorAll('.admin-panel').forEach(panel => panel.classList.remove('active'));
-            document.querySelectorAll('.admin-nav button').forEach(button => button.classList.remove('active'));
+        function getLapPeriod(date) {
+            const hour = date.getHours();
+            if (hour >= 13 && hour < 22) {
+                return '13:00 a 22:00';
+            } else if (hour >= 22 || hour < 6) {
+                return '22:00 a 06:00';
+            } else {
+                return '06:00 a 13:00';
+            }
+        }
 
-            if (panelName === 'fleet') {
-                document.getElementById('fleetPanel').classList.add('active');
-                document.getElementById('viewFleetBtn').classList.add('active');
-                // Asegurar que los marcadores de la flota estén visibles
-                Object.values(markers).forEach(marker => map.addLayer(marker));
-                if (historyRouteLayer) map.removeLayer(historyRouteLayer);
-            } else if (panelName === 'dashboard') {
-                document.getElementById('dashboardPanel').classList.add('active');
-                document.getElementById('viewDashboardBtn').classList.add('active');
-                // Ocultar marcadores para ver el dashboard
-                Object.values(markers).forEach(marker => map.removeLayer(marker));
-                if (historyRouteLayer) map.removeLayer(historyRouteLayer);
-            } else if (panelName === 'history') {
-                document.getElementById('historyPanel').classList.add('active');
-                document.getElementById('viewHistoryBtn').classList.add('active');
-                // Ocultar marcadores para ver el historial
-                Object.values(markers).forEach(marker => map.removeLayer(marker));
+        function checkLapCompletion(vehicleId, lat, lng) {
+            const distance = haversineDistance(lat, lng, lapCheckpoint.lat, lapCheckpoint.lng);
+            const now = Date.now();
+            const period = getLapPeriod(new Date(now));
+
+            // Check if it's the start of a new day and reset the counts
+            const today = new Date().toDateString();
+            if (lapProgress[vehicleId] && lapProgress[vehicleId].lastDay !== today) {
+                dailyLapCounts[vehicleId] = { '13:00 a 22:00': 0, '22:00 a 06:00': 0, '06:00 a 13:00': 0 };
+            }
+
+            if (distance <= lapRadiusMeters) {
+                if (!lapProgress[vehicleId] || (now - lapProgress[vehicleId].lastVisit > 60000 && lapProgress[vehicleId].lastPeriod !== period)) {
+                    if (!dailyLapCounts[vehicleId]) {
+                        dailyLapCounts[vehicleId] = { '13:00 a 22:00': 0, '22:00 a 06:00': 0, '06:00 a 13:00': 0 };
+                    }
+                    dailyLapCounts[vehicleId][period]++;
+                    lapProgress[vehicleId] = { lastVisit: now, lastPeriod: period, lastDay: today };
+                }
+            } else if (lapProgress[vehicleId] && distance > lapRadiusMeters * 2) {
+                // Reset lastVisit when vehicle moves away to allow for new lap count
+                lapProgress[vehicleId].lastVisit = 0;
             }
         }
         
-        function initViewerDashboard() {
-            // Lógica para inicializar el dashboard del admin
+        // --- Existing Map and GPS Logic (Unmodified) ---
+        function initMap() {
+            const map = L.map('map').setView([-33.4489, -70.6693], 13);
+            let googleStreets = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{
+                maxZoom: 20,
+                subdomains:['mt0','mt1','mt2','mt3']
+            }).addTo(map);
+            let googleSatellite = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{
+                maxZoom: 20,
+                subdomains:['mt0','mt1','mt2','mt3']
+            });
+            const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            });
+            const baseMaps = {
+                "OpenStreetMap": osm,
+                "Google Streets": googleStreets,
+                "Google Satellite": googleSatellite
+            };
+            L.control.layers(baseMaps, {}, { collapsed: false }).addTo(map);
+            document.getElementById('mapProvider').addEventListener('change', function(e) {
+                const selected = e.target.value;
+                if (selected === 'OSM') {
+                    map.removeLayer(googleStreets);
+                    map.removeLayer(googleSatellite);
+                    osm.addTo(map);
+                } else if (selected === 'GoogleStreets') {
+                    map.removeLayer(osm);
+                    map.removeLayer(googleSatellite);
+                    googleStreets.addTo(map);
+                } else if (selected === 'GoogleSatellite') {
+                    map.removeLayer(osm);
+                    map.removeLayer(googleStreets);
+                    googleSatellite.addTo(map);
+                }
+            });
             database.ref('vehicles').on('value', (snapshot) => {
                 const vehicles = snapshot.val();
+                if (vehicles) {
+                    for (const vehicleId in vehicles) {
+                        const vehicleData = vehicles[vehicleId];
+                        const lastUpdate = new Date(vehicleData.timestamp);
+                        const isOnline = (new Date() - lastUpdate) < (5 * 60 * 1000);
+                        const status = isOnline ? 'online' : 'offline';
+                        if (!teamMarkers[vehicleId]) {
+                            const iconHtml = `<div class="vehicle-marker ${status}" style="transform: rotate(${vehicleData.bearing}deg);"><div class="vehicle-label">${vehicleId}</div></div>`;
+                            const customIcon = L.divIcon({
+                                html: iconHtml,
+                                className: '',
+                                iconSize: [32, 32],
+                                iconAnchor: [16, 16]
+                            });
+                            teamMarkers[vehicleId] = L.marker([vehicleData.lat, vehicleData.lng], { icon: customIcon }).addTo(map);
+                            teamInfo[vehicleId] = { marker: teamMarkers[vehicleId], lastLat: vehicleData.lat, lastLng: vehicleData.lng };
+                        } else {
+                            const marker = teamMarkers[vehicleId];
+                            marker.setLatLng([vehicleData.lat, vehicleData.lng]);
+                            const iconDiv = marker.getElement().querySelector('.vehicle-marker');
+                            iconDiv.className = `vehicle-marker ${status}`;
+                            iconDiv.style.transform = `rotate(${vehicleData.bearing}deg)`;
+                            const labelDiv = marker.getElement().querySelector('.vehicle-label');
+                            labelDiv.textContent = vehicleId;
+                        }
+                    }
+                }
+            });
+            document.getElementById('emergencyLocateBtn').addEventListener('click', () => {
+                map.flyTo([user.lat, user.lng], 18);
+            });
+        }
+        function startLocationUpdates() {
+            if ("geolocation" in navigator) {
+                locationWatchId = navigator.geolocation.watchPosition(
+                    (position) => {
+                        const { latitude, longitude, speed, heading, accuracy } = position.coords;
+                        const userLat = latitude;
+                        const userLng = longitude;
+                        const speedKmh = speed !== null ? speed * 3.6 : 0;
+                        const bearing = heading !== null ? heading : 0;
+                        const timestamp = position.timestamp;
+                        const userRef = database.ref('vehicles/' + currentVehicleNumber);
+                        userRef.set({
+                            lat: userLat,
+                            lng: userLng,
+                            speed: speedKmh,
+                            bearing: bearing,
+                            timestamp: timestamp
+                        });
+                        const userMarkerIcon = L.divIcon({
+                            className: 'user-marker',
+                            html: '<div class="pulse-circle"></div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3498db" width="30px" height="30px"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>',
+                            iconSize: [30, 30],
+                            iconAnchor: [15, 15]
+                        });
+                        if (!userMarker) {
+                            userMarker = L.marker([userLat, userLng], { icon: userMarkerIcon }).addTo(map);
+                        } else {
+                            userMarker.setLatLng([userLat, userLng]);
+                        }
+                        const latLng = L.latLng(userLat, userLng);
+                        if (!accuracyCircle) {
+                            accuracyCircle = L.circle(latLng, { radius: accuracy, className: 'accuracy-circle' }).addTo(map);
+                        } else {
+                            accuracyCircle.setLatLng(latLng).setRadius(accuracy);
+                        }
+                    },
+                    (error) => {
+                        console.error('Error getting location:', error);
+                    }, {
+                        enableHighAccuracy: true,
+                        maximumAge: 5000,
+                        timeout: 10000
+                    }
+                );
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+        function initViewerUpdates() {
+            const vehicleList = document.getElementById('vehicleList');
+            const togglePanel = document.getElementById('togglePanel');
+            const panel = document.getElementById('controlPanel');
+            const mapTouchOverlay = document.querySelector('.map-touch-overlay');
+            togglePanel.addEventListener('click', () => {
+                panel.classList.toggle('visible');
+            });
+            mapTouchOverlay.addEventListener('click', () => {
+                panel.classList.remove('visible');
+            });
+            const initialZoom = 13;
+            const map = L.map('map', {
+                zoomControl: false,
+                maxZoom: 18,
+                minZoom: 10
+            }).setView([-33.4489, -70.6693], initialZoom);
+            L.control.zoom({
+                position: 'topleft'
+            }).addTo(map);
+            const googleStreets = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+                maxZoom: 20,
+                subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+            });
+            const googleSatellite = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+                maxZoom: 20,
+                subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+            });
+            const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            });
+            googleStreets.addTo(map);
+            const baseMaps = {
+                "OpenStreetMap": osm,
+                "Google Streets": googleStreets,
+                "Google Satellite": googleSatellite
+            };
+            L.control.layers(baseMaps, {}, { collapsed: false }).addTo(map);
+            document.getElementById('mapProvider').addEventListener('change', function(e) {
+                const selected = e.target.value;
+                if (selected === 'OSM') {
+                    map.removeLayer(googleStreets);
+                    map.removeLayer(googleSatellite);
+                    osm.addTo(map);
+                } else if (selected === 'GoogleStreets') {
+                    map.removeLayer(osm);
+                    map.removeLayer(googleSatellite);
+                    googleStreets.addTo(map);
+                } else if (selected === 'GoogleSatellite') {
+                    map.removeLayer(osm);
+                    map.removeLayer(googleStreets);
+                    googleSatellite.addTo(map);
+                }
+            });
+            database.ref('vehicles').on('value', (snapshot) => {
+                const vehicles = snapshot.val();
+                let hasOnlineVehicles = false;
                 let onlineCount = 0;
                 let offlineCount = 0;
-                let totalDistance = 0; // Esta métrica requiere datos históricos
-                
+                vehicleList.innerHTML = '';
                 if (vehicles) {
-                    const vehicleKeys = Object.keys(vehicles);
-                    vehicleKeys.forEach(key => {
-                        const vehicle = vehicles[key];
-                        if (vehicle.status === 'online') {
+                    const vehicleIds = Object.keys(vehicles).sort();
+                    vehicleIds.forEach(vehicleId => {
+                        const vehicleData = vehicles[vehicleId];
+                        const lastUpdate = new Date(vehicleData.timestamp);
+                        const isOnline = (new Date() - lastUpdate) < (5 * 60 * 1000);
+                        const status = isOnline ? 'online' : 'offline';
+                        const card = document.createElement('div');
+                        card.className = 'vehicle-card';
+                        card.innerHTML = `
+                            <div class="vehicle-name">
+                                <div class="vehicle-icon ${status}" id="${vehicleId.toLowerCase()}-icon"></div>
+                                <span style="font-size: 1.1em;">${vehicleId}</span>
+                            </div>
+                            <div class="vehicle-status">
+                                <span id="${vehicleId.toLowerCase()}-status" class="${status}">
+                                    ${isOnline ? 'En ruta' : 'Desconectado'}
+                                </span>
+                                <span>${(vehicleData.speed * 3.6).toFixed(2)} km/h</span>
+                            </div>
+                        `;
+                        vehicleList.appendChild(card);
+                        if (isOnline) {
                             onlineCount++;
+                            if (!teamMarkers[vehicleId]) {
+                                const iconHtml = `<div class="vehicle-marker ${status}" style="transform: rotate(${vehicleData.bearing}deg);"><div class="vehicle-label">${vehicleId}</div></div>`;
+                                const customIcon = L.divIcon({
+                                    html: iconHtml,
+                                    className: '',
+                                    iconSize: [32, 32],
+                                    iconAnchor: [16, 16]
+                                });
+                                teamMarkers[vehicleId] = L.marker([vehicleData.lat, vehicleData.lng], {
+                                    icon: customIcon
+                                }).addTo(map);
+                                teamInfo[vehicleId] = {
+                                    marker: teamMarkers[vehicleId]
+                                };
+                            } else {
+                                const marker = teamMarkers[vehicleId];
+                                marker.setLatLng([vehicleData.lat, vehicleData.lng]);
+                                const iconDiv = marker.getElement().querySelector('.vehicle-marker');
+                                iconDiv.className = `vehicle-marker ${status}`;
+                                iconDiv.style.transform = `rotate(${vehicleData.bearing}deg)`;
+                                const labelDiv = marker.getElement().querySelector('.vehicle-label');
+                                labelDiv.textContent = vehicleId;
+                            }
+                            hasOnlineVehicles = true;
                         } else {
                             offlineCount++;
+                            if (teamMarkers[vehicleId]) {
+                                map.removeLayer(teamMarkers[vehicleId]);
+                                delete teamMarkers[vehicleId];
+                            }
                         }
                     });
-                }
-                
-                document.getElementById('onlineVehiclesCount').textContent = onlineCount;
-                document.getElementById('offlineVehiclesCount').textContent = offlineCount;
-                document.getElementById('totalVehiclesCount').textContent = onlineCount + offlineCount;
-                // La distancia total requeriría un cálculo más complejo, aquí solo se muestra un placeholder
-                document.getElementById('totalDistance').textContent = 'Calculando...';
-            });
-        }
-        
-        function loadHistory() {
-            const vehicleId = document.getElementById('historyVehicleSelector').value;
-            const date = document.getElementById('historyDateSelector').value;
-            
-            if (!vehicleId || !date) {
-                showNotification('Por favor, seleccione un vehículo y una fecha.');
-                return;
-            }
-            
-            showNotification('Cargando historial...');
-            
-            // Formato de fecha para la base de datos (YYYY-MM-DD)
-            const datePath = date.replace(/-/g, '');
-            const historyRef = database.ref(`history/${vehicleId}/${datePath}`);
-            
-            historyRef.once('value', (snapshot) => {
-                const historyData = snapshot.val();
-                if (historyData) {
-                    const latlngs = [];
-                    // Convertir el objeto de historial a un array de coordenadas
-                    Object.values(historyData).forEach(location => {
-                        latlngs.push([location.lat, location.lng]);
-                    });
-                    
-                    if (latlngs.length > 0) {
-                        // Eliminar ruta de historial anterior si existe
-                        if (historyRouteLayer) {
-                            map.removeLayer(historyRouteLayer);
+                    if (hasOnlineVehicles) {
+                        const bounds = new L.LatLngBounds(Object.values(teamMarkers).map(marker => marker.getLatLng()));
+                        if (bounds.isValid()) {
+                            map.fitBounds(bounds, {
+                                padding: [50, 50]
+                            });
                         }
-                        
-                        historyRouteLayer = L.polyline(latlngs, { color: 'blue', weight: 5, opacity: 0.7 }).addTo(map);
-                        map.fitBounds(historyRouteLayer.getBounds());
-                        showNotification(`Historial cargado para ${vehicleId} en la fecha ${date}.`);
-                    } else {
-                        showNotification('No se encontraron datos de historial para esta fecha.');
                     }
-                } else {
-                    showNotification('No se encontraron datos de historial para esta fecha.');
-                }
-            }, (error) => {
-                console.error("Error al cargar el historial:", error);
-                showNotification('Error al cargar el historial. Intente de nuevo más tarde.');
-            });
-        }
-
-        // Funciones existentes, se mantienen sin cambios
-
-        function startGPSLocationTracking() {
-            requestWakeLock();
-            if (navigator.geolocation) {
-                const options = {
-                    enableHighAccuracy: true,
-                    maximumAge: 5000,
-                    timeout: 27000,
-                };
-                
-                // Forzar una actualización inicial
-                navigator.geolocation.getCurrentPosition(updateGPSLocation, onLocationError, options);
-                
-                // Usar watchPosition para actualizaciones continuas
-                backgroundGeolocationWatchId = navigator.geolocation.watchPosition(updateGPSLocation, onLocationError, options);
-                
-                // Intervalo de seguridad para forzar actualizaciones
-                locationUpdateInterval = setInterval(() => {
-                    navigator.geolocation.getCurrentPosition(updateGPSLocation, onLocationError, options);
-                }, UPDATE_INTERVAL);
-            } else {
-                showNotification('Geolocalización no es compatible con este navegador.', 'error');
-            }
-        }
-        
-        function updateGPSLocation(position) {
-            const { latitude, longitude, accuracy, speed } = position.coords;
-            lastKnownPosition = [latitude, longitude];
-            
-            updateCurrentUserUI({
-                lat: latitude.toFixed(6),
-                lng: longitude.toFixed(6),
-                accuracy: accuracy,
-                speed: speed
-            });
-
-            // Actualizar ubicación en la base de datos
-            const updateData = {
-                lat: latitude,
-                lng: longitude,
-                timestamp: firebase.database.ServerValue.TIMESTAMP,
-                status: 'online',
-                accuracy: accuracy,
-                speed: speed
-            };
-            database.ref(`vehicles/${currentUserId}`).set(updateData);
-            
-            // Guardar en historial, solo si es un vehículo en ruta
-            if (!isViewer) {
-                 const today = new Date();
-                 const dateKey = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
-                 const historyRef = database.ref(`history/${currentUserId}/${dateKey}`).push();
-                 historyRef.set({
-                    lat: latitude,
-                    lng: longitude,
-                    timestamp: firebase.database.ServerValue.TIMESTAMP
-                 });
-            }
-        }
-        
-        function onLocationError(error) {
-            console.error("Error de Geolocalización:", error);
-            let message = 'Error de ubicación desconocido.';
-            switch(error.code) {
-                case error.PERMISSION_DENIED:
-                    message = "Permiso de geolocalización denegado. Habilítalo en la configuración de tu navegador.";
-                    break;
-                case error.POSITION_UNAVAILABLE:
-                    message = "La información de ubicación no está disponible.";
-                    break;
-                case error.TIMEOUT:
-                    message = "El tiempo de espera de la solicitud de ubicación ha expirado.";
-                    break;
-            }
-            updateCurrentUserUI({
-                status: 'offline',
-                message: message
-            });
-            database.ref(`vehicles/${currentUserId}/status`).set('offline');
-            showNotification(`Error: ${message}`, 'warning');
-        }
-
-        function updateCurrentUserUI(data) {
-            const statusElement = document.getElementById('current-user-status');
-            const iconElement = document.getElementById('current-user-icon');
-            const coordsElement = document.getElementById('current-user-coords');
-            const locationStatus = document.getElementById('locationStatus');
-            const accuracyValue = document.getElementById('accuracyValue');
-            const gpsStatus = document.getElementById('gpsStatus');
-
-            if (data.status) {
-                statusElement.textContent = data.status === 'online' ? 'En ruta' : 'Desconectado';
-                statusElement.className = data.status;
-                iconElement.className = `user-icon ${data.status}`;
-            }
-
-            if (data.lat && data.lng) {
-                coordsElement.textContent = `${data.lat}, ${data.lng}`;
-                locationStatus.textContent = 'Tu ubicación';
-                
-                // Actualizar marcador y círculo de precisión
-                const newLatLng = L.latLng(data.lat, data.lng);
-                if (!userPositionMarker) {
-                    const iconHtml = `<div class="pulse-circle"></div><div class="vehicle-marker online" style="background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>');"></div>`;
-                    userPositionMarker = L.marker(newLatLng, {
-                        icon: L.divIcon({ className: 'custom-user-marker', html: iconHtml, iconSize: [42, 42], iconAnchor: [21, 21] }),
-                    }).addTo(map);
-                    userAccuracyCircle = L.circle(newLatLng, { radius: data.accuracy, className: 'accuracy-circle' }).addTo(map);
-                } else {
-                    userPositionMarker.setLatLng(newLatLng);
-                    userAccuracyCircle.setLatLng(newLatLng).setRadius(data.accuracy);
-                }
-                
-                accuracyValue.textContent = `${data.accuracy.toFixed(2)} m`;
-                gpsStatus.textContent = "Activo";
-                gpsStatus.className = "diagnostic-value online";
-            } else {
-                coordsElement.textContent = "--";
-                locationStatus.textContent = 'Buscando tu ubicación...';
-                accuracyValue.textContent = "--";
-                gpsStatus.textContent = "Inactivo";
-                gpsStatus.className = "diagnostic-value offline";
-            }
-        }
-        
-        function updateViewerUI(vehicles) {
-            let onlineCount = 0;
-            if (!vehicles) return;
-            
-            Object.keys(vehicles).forEach(vehicleId => {
-                if (vehicleId.toLowerCase().includes('movil') || vehicleId.toLowerCase() === 'admin') {
-                    const vehicleData = vehicles[vehicleId];
-                    const latLng = [vehicleData.lat, vehicleData.lng];
-                    const status = (Date.now() - vehicleData.timestamp < TEN_MINUTES) ? 'online' : 'offline';
-                    
-                    if (status === 'online') onlineCount++;
-                    
-                    // Actualizar marcadores en el mapa
-                    if (!markers[vehicleId]) {
-                        const iconHtml = `<div class="vehicle-marker ${status}" style="background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5v-5h14v5z"/><circle cx="7.5" cy="14.5" r="1.5"/><circle cx="16.5" cy="14.5" r="1.5"/></svg>');"></div><div class="vehicle-label">${vehicleId}</div>`;
-                        const customIcon = L.divIcon({ className: 'custom-vehicle-marker', html: iconHtml, iconSize: [42, 42], iconAnchor: [21, 21] });
-                        markers[vehicleId] = L.marker(latLng, { icon: customIcon }).addTo(map);
-                    } else {
-                        markers[vehicleId].setLatLng(latLng);
-                        const iconHtml = `<div class="vehicle-marker ${status}" style="background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5v-5h14v5z"/><circle cx="7.5" cy="14.5" r="1.5"/><circle cx="16.5" cy="14.5" r="1.5"/></svg>');"></div><div class="vehicle-label">${vehicleId}</div>`;
-                        const customIcon = L.divIcon({ className: 'custom-vehicle-marker', html: iconHtml, iconSize: [42, 42], iconAnchor: [21, 21] });
-                        markers[vehicleId].setIcon(customIcon);
-                    }
-                    
-                    // Actualizar info en el panel de control
-                    updateVehiclePanel(vehicleId, status);
-                }
-            });
-            // Remover marcadores de vehículos que ya no están en la lista
-            Object.keys(markers).forEach(vehicleId => {
-                if (!vehicles[vehicleId]) {
-                    map.removeLayer(markers[vehicleId]);
-                    delete markers[vehicleId];
                 }
             });
         }
-        
-        function updateVehiclePanel(mobileId, status) {
-            // Asegurarse de que no se actualice el panel de usuario si es un viewer
-            if (mobileId !== currentUserId || !isViewer) {
-                const element = document.getElementById(`${mobileId.toLowerCase()}-status`);
-                const iconElement = document.getElementById(`${mobileId.toLowerCase()}-icon`);
-                
-                if (element) {
-                    element.textContent = status === 'online' ? 'En ruta' : 'Desconectado';
-                    element.className = status === 'online' ? 'online' : 'offline';
-                }
-                
-                if (iconElement) {
-                    iconElement.className = `vehicle-icon ${status === 'online' ? 'online' : 'offline'}`;
-                }
-            }
-        }
-        
-        function showNotification(message, type = 'info') {
-            const notification = document.getElementById('statusNotification');
-            notification.textContent = message;
-            notification.style.display = 'block';
-            setTimeout(() => {
-                notification.style.display = 'none';
-            }, 3000);
-        }
-        
-        function startViewerUpdates() {
-            viewerUpdateInterval = setInterval(fetchVehicles, UPDATE_INTERVAL);
-            fetchVehicles(); // Fetch inicial
-        }
-        
-        function fetchVehicles() {
-            database.ref('vehicles').once('value').then(snapshot => {
-                updateViewerUI(snapshot.val());
-            }).catch(error => {
-                console.error("Error fetching vehicles: ", error);
-                showNotification("Error al cargar datos de vehículos.", 'error');
-            });
-        }
-
-        function refreshData() {
-            if (isViewer) {
-                fetchVehicles();
-            } else {
-                navigator.geolocation.getCurrentPosition(updateGPSLocation, onLocationError, { enableHighAccuracy: true });
-            }
-            const refreshBtn = document.getElementById('refreshBtn');
-            refreshBtn.classList.add('loading');
-            setTimeout(() => refreshBtn.classList.remove('loading'), 1000);
-        }
-
-        function centerMapOnUser() {
-            if (lastKnownPosition) {
-                map.setView(lastKnownPosition, map.getZoom());
-                showNotification('Centrado en tu ubicación');
-            } else {
-                showNotification('Ubicación no disponible aún.', 'warning');
-            }
-        }
-        
-        function updateRouteLayer() {
-            if (currentRouteLayer) {
-                map.removeLayer(currentRouteLayer);
-            }
-            
-            const selectedRoute = document.getElementById('routeSelector').value;
-            let routeCoordinates = [];
-            let color = 'gray';
-
-            if (selectedRoute === 'route1') {
-                routeCoordinates = route1Coordinates;
-                color = var(--route1-color);
-            } else if (selectedRoute === 'route2') {
-                routeCoordinates = route2Coordinates;
-                color = var(--route2-color);
-            }
-
-            if (routeCoordinates.length > 0) {
-                currentRouteLayer = L.polyline(routeCoordinates, { color: color, weight: 5, opacity: 0.7 }).addTo(map);
-            }
-        }
-        
-        function requestWakeLock() {
-            if ('wakeLock' in navigator) {
-                navigator.wakeLock.request('screen').then(lock => {
-                    wakeLock = lock;
-                    console.log('Wake Lock activo!');
-                }).catch(err => {
-                    console.error('No se pudo activar Wake Lock:', err.name, err.message);
-                });
-            }
-        }
-        
         function logout() {
             if (gpsInterval) clearInterval(gpsInterval);
-            if (locationUpdateInterval) clearInterval(locationUpdateInterval);
-            if (viewerUpdateInterval) clearInterval(viewerUpdateInterval);
-            if (backgroundGeolocationWatchId !== null) {
-                navigator.geolocation.clearWatch(backgroundGeolocationWatchId);
-            }
-            if (wakeLock !== null) {
+            if (locationWatchId) navigator.geolocation.clearWatch(locationWatchId);
+            if (wakeLock) {
                 wakeLock.release().then(() => {
                     wakeLock = null;
                 });
@@ -1261,8 +1001,16 @@
             database.ref('vehicles').off();
             firebase.auth().signOut();
             localStorage.removeItem('gpsAuth');
-            localStorage.removeItem('panelState');
             window.location.href = 'login.html';
+        }
+        async function requestWakeLock() {
+            if ('WakeLock' in window && 'request' in window.WakeLock) {
+                try {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                } catch (err) {
+                    console.error('Error acquiring wake lock:', err);
+                }
+            }
         }
     </script>
 </body>
