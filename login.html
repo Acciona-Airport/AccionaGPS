@@ -82,9 +82,9 @@
         }
         @keyframes pulse {
             0% { transform: translateX(-50%) scale(1);
-                opacity: 1; }
+            opacity: 1; }
             100% { transform: translateX(-50%) scale(1.5);
-                opacity: 0; }
+            opacity: 0; }
         }
         h1 {
             color: var(--red-dark);
@@ -220,13 +220,13 @@
             <div class="form-group">
                 <label for="username">Usuario</label>
                 <select id="username" required>
-                    <option value="">Seleccione vehículo...</option>
+                    <option value="">Seleccione usuario...</option>
+                    <option value="Admin">Admin</option>
                     <option value="Movil1">Móvil 1</option>
                     <option value="Movil2">Móvil 2</option>
                     <option value="Movil3">Móvil 3</option>
                     <option value="Movil4">Móvil 4</option>
                     <option value="Funcionarios">Funcionarios</option>
-                    <option value="Admin">Admin</option>
                 </select>
             </div>
             
@@ -271,7 +271,6 @@
         const FUNCIONARIOS_PASSWORD = "123456";
         const ADMIN_PASSWORD = "Admin234452";
         let currentUsername = "";
-
         const userEmails = {
             "Movil1": "movil1@gpsacciona.com",
             "Movil2": "movil2@gpsacciona.com", 
@@ -280,7 +279,6 @@
             "Funcionarios": "funcionarios@gpsacciona.com",
             "Admin": "admin@acciona.com"
         };
-        
         document.getElementById('username').addEventListener('change', function() {
             const username = this.value;
             const autoLoginNotice = document.getElementById('autoLoginNotice');
@@ -298,7 +296,6 @@
                 passwordInput.classList.remove('password-disabled');
             }
         });
-
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -312,7 +309,6 @@
                 return;
             }
 
-            // Authentication logic
             let email, userPassword;
 
             if (username === 'Admin') {
@@ -323,7 +319,7 @@
                 userPassword = FUNCIONARIOS_PASSWORD;
             } else {
                 email = userEmails[username];
-                userPassword = password; // For other users, password is typed
+                userPassword = password;
             }
 
             if (password !== userPassword) {
@@ -368,7 +364,7 @@
                 return;
             }
             
-            localStorage.setItem('gpsAuth', JSON.JSON.stringify({
+            localStorage.setItem('gpsAuth', JSON.stringify({
                 username: currentUsername,
                 vehicleNumber: vehicleNumber,
                 isViewer: false,
