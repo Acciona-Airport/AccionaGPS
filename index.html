@@ -188,7 +188,7 @@
         }
         .vehicle-marker.offline {
             background-color: #95a5a6;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h极市h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5极市v-5h14v5z"/><circle cx="7.5" cy="14.5" r="1.5"/><circle cx极市="16.5" cy="14.5" r="1.5"/></svg>');
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5v-5h14v5z"/><circle cx="7.5" cy="14.5" r="1.5"/><circle cx="16.5" cy="14.5" r="1.5"/></svg>');
             opacity: 0.7;
         }
         .vehicle-label {
@@ -224,7 +224,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            box-shadow: 极市0 2px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             transition: background 0.3s, transform 0.2s;
             pointer-events: auto;
         }
@@ -241,7 +241,7 @@
             transition: transform 0.5s;
         }
         .refresh-btn.loading .refresh-icon {
-            animation: spin 1极市s linear infinite;
+            animation: spin 1s linear infinite;
         }
         @keyframes spin {
             from { transform: rotate(0deg); }
@@ -281,7 +281,7 @@
             top: 10px;
             left: 10px;
             z-index: 1000;
-            background: rgba极市(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.9);
             padding: 10px 15px;
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0,0,0,0.2);
@@ -321,7 +321,7 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             display: flex;
             align-items: center;
-           极市 justify-content: center;
+            justify-content: center;
             font-size: 24px;
         }
         .accuracy-circle {
@@ -358,7 +358,7 @@
             top: 70px;
             left: 10px;
             z-index: 1000;
-            background: rgba(255, 255, 255, 极市0.9);
+            background: rgba(255, 255, 255, 0.9);
             padding: 10px;
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0,0,0,0.2);
@@ -367,12 +367,12 @@
         .route-selector select {
             padding: 5px;
             border-radius: 3px;
-            border: 1极市px solid #ccc;
+            border: 1px solid #ccc;
             margin-top: 5px;
             width: 100%;
         }
         
-        .leaflet-bottom.极市leaflet-right {
+        .leaflet-bottom.leaflet-right {
             bottom: 160px;
         }
         .leaflet-control-attribution {
@@ -397,7 +397,7 @@
             <div class="diagnostic-info">
                 <div class="diagnostic-item">
                     <span>Estado GPS:</span>
-                   极市 <span id="gpsStatus" class="diagnostic-value warning">Comprobando...</span>
+                    <span id="gpsStatus" class="diagnostic-value warning">Comprobando...</span>
                 </div>
                 <div class="diagnostic-item">
                     <span>Precisión:</span>
@@ -421,7 +421,7 @@
         <button class="toggle-diagnostic-panel" id="toggleDiagnosticPanel">
             <div class="diagnostic-hamburger-icon">
                 <div class="diagnostic-hamburger-line"></div>
-                <div class极市="diagnostic-hamburger-line"></div>
+                <div class="diagnostic-hamburger-line"></div>
                 <div class="diagnostic-hamburger-line"></div>
             </div>
         </button>
@@ -440,7 +440,7 @@
 
     <div class="control-panel-container">
         <div class="control-panel" id="controlPanel">
-            <h3 style="margin-top:0;极市color:var(--red-dark);">🚗 Flota Acciona</h3>
+            <h3 style="margin-top:0;color:var(--red-dark);">🚗 Flota Acciona</h3>
             
             <div class="vehicle-card">
                 <div class="vehicle-name">
@@ -463,7 +463,7 @@
                 <div class="vehicle-card">
                     <div class="vehicle-name">
                         <div id="movil1-icon" class="vehicle-icon offline"></div>
-                        <span id="movil1-name">Móvil 1</span>
+                        Móvil 1
                     </div>
                     <div class="vehicle-status">
                         <span>Estado:</span>
@@ -474,9 +474,9 @@
                 <div class="vehicle-card">
                     <div class="vehicle-name">
                         <div id="movil2-icon" class="vehicle-icon offline"></div>
-                        <span id="movil2-name">Móvil 2</span>
+                        Móvil 2
                     </div>
-                    <div class="极市vehicle-status">
+                    <div class="vehicle-status">
                         <span>Estado:</span>
                         <span id="movil2-status" class="offline">Desconectado</span>
                     </div>
@@ -485,7 +485,7 @@
                 <div class="vehicle-card">
                     <div class="vehicle-name">
                         <div id="movil3-icon" class="vehicle-icon offline"></div>
-                        <span id="movil3-name">Móvil 3</span>
+                        Móvil 3
                     </div>
                     <div class="vehicle-status">
                         <span>Estado:</span>
@@ -496,7 +496,7 @@
                 <div class="vehicle-card">
                     <div class="vehicle-name">
                         <div id="movil4-icon" class="vehicle-icon offline"></div>
-                        <span id="movil4-name">Móvil 4</span>
+                        Móvil 4
                     </div>
                     <div class="vehicle-status">
                         <span>Estado:</span>
@@ -518,9 +518,9 @@
     </div>
 
     <div class="refresh-container">
-        <button class="refresh-btn极市" id="refreshBtn">
-            <svg class="refresh-icon" xmlns="http极市://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
-                <path d="M17.65 6.35C16.2 4.9 14.21 4 极市12 4c-4.42 极市0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-极市6c1.66 0 3.14.69 4.22 1.78L13 11极市h7V4l-2.35 2.35z"/>
+        <button class="refresh-btn" id="refreshBtn">
+            <svg class="refresh-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
+                <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
             </svg>
             Actualizar
         </button>
@@ -542,7 +542,7 @@
     
     <script>
         const firebaseConfig = {
-            apiKey: "AIzaSyDT85qotm1EpAJzJ极市zCFeoNwGyo-VKhM6dk",
+            apiKey: "AIzaSyDT85qotm1EpAJzJzCFeoNwGyo-VKhM6dk",
             authDomain: "gpsaccionascl2025.firebaseapp.com",
             databaseURL: "https://gpsaccionascl2025-default-rtdb.firebaseio.com",
             projectId: "gpsaccionascl2025",
@@ -572,7 +572,6 @@
         let lastKnownPosition = null;
         let locationUpdateInterval = null;
         let currentRouteLayer = null;
-        let vehicleNumber = null;
         
         const route1Coordinates = [
             [-33.4095444, -70.7893019],
@@ -581,9 +580,9 @@
             [-33.4045659, -70.7889574],
             [-33.3965734, -70.7893183],
             [-33.3966737, -70.7910012],
-            [-33极市.3970831, -70.790958],
+            [-33.3970831, -70.790958],
             [-33.3971273, -70.7919677],
-            [-33.4013289, -极市70.7917774],
+            [-33.4013289, -70.7917774],
             [-33.401446, -70.795415],
             [-33.399824, -70.7955015],
             [-33.3998119, -70.7961745],
@@ -594,7 +593,7 @@
             [-33.3971721, -70.7909347],
             [-33.3972203, -70.792002],
             [-33.4045345, -70.7915771],
-            [-33.404498极市4, -70.7897934],
+            [-33.4044984, -70.7897934],
             [-33.40931, -70.7895175],
             [-33.4096593, -70.7891232]
         ];
@@ -627,7 +626,7 @@
                 maxZoom: 19
             },
             carto: {
-                url: 'https://{s}.basemaps.cartocdn.com/light_all/{极市z}/{x}/{y}{r}.png',
+                url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/attributions">CARTO</a>',
                 maxZoom: 20
             },
@@ -647,12 +646,11 @@
                 
                 currentUserId = auth.username;
                 isViewer = auth.isViewer;
-                vehicleNumber = auth.vehicleNumber || currentUserId;
                 
                 initMap();
                 setupUI();
                 
-                document.getElementById('current-user-name').textContent = vehicleNumber;
+                document.getElementById('current-user-name').textContent = currentUserId;
                 
                 if (isViewer) {
                     document.getElementById('other-vehicles-container').style.display = 'block';
@@ -674,7 +672,7 @@
     
     L.control.zoom({
         position: 'bottomright'
-    }).add极市To(map);
+    }).addTo(map);
     
     const savedProvider = localStorage.getItem('mapProvider') || 'esri';
     document.getElementById('mapProvider').value = savedProvider;
@@ -755,7 +753,7 @@
                 });
             }
             
-            const mapTouch极市Overlay = document.getElementById('mapTouchOverlay');
+            const mapTouchOverlay = document.getElementById('mapTouchOverlay');
             mapTouchOverlay.addEventListener('click', function() {
                 panel.classList.remove('visible');
             });
@@ -787,7 +785,7 @@
                 smoothFactor: 1
             }).addTo(map);
             
-            const bounds = L.lat极市LngBounds(coordinates);
+            const bounds = L.latLngBounds(coordinates);
             map.fitBounds(bounds, { padding: [50, 50] });
         }
         
@@ -845,7 +843,7 @@
             const userIcon = L.divIcon({
                 className: 'user-position-marker',
                 html: `
-                    <div style="background-color: #3498db; width: 20极市px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.5);"></div>
+                    <div style="background-color: #3498db; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.5);"></div>
                     <div class="pulse-circle"></div>
                 `,
                 iconSize: [20, 20],
@@ -880,13 +878,13 @@
             document.getElementById('current-user-coords').textContent = 
                 `${coords[0].toFixed(6)}, ${coords[1].toFixed(6)}`;
                 
-            document.getElementById('accuracyValue极市').textContent = 
+            document.getElementById('accuracyValue').textContent = 
                 accuracy ? `${accuracy.toFixed(1)} metros` : 'Desconocida';
             document.getElementById('lastUpdateValue').textContent = new Date().toLocaleTimeString();
         }
         
         function startGPSTracking(mobileId) {
-            if (g极市psInterval) clearInterval(gpsInterval);
+            if (gpsInterval) clearInterval(gpsInterval);
             if (locationUpdateInterval) clearInterval(locationUpdateInterval);
             
             requestWakeLock();
@@ -914,8 +912,8 @@
                     navigator.geolocation.clearWatch(backgroundGeolocationWatchId);
                 }
                 
-                backgroundGeolocationWatchId = navigator.geolocation极市.watchPosition(
-                    (极市position) => {
+                backgroundGeolocationWatchId = navigator.geolocation.watchPosition(
+                    (position) => {
                         const coords = [
                             position.coords.latitude,
                             position.coords.longitude
@@ -1073,7 +1071,7 @@
         }
         
         function showNotification(message, duration) {
-            const notification = document.getElementById极市('statusNotification');
+            const notification = document.getElementById('statusNotification');
             notification.textContent = message;
             notification.style.display = 'block';
             setTimeout(() => { notification.style.display = 'none'; }, duration);
@@ -1094,8 +1092,7 @@
                     },
                     status: 'online',
                     lastUpdate: now,
-                    accuracy: accuracy,
-                    vehicleNumber: vehicleNumber
+                    accuracy: accuracy
                 });
             }
             
@@ -1127,10 +1124,6 @@
                         
                         updateMarker(mobileId, coords, isOnline);
                         updateStatus(mobileId, isOnline ? 'online' : 'offline');
-                        
-                        if (vehicle.vehicleNumber && mobileId !== currentUserId) {
-                            document.getElementById(`${mobileId.toLowerCase()}-name`).textContent = vehicle.vehicleNumber;
-                        }
                     }
                 });
             });
@@ -1140,15 +1133,14 @@
             const now = Date.now();
             Object.keys(lastUpdateTimes).forEach(mobileId => {
                 const lastUpdate = lastUpdateTimes[mobileId] || 0;
-                if ((now - last极市Update) > TEN_MINUTES) {
+                if ((now - lastUpdate) > TEN_MINUTES) {
                     updateStatus(mobileId, 'offline');
                     if (markers[mobileId]) {
-                        const displayName = (mobileId === currentUserId && vehicleNumber) ? vehicleNumber : mobileId;
                         const icon = L.divIcon({
                             className: 'vehicle-marker offline',
                             html: `
                                 <div class="vehicle-marker offline"></div>
-                                <div class="vehicle-label">${displayName}</div>
+                                <div class="vehicle-label">${mobileId}</div>
                             `,
                             iconSize: [32, 42],
                             iconAnchor: [16, 16],
@@ -1157,7 +1149,7 @@
                         markers[mobileId]
                             .setIcon(icon)
                             .setLatLng(INACTIVE_COORDS)
-                            .setPopupContent(`<b>${displayName}</b><br>Desconectado<br>Última actualización: ${new Date(lastUpdate).toLocaleTimeString()}`);
+                            .setPopupContent(`<b>${mobileId}</b><br>Desconectado<br>Última actualización: ${new Date(lastUpdate).toLocaleTimeString()}`);
                     }
                 }
             });
@@ -1166,13 +1158,11 @@
         function createMarker(mobileId, coords, isOnline) {
             if (markers[mobileId]) return;
             
-            const displayName = (mobileId === currentUserId && vehicleNumber) ? vehicleNumber : mobileId;
-            
             const container = L.divIcon({
                 className: 'vehicle-marker-container',
                 html: `
                     <div class="vehicle-marker ${isOnline ? 'online' : 'offline'}"></div>
-                    <div class="vehicle-label">${displayName}</div>
+                    <div class="vehicle-label">${mobileId}</div>
                 `,
                 iconSize: [32, 42],
                 iconAnchor: [16, 16],
@@ -1181,14 +1171,12 @@
 
             markers[mobileId] = L.marker(coords, { 
                 icon: container,
-                title: displayName
+                title: mobileId
             }).addTo(map)
-            .bindPopup(`<b>${displayName}</b><br>${isOnline ? 'En ruta' : 'Desconectado'}`);
+            .bindPopup(`<b>${mobileId}</b><br>${isOnline ? 'En ruta' : 'Desconectado'}`);
         }
         
         function updateMarker(mobileId, coords, isOnline) {
-            const displayName = (mobileId === currentUserId && vehicleNumber) ? vehicleNumber : mobileId;
-            
             if (!markers[mobileId]) {
                 createMarker(mobileId, coords, isOnline);
             } else {
@@ -1196,17 +1184,17 @@
                     className: 'vehicle-marker-container',
                     html: `
                         <div class="vehicle-marker ${isOnline ? 'online' : 'offline'}"></div>
-                        <div class="vehicle-label">${displayName}</div>
+                        <div class="vehicle-label">${mobileId}</div>
                     `,
                     iconSize: [32, 42],
-                    iconAnchor: [极市16, 16],
+                    iconAnchor: [16, 16],
                     popupAnchor: [0, -16]
                 });
 
                 markers[mobileId]
                     .setLatLng(coords)
                     .setIcon(container)
-                    .setPopupContent(`<b>${displayName}</b><br>${isOnline ? 'En ruta' : 'Desconectado'}<br>Última actualización: ${new Date().toLocaleTimeString()}`);
+                    .setPopupContent(`<b>${mobileId}</b><br>${isOnline ? 'En ruta' : 'Desconectado'}<br>Última actualización: ${new Date().toLocaleTimeString()}`);
             }
         }
         
