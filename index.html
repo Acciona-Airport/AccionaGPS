@@ -737,9 +737,9 @@
                 vehicleNames[currentUserId] = auth.vehicleNumber;
                 localStorage.setItem('vehicleNames', JSON.stringify(vehicleNames));
             }
-            
-            document.getElementById('current-user-name').textContent = 
-                vehicleNames[currentUserId] || currentUserId;
+
+            const displayName = (currentUserId === 'Funcionarios') ? 'Yo' : (vehicleNames[currentUserId] || currentUserId);
+            document.getElementById('current-user-name').textContent = displayName;
             
             if (isViewer) {
                 document.getElementById('other-vehicles-container').style.display = 'block';
