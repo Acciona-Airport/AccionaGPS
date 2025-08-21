@@ -25,12 +25,10 @@
             --route1-color: #e74c3c;
             --route2-color: #9b59b6;
         }
-
         * {
             -webkit-tap-highlight-color: transparent;
             touch-action: manipulation;
         }
-
         body {
             margin: 0;
             padding: 0;
@@ -39,7 +37,6 @@
             background-color: #2c3e50;
             touch-action: pan-x pan-y;
         }
-
         #map {
             position: absolute;
             top: 0;
@@ -48,7 +45,6 @@
             height: 100vh;
             z-index: 1;
         }
-
         .control-panel-container {
             position: fixed;
             top: 15px;
@@ -58,12 +54,11 @@
             overflow: hidden;
             pointer-events: none;
         }
-
         .control-panel {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255,255,255,0.95);
             padding: 15px;
             border-radius: 12px 0 0 12px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             width: 280px;
             transform: translateX(100%);
             transition: transform 0.3s ease;
@@ -75,12 +70,10 @@
             -webkit-overflow-scrolling: touch;
             pointer-events: auto;
         }
-
         .control-panel.visible {
             transform: translateX(0);
             right: 0;
         }
-
         .toggle-panel {
             background: var(--white);
             border: 1px solid var(--red-light);
@@ -91,73 +84,56 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: -3px 0 5px rgba(0, 0, 0, 0.1);
+            box-shadow: -3px 0 5px rgba(0,0,0,0.1);
             margin-left: 5px;
             flex-shrink: 0;
             pointer-events: auto;
         }
-
         .toggle-panel:hover {
             background: var(--red-light);
         }
-
         .hamburger-icon {
             display: flex;
             flex-direction: column;
             gap: 4px;
             width: 20px;
         }
-
         .hamburger-line {
             height: 2px;
             background-color: var(--red-dark);
             transition: all 0.3s ease;
         }
-
         .control-panel.visible ~ .toggle-panel .hamburger-line:nth-child(1) {
             transform: translateY(6px) rotate(45deg);
         }
-
         .control-panel.visible ~ .toggle-panel .hamburger-line:nth-child(2) {
             opacity: 0;
         }
-
         .control-panel.visible ~ .toggle-panel .hamburger-line:nth-child(3) {
             transform: translateY(-6px) rotate(-45deg);
         }
-
         .vehicle-card {
             margin-bottom: 12px;
             padding-bottom: 12px;
             border-bottom: 1px solid var(--red-light);
         }
-
         .vehicle-card:last-child {
             border-bottom: none;
         }
-
         .vehicle-name {
             font-weight: 600;
             color: var(--red-dark);
             display: flex;
             align-items: center;
         }
-
         .vehicle-status {
             display: flex;
             justify-content: space-between;
             font-size: 14px;
             margin-top: 5px;
         }
-
-        .online {
-            color: var(--online-color);
-        }
-
-        .offline {
-            color: var(--offline-color);
-        }
-
+        .online { color: var(--online-color); }
+        .offline { color: var(--offline-color); }
         .logout-btn {
             background: var(--red-primary);
             color: white;
@@ -170,15 +146,13 @@
             margin-top: 15px;
             transition: background 0.3s;
         }
-
         .logout-btn:hover {
             background: var(--red-dark);
         }
-
         .diagnostic-panel-container {
             display: none;
         }
-
+        /* Icono de usuario (persona) */
         .user-icon {
             background-size: 70%;
             background-repeat: no-repeat;
@@ -187,20 +161,18 @@
             height: 32px;
             border-radius: 50%;
             border: 2px solid white;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
             margin-right: 8px;
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>');
         }
-
         .user-icon.online {
             background-color: var(--online-color);
         }
-
         .user-icon.offline {
             background-color: var(--offline-color);
             opacity: 0.7;
         }
-
+        /* Icono de vehículo (coche) */
         .vehicle-icon {
             background-size: 70%;
             background-repeat: no-repeat;
@@ -209,21 +181,18 @@
             height: 32px;
             border-radius: 50%;
             border: 2px solid white;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
             margin-right: 8px;
         }
-
         .vehicle-icon.online {
             background-color: var(--online-color);
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5v-5h14v5z"/><circle cx="7.5" cy="14.5" r="1.5"/><circle cx="16.5" cy="14.5" r="1.5"/></svg>');
         }
-
         .vehicle-icon.offline {
             background-color: var(--offline-color);
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5v-5h14v5z"/><circle cx="7.5" cy="14.5" r="1.5"/><circle cx="16.5" cy="14.5" r="1.5"/></svg>');
             opacity: 0.7;
         }
-
         .vehicle-marker {
             background-size: 70%;
             background-repeat: no-repeat;
@@ -232,20 +201,17 @@
             height: 32px;
             border-radius: 50%;
             border: 2px solid white;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
         }
-
         .vehicle-marker.online {
             background-color: #27ae60;
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5v-5h14v5z"/><circle cx="7.5" cy="14.5" r="1.5"/><circle cx="16.5" cy="14.5" r="1.5"/></svg>');
         }
-
         .vehicle-marker.offline {
             background-color: #95a5a6;
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5v-5h14v5z"/><circle cx="7.5" cy="14.5" r="1.5"/><circle cx="16.5" cy="14.5" r="1.5"/></svg>');
             opacity: 0.7;
         }
-
         .vehicle-label {
             position: absolute;
             bottom: -10px;
@@ -258,7 +224,6 @@
             text-shadow: 0 0 3px white;
             pointer-events: none;
         }
-
         .refresh-container {
             position: fixed;
             bottom: 20px;
@@ -269,7 +234,6 @@
             z-index: 1000;
             pointer-events: none;
         }
-
         .refresh-btn {
             background: var(--red-primary);
             color: white;
@@ -281,40 +245,29 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             transition: background 0.3s, transform 0.2s;
             pointer-events: auto;
         }
-
         .refresh-btn:hover {
             background: var(--red-dark);
             transform: translateY(-2px);
         }
-
         .refresh-btn:active {
             transform: translateY(0);
         }
-
         .refresh-icon {
             width: 16px;
             height: 16px;
             transition: transform 0.5s;
         }
-
         .refresh-btn.loading .refresh-icon {
             animation: spin 1s linear infinite;
         }
-
         @keyframes spin {
-            from {
-                transform: rotate(0deg);
-            }
-
-            to {
-                transform: rotate(360deg);
-            }
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
-
         .map-provider-selector {
             position: fixed;
             bottom: 70px;
@@ -323,16 +276,14 @@
             background: rgba(255, 255, 255, 0.9);
             padding: 10px;
             border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
             font-size: 12px;
         }
-
         .map-provider-selector select {
             padding: 5px;
             border-radius: 3px;
             border: 1px solid #ccc;
         }
-
         .status-notification {
             position: fixed;
             top: 10px;
@@ -346,7 +297,6 @@
             display: none;
             font-size: 14px;
         }
-
         .current-user-indicator {
             position: fixed;
             top: 10px;
@@ -355,12 +305,11 @@
             background: rgba(255, 255, 255, 0.9);
             padding: 10px 15px;
             border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
             font-size: 14px;
             font-weight: bold;
             color: var(--red-dark);
         }
-
         .pulse-circle {
             border-radius: 50%;
             background-color: var(--user-position-color);
@@ -372,24 +321,11 @@
             opacity: 0.6;
             animation: pulse 2s infinite;
         }
-
         @keyframes pulse {
-            0% {
-                transform: scale(0.8);
-                opacity: 0.6;
-            }
-
-            70% {
-                transform: scale(2.5);
-                opacity: 0;
-            }
-
-            100% {
-                transform: scale(0.8);
-                opacity: 0;
-            }
+            0% { transform: scale(0.8); opacity: 0.6; }
+            70% { transform: scale(2.5); opacity: 0; }
+            100% { transform: scale(0.8); opacity: 0; }
         }
-
         .emergency-locate-btn {
             position: fixed;
             bottom: 20px;
@@ -403,34 +339,29 @@
             border-radius: 50%;
             cursor: pointer;
             font-weight: bold;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 24px;
         }
-
         .accuracy-circle {
             fill: rgba(52, 152, 219, 0.2);
             stroke: rgba(52, 152, 219, 0.5);
             stroke-width: 1;
         }
-
         .leaflet-control-zoom {
             margin-top: 80px !important;
         }
-
         .leaflet-bar a {
             width: 40px !important;
             height: 40px !important;
             line-height: 40px !important;
             font-size: 24px !important;
         }
-
         .leaflet-container {
             touch-action: manipulation;
         }
-
         .map-touch-overlay {
             position: absolute;
             top: 0;
@@ -440,11 +371,9 @@
             z-index: 999;
             display: none;
         }
-
         .control-panel.visible ~ .map-touch-overlay {
             display: block;
         }
-
         .route-selector {
             position: fixed;
             top: 70px;
@@ -453,10 +382,9 @@
             background: rgba(255, 255, 255, 0.9);
             padding: 10px;
             border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
             font-size: 12px;
         }
-
         .route-selector select {
             padding: 5px;
             border-radius: 3px;
@@ -464,28 +392,27 @@
             margin-top: 5px;
             width: 100%;
         }
-
+        
         .leaflet-bottom.leaflet-right {
             bottom: 160px;
         }
-
         .leaflet-control-attribution {
             display: none !important;
         }
-
+        
+        /* Modal para número de vehículo */
         .vehicle-number-modal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0,0,0,0.8);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 2000;
         }
-
         .vehicle-number-form {
             background: white;
             padding: 30px;
@@ -493,14 +420,12 @@
             width: 90%;
             max-width: 400px;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
-
         .vehicle-number-form h2 {
             color: var(--red-dark);
             margin-bottom: 20px;
         }
-
         .vehicle-number-input {
             width: 100%;
             padding: 15px;
@@ -510,13 +435,11 @@
             font-size: 18px;
             text-align: center;
         }
-
         .vehicle-number-input:focus {
             border-color: var(--red-primary);
             outline: none;
             box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.2);
         }
-
         .vehicle-number-submit {
             background: var(--red-primary);
             color: white;
@@ -528,88 +451,19 @@
             font-weight: 600;
             transition: all 0.3s;
         }
-
         .vehicle-number-submit:hover {
             background: var(--red-dark);
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(211, 47, 47, 0.3);
         }
-        
-        #adminPanel {
-            background: var(--gray-light);
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 15px;
-        }
-
-        #adminPanel h4 {
-            color: var(--blue-dark);
-            margin-top: 0;
-            margin-bottom: 10px;
-            font-size: 1.1em;
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 5px;
-        }
-        
-        #adminPanel p {
-            margin: 5px 0;
-            font-size: 0.9em;
-        }
-
-        .metric-card {
-            background: #fff;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .metric-title {
-            font-weight: 600;
-            color: var(--blue-dark);
-            margin-bottom: 5px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 5px;
-        }
-
-        .metric-card ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .metric-card li {
-            margin-top: 5px;
-            font-size: 0.9em;
-            color: #555;
-        }
-
-        .metric-card li.highlight {
-            font-weight: bold;
-            color: var(--online-color);
-        }
-
-        #vehicles-list li {
-            list-style: none;
-            padding: 10px 0;
-            border-bottom: 1px solid #eee;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        #vehicles-list li:hover {
-            background-color: #f0f0f0;
-        }
-        
     </style>
 </head>
-
 <body>
     <div id="map"></div>
     <div class="map-touch-overlay" id="mapTouchOverlay"></div>
-
+    
     <div class="status-notification" id="statusNotification"></div>
-
+    
     <div class="current-user-indicator" id="currentUserIndicator">
         <span id="locationStatus">Buscando tu ubicación...</span>
     </div>
@@ -617,36 +471,31 @@
     <div class="diagnostic-panel-container">
         <div class="diagnostic-panel" id="diagnosticPanel">
             <h3 style="margin-top:0;color:var(--blue-dark);">📊 Diagnóstico GPS</h3>
-
+            
             <div class="diagnostic-info">
                 <div class="diagnostic-item">
                     <span>Estado GPS:</span>
                     <span id="gpsStatus" class="diagnostic-value warning">Comprobando...</span>
                 </div>
                 <div class="diagnostic-item">
-
                     <span>Precisión:</span>
                     <span id="accuracyValue" class="diagnostic-value">--</span>
                 </div>
                 <div class="diagnostic-item">
                     <span>Última actualización:</span>
-
                     <span id="lastUpdateValue" class="diagnostic-value">--</span>
                 </div>
                 <div class="diagnostic-item">
                     <span>Método:</span>
                     <span id="methodValue" class="diagnostic-value">--</span>
-
                 </div>
             </div>
-
-            <button id="forceLocationBtn" style="margin-top: 15px;
-width: 100%; padding: 8px; background: var(--blue-primary); color: white; border: none; border-radius: 6px; cursor: pointer;
-font-weight: 600;">
+            
+            <button id="forceLocationBtn" style="margin-top: 15px; width: 100%; padding: 8px; background: var(--blue-primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
                 Forzar Ubicación
             </button>
         </div>
-
+        
         <button class="toggle-diagnostic-panel" id="toggleDiagnosticPanel">
             <div class="diagnostic-hamburger-icon">
                 <div class="diagnostic-hamburger-line"></div>
@@ -670,8 +519,8 @@ font-weight: 600;">
     <div class="control-panel-container">
         <div class="control-panel" id="controlPanel">
             <h3 style="margin-top:0;color:var(--red-dark);">🚗 Flota Acciona</h3>
-
-            <div id="user-info-panel" class="vehicle-card">
+            
+            <div class="vehicle-card">
                 <div class="vehicle-name">
                     <div id="current-user-icon" class="user-icon offline"></div>
                     <span id="current-user-name">Mi Ubicación</span>
@@ -685,35 +534,58 @@ font-weight: 600;">
                     <span id="current-user-coords">--</span>
                 </div>
             </div>
-
-            <div id="adminPanel" style="display: none;">
-                <h4>Dashboard de Administrador</h4>
-                <div class="metric-card">
-                    <span class="metric-title">Vueltas por Equipo</span>
-                    <ul id="lapCountList"></ul>
+            
+            <div id="other-vehicles-container" style="display: none;">
+                <h4 style="margin: 15px 0 10px 0; color: var(--red-dark);">Carruseles:</h4>
+                
+                <div class="vehicle-card">
+                    <div class="vehicle-name">
+                        <div id="movil1-icon" class="vehicle-icon offline"></div>
+                        <span id="movil1-name">Móvil 1</span>
+                    </div>
+                    <div class="vehicle-status">
+                        <span>Estado:</span>
+                        <span id="movil1-status" class="offline">Desconectado</span>
+                    </div>
                 </div>
-                <div class="metric-card">
-                    <span class="metric-title">Métricas Adicionales</span>
-                    <div id="additionalMetrics">
-                        <p><strong>Vueltas totales hoy:</strong> <span id="totalLapsToday">0</span></p>
-                        <p><strong>Tramos horarios:</strong></p>
-                        <ul>
-                            <li id="shift1-laps">13:00 - 22:00: 0 vueltas</li>
-                            <li id="shift2-laps">22:00 - 06:00: 0 vueltas</li>
-                            <li id="shift3-laps">06:00 - 13:00: 0 vueltas</li>
-                        </ul>
+                
+                <div class="vehicle-card">
+                    <div class="vehicle-name">
+                        <div id="movil2-icon" class="vehicle-icon offline"></div>
+                        <span id="movil2-name">Móvil 2</span>
+                    </div>
+                    <div class="vehicle-status">
+                        <span>Estado:</span>
+                        <span id="movil2-status" class="offline">Desconectado</span>
+                    </div>
+                </div>
+                
+                <div class="vehicle-card">
+                    <div class="vehicle-name">
+                        <div id="movil3-icon" class="vehicle-icon offline"></div>
+                        <span id="movil3-name">Móvil 3</span>
+                    </div>
+                    <div class="vehicle-status">
+                        <span>Estado:</span>
+                        <span id="movil3-status" class="offline">Desconectado</span>
+                    </div>
+                </div>
+                
+                <div class="vehicle-card">
+                    <div class="vehicle-name">
+                        <div id="movil4-icon" class="vehicle-icon offline"></div>
+                        <span id="movil4-name">Móvil 4</span>
+                    </div>
+                    <div class="vehicle-status">
+                        <span>Estado:</span>
+                        <span id="movil4-status" class="offline">Desconectado</span>
                     </div>
                 </div>
             </div>
-
-            <div id="other-vehicles-container" style="display: none;">
-                <h4 style="margin: 15px 0 10px 0; color: var(--red-dark);">Carruseles:</h4>
-                <ul id="vehicles-list"></ul>
-            </div>
-
+            
             <button class="logout-btn" id="logoutBtn">Cerrar Sesión</button>
         </div>
-
+        
         <button class="toggle-panel" id="togglePanel">
             <div class="hamburger-icon">
                 <div class="hamburger-line"></div>
@@ -726,7 +598,7 @@ font-weight: 600;">
     <div class="refresh-container">
         <button class="refresh-btn" id="refreshBtn">
             <svg class="refresh-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
-                <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" />
+                <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
             </svg>
             Actualizar
         </button>
@@ -753,6 +625,7 @@ font-weight: 600;">
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyDT85qotm1EpAJzJzCFeoNwGyo-VKhM6dk",
@@ -763,8 +636,10 @@ font-weight: 600;">
             messagingSenderId: "742246618721",
             appId: "1:742246618721:web:72d0046987416800f07c20"
         };
+
         const app = firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
+
         const SCL_COORDS = [-33.3931, -70.7858];
         const INACTIVE_COORDS = [-33.409995, -70.788647];
         const ZOOM_INICIAL = 14;
@@ -787,26 +662,7 @@ font-weight: 600;">
         let viewerUpdateInterval = null;
         let currentRouteLayer = null;
         let vehicleNames = {};
-
-        const CHECKPOINT_COORDS = [-33.409455, -70.789421];
-        const MIN_LAP_DISTANCE_METERS = 5000;
-        const PROXIMITY_RADIUS_METERS = 50;
-        const vehicleLapStates = {};
-        const SHIFTS = {
-            'shift1': {
-                start: 13,
-                end: 22
-            },
-            'shift2': {
-                start: 22,
-                end: 6
-            },
-            'shift3': {
-                start: 6,
-                end: 13
-            }
-        };
-
+        
         const route1Coordinates = [
             [-33.4095444, -70.7893019],
             [-33.4092635, -70.7895518],
@@ -875,499 +731,661 @@ font-weight: 600;">
             } else {
                 const auth = JSON.parse(localStorage.getItem('gpsAuth'));
                 if (!auth) window.location.href = 'login.html';
+                
                 currentUserId = auth.username;
                 isViewer = auth.isViewer;
-                const isAdmin = auth.isAdmin;
+                
                 const savedVehicleNames = localStorage.getItem('vehicleNames');
                 if (savedVehicleNames) {
                     vehicleNames = JSON.parse(savedVehicleNames);
                 }
+                
                 initMap();
-                setupUI(isAdmin);
-                if (!isViewer && !isAdmin && !auth.vehicleNumber) {
+                setupUI();
+                
+                if (!isViewer && !auth.vehicleNumber) {
                     document.getElementById('vehicleNumberModal').style.display = 'flex';
                 } else {
                     document.getElementById('vehicleNumberModal').style.display = 'none';
-                    setupAfterVehicleNumber(isAdmin);
+                    setupAfterVehicleNumber();
                 }
             }
         });
 
-        function setupAfterVehicleNumber(isAdmin) {
+        function setupAfterVehicleNumber() {
             const auth = JSON.parse(localStorage.getItem('gpsAuth'));
             if (auth.vehicleNumber) {
                 vehicleNames[currentUserId] = auth.vehicleNumber;
                 localStorage.setItem('vehicleNames', JSON.stringify(vehicleNames));
             }
+
             const displayName = (currentUserId === 'Funcionarios') ? 'Yo' : (vehicleNames[currentUserId] || currentUserId);
             document.getElementById('current-user-name').textContent = displayName;
-
-            if (isAdmin) {
-                document.getElementById('adminPanel').style.display = 'block';
+            
+            if (isViewer) {
                 document.getElementById('other-vehicles-container').style.display = 'block';
-                document.getElementById('user-info-panel').style.display = 'none';
-                document.getElementById('currentUserIndicator').style.display = 'none';
-                updateVehicleNamesInUI();
-                initializeAllMarkers();
-                startMonitoring(true);
-                database.ref('laps').on('value', (snapshot) => {
-                    const lapData = snapshot.val() || {};
-                    updateAdminDashboard(lapData);
-                });
-            } else if (isViewer) {
-                document.getElementById('other-vehicles-container').style.display = 'block';
-                document.getElementById('user-info-panel').style.display = 'none';
-                document.getElementById('currentUserIndicator').style.display = 'none';
                 updateVehicleNamesInUI();
                 initializeAllMarkers();
                 startMonitoring();
             } else {
                 initializeCurrentUserMarker();
                 startGPSTracking(currentUserId);
-                startMonitoring();
             }
         }
-
-        function updateAdminDashboard(lapData) {
-            const today = new Date().toISOString().slice(0, 10);
-            const todayData = lapData[today] || {};
-            const lapCountList = document.getElementById('lapCountList');
-            const totalLapsTodaySpan = document.getElementById('totalLapsToday');
-
-            lapCountList.innerHTML = '';
-
-            const allTeamsLaps = {};
-            let totalLaps = 0;
-            const shiftLaps = {
-                'shift1': 0,
-                'shift2': 0,
-                'shift3': 0
-            };
-
-            Object.entries(todayData).forEach(([shift, shiftData]) => {
-                Object.entries(shiftData).forEach(([team, laps]) => {
-                    allTeamsLaps[team] = (allTeamsLaps[team] || 0) + laps;
-                    shiftLaps[shift] += laps;
-                    totalLaps += laps;
-                });
-            });
-
-            if (Object.keys(allTeamsLaps).length > 0) {
-                Object.entries(allTeamsLaps).forEach(([team, laps]) => {
-                    const li = document.createElement('li');
-                    li.textContent = `Vueltas del equipo ${team}: ${laps}`;
-                    lapCountList.appendChild(li);
-                });
-            } else {
-                lapCountList.textContent = 'No hay vueltas registradas hoy.';
-            }
-
-            totalLapsTodaySpan.textContent = totalLaps;
-            document.getElementById('shift1-laps').textContent = `13:00 - 22:00: ${shiftLaps.shift1} vueltas`;
-            document.getElementById('shift2-laps').textContent = `22:00 - 06:00: ${shiftLaps.shift2} vueltas`;
-            document.getElementById('shift3-laps').textContent = `06:00 - 13:00: ${shiftLaps.shift3} vueltas`;
-        }
-
-        function getDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371e3;
-            const φ1 = lat1 * Math.PI / 180;
-            const φ2 = lat2 * Math.PI / 180;
-            const Δφ = (lat2 - lat1) * Math.PI / 180;
-            const Δλ = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-                Math.cos(φ1) * Math.cos(φ2) *
-                Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            return R * c;
-        }
-
-        function getCurrentShift() {
-            const now = new Date();
-            const hour = now.getHours();
-            if (hour >= 13 && hour < 22) return 'shift1';
-            if (hour >= 22 || hour < 6) return 'shift2';
-            return 'shift3';
-        }
-
-        function incrementLapCount(vehicleId, currentCoords) {
-            const today = new Date().toISOString().slice(0, 10);
-            const currentShift = getCurrentShift();
-            const lapsRef = database.ref(`laps/${today}/${currentShift}/${vehicleId}`);
-            const lapState = vehicleLapStates[vehicleId] || {};
-            const lastLapCoords = lapState.lastLapCoords;
-
-            if (lastLapCoords) {
-                const distanceSinceLastLap = getDistance(lastLapCoords[0], lastLapCoords[1], currentCoords[0], currentCoords[1]);
-                if (distanceSinceLastLap < MIN_LAP_DISTANCE_METERS) {
-                    return;
-                }
-            }
-            lapsRef.transaction(currentLaps => (currentLaps || 0) + 1);
-            vehicleLapStates[vehicleId].lastLapCoords = currentCoords;
-        }
-
-        function checkAndCountLap(vehicleId, currentCoords) {
-            if (!vehicleLapStates[vehicleId]) {
-                vehicleLapStates[vehicleId] = {
-                    isNearCheckpoint: false,
-                    lastLapCoords: currentCoords
-                };
-            }
-            const distance = getDistance(currentCoords[0], currentCoords[1], CHECKPOINT_COORDS[0], CHECKPOINT_COORDS[1]);
-            const isNowNear = distance <= PROXIMITY_RADIUS_METERS;
-
-            if (isNowNear && !vehicleLapStates[vehicleId].isNearCheckpoint) {
-                incrementLapCount(vehicleId, currentCoords);
-            }
-            vehicleLapStates[vehicleId].isNearCheckpoint = isNowNear;
-        }
-
-        function initMap() {
-            if (map) return;
-            map = L.map('map').setView(SCL_COORDS, ZOOM_INICIAL);
-            changeMapProvider('esri');
-        }
-
-        function changeMapProvider(provider) {
-            if (currentTileLayer) {
-                map.removeLayer(currentTileLayer);
-            }
-            const providerInfo = mapProviders[provider];
-            currentTileLayer = L.tileLayer(providerInfo.url, {
-                attribution: providerInfo.attribution,
-                maxZoom: providerInfo.maxZoom
-            }).addTo(map);
-        }
-
-        function setupUI(isAdmin) {
-            const togglePanelBtn = document.getElementById('togglePanel');
-            const controlPanel = document.getElementById('controlPanel');
-            const mapTouchOverlay = document.getElementById('mapTouchOverlay');
-            const refreshBtn = document.getElementById('refreshBtn');
-            const mapProviderSelect = document.getElementById('mapProvider');
-            const emergencyLocateBtn = document.getElementById('emergencyLocateBtn');
-
-            togglePanelBtn.addEventListener('click', () => {
-                controlPanel.classList.toggle('visible');
-            });
-
-            mapTouchOverlay.addEventListener('click', () => {
-                controlPanel.classList.remove('visible');
-            });
-
-            refreshBtn.addEventListener('click', refreshData);
-
-            mapProviderSelect.addEventListener('change', (e) => {
-                changeMapProvider(e.target.value);
-            });
-
-            emergencyLocateBtn.addEventListener('click', () => {
-                if (userPositionMarker) {
-                    map.flyTo(userPositionMarker.getLatLng(), 18);
-                } else {
-                    showStatusNotification('Buscando tu ubicación, por favor espera...', 3000);
-                }
-            });
-
-            if (isAdmin) {
-                document.getElementById('other-vehicles-container').style.display = 'block';
-            }
-        }
-
-        function showStatusNotification(message, duration = 3000) {
-            const notification = document.getElementById('statusNotification');
-            notification.textContent = message;
-            notification.style.display = 'block';
-            setTimeout(() => {
-                notification.style.display = 'none';
-            }, duration);
-        }
-
-        function refreshData() {
-            const refreshBtn = document.getElementById('refreshBtn');
-            refreshBtn.classList.add('loading');
-            showStatusNotification('Actualizando datos...', 1500);
-
-            if (isViewer) {
-                startMonitoring();
-            } else {
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(
-                        (position) => {
-                            updateMyPosition(position);
-                            updateVehicles();
-                        },
-                        (error) => {
-                            console.error("Error al obtener la ubicación:", error);
-                            showStatusNotification('Error de ubicación. Intenta de nuevo.', 3000);
-                        }, {
-                            enableHighAccuracy: true,
-                            maximumAge: 0,
-                            timeout: 5000
-                        }
-                    );
-                } else {
-                    showStatusNotification('Geolocalización no es soportada.', 3000);
-                }
-            }
-
-            setTimeout(() => {
-                refreshBtn.classList.remove('loading');
-            }, 1000);
-        }
-
-        function updateMyPosition(position) {
-            const coords = position.coords;
-            const timestamp = position.timestamp;
-            const speed = coords.speed ? (coords.speed * 3.6).toFixed(2) : 0;
-            const newCoords = L.latLng(coords.latitude, coords.longitude);
-
-            if (!userPositionMarker) {
-                userPositionMarker = L.marker(newCoords, {
-                    icon: L.divIcon({
-                        className: 'user-marker',
-                        html: `<div style="position: relative;"><div class="pulse-circle"></div><div class="user-icon online"></div></div>`,
-                        iconSize: [20, 20],
-                    })
-                }).addTo(map);
-
-                userAccuracyCircle = L.circle(newCoords, {
-                    radius: coords.accuracy,
-                    className: 'accuracy-circle'
-                }).addTo(map);
-            } else {
-                userPositionMarker.setLatLng(newCoords);
-                userAccuracyCircle.setLatLng(newCoords).setRadius(coords.accuracy);
-            }
-
-            lastKnownPosition = newCoords;
-
-            document.getElementById('locationStatus').textContent = `Velocidad: ${speed} km/h`;
-            document.getElementById('current-user-status').textContent = 'En ruta';
-            document.getElementById('current-user-status').className = 'online';
-            document.getElementById('current-user-coords').textContent = `${newCoords.lat.toFixed(6)}, ${newCoords.lng.toFixed(6)}`;
-
-            const myVehicleRef = database.ref('vehicles/' + currentUserId);
-            myVehicleRef.update({
-                coords: {
-                    lat: coords.latitude,
-                    lon: coords.longitude
-                },
-                timestamp: firebase.database.ServerValue.TIMESTAMP,
-                speed: parseFloat(speed),
-                status: 'online'
-            });
-
-            checkAndCountLap(currentUserId, [coords.latitude, coords.longitude]);
-        }
-
-        function initializeCurrentUserMarker() {
-            document.getElementById('current-user-icon').classList.remove('offline');
-            document.getElementById('current-user-icon').classList.add('online');
-            document.getElementById('current-user-status').textContent = 'En ruta';
-            document.getElementById('current-user-status').className = 'online';
-        }
-
-        function startGPSTracking() {
-            if ("geolocation" in navigator) {
-                backgroundGeolocationWatchId = navigator.geolocation.watchPosition(
-                    updateMyPosition,
-                    (error) => {
-                        console.error("Error al obtener la ubicación:", error);
-                        showStatusNotification(`Error: ${error.message}`, 5000);
-                        document.getElementById('locationStatus').textContent = `Error de GPS: ${error.message}`;
-                        document.getElementById('current-user-status').textContent = 'Desconectado';
-                        document.getElementById('current-user-status').className = 'offline';
-                        const myVehicleRef = database.ref('vehicles/' + currentUserId);
-                        myVehicleRef.update({
-                            status: 'offline'
-                        });
-                    }, {
-                        enableHighAccuracy: true,
-                        maximumAge: 3000,
-                        timeout: 5000
-                    }
-                );
-            } else {
-                alert("Geolocalización no es soportada por este navegador.");
-            }
-        }
-
-        function initializeAllMarkers() {
-            const otherVehiclesContainer = document.getElementById('other-vehicles-container');
-            const vehiclesList = document.getElementById('vehicles-list');
-            vehiclesList.innerHTML = '';
-            for (let i = 1; i <= 4; i++) {
-                const vehicleId = `movil${i}`;
-                const li = document.createElement('li');
-                li.id = vehicleId;
-                li.className = 'vehicle-card';
-                li.innerHTML = `
-                    <div class="vehicle-name">
-                        <div id="movil${i}-icon" class="vehicle-icon offline"></div>
-                        <span id="movil${i}-name">Móvil ${i}</span>
-                    </div>
-                    <div class="vehicle-status">
-                        <span>Estado:</span>
-                        <span id="movil${i}-status" class="offline">Desconectado</span>
-                    </div>
-                    <div class="vehicle-status">
-                        <span>Velocidad:</span>
-                        <span id="movil${i}-speed">-- km/h</span>
-                    </div>
-                    <div class="vehicle-status">
-                        <span>Última vez:</span>
-                        <span id="movil${i}-last-update">--</span>
-                    </div>
-                `;
-                vehiclesList.appendChild(li);
-                li.addEventListener('click', () => {
-                    if (markers[vehicleId]) {
-                        map.flyTo(markers[vehicleId].getLatLng(), 18);
-                    }
-                });
-            }
-            otherVehiclesContainer.style.display = 'block';
-        }
-
-        function updateVehicles() {
-            const vehiclesRef = database.ref('vehicles');
-            vehiclesRef.once('value', snapshot => {
-                const vehicles = snapshot.val();
-                if (vehicles) {
-                    Object.keys(vehicles).forEach(id => {
-                        const vehicle = vehicles[id];
-                        if (id !== currentUserId) {
-                            updateVehicleMarker(id, vehicle);
-                        } else if (!isViewer) {
-                            updateMyVehicleUI(id, vehicle);
-                        }
-                    });
-                }
-            });
-        }
-
-        function updateMyVehicleUI(id, vehicle) {
-            document.getElementById('locationStatus').textContent = `Velocidad: ${vehicle.speed.toFixed(2)} km/h`;
-            document.getElementById('current-user-status').textContent = vehicle.status === 'online' ? 'En ruta' : 'Desconectado';
-            document.getElementById('current-user-status').className = vehicle.status;
-            document.getElementById('current-user-coords').textContent = `${vehicle.coords.lat.toFixed(6)}, ${vehicle.coords.lon.toFixed(6)}`;
-            document.getElementById('current-user-icon').className = `user-icon ${vehicle.status}`;
-        }
-
-        function updateVehicleMarker(id, vehicle) {
-            const vehicleDisplayName = vehicleNames[id] || `Móvil ${id.slice(-1)}`;
-            const vehicleId = `movil${id.slice(-1)}`;
-
-            if (!markers[id]) {
-                markers[id] = L.marker([0, 0], {
-                    icon: L.divIcon({
-                        className: `vehicle-marker ${vehicle.status}`,
-                        html: `<div class="vehicle-marker ${vehicle.status}"><div class="vehicle-label">${vehicleDisplayName}</div></div>`,
-                        iconSize: [32, 32],
-                        iconAnchor: [16, 16],
-                    })
-                }).addTo(map);
-            }
-
-            if (vehicle.coords) {
-                const newCoords = [vehicle.coords.lat, vehicle.coords.lon];
-                markers[id].setLatLng(newCoords);
-                markers[id].getIcon().options.html = `<div class="vehicle-marker ${vehicle.status}"><div class="vehicle-label">${vehicleDisplayName}</div></div>`;
-                markers[id].getIcon()._updateImg();
-            }
-
-            const now = Date.now();
-            const lastUpdate = vehicle.timestamp;
-            const isOnline = (now - lastUpdate) < TEN_MINUTES && vehicle.status === 'online';
-            const statusClass = isOnline ? 'online' : 'offline';
-            const statusText = isOnline ? 'En ruta' : 'Desconectado';
-            const speedText = vehicle.speed ? `${vehicle.speed.toFixed(2)} km/h` : '--';
-            const lastUpdateTime = lastUpdate ? new Date(lastUpdate).toLocaleTimeString() : '--';
-
-            const element = document.getElementById(`${vehicleId.toLowerCase()}-status`);
-            const iconElement = document.getElementById(`${vehicleId.toLowerCase()}-icon`);
-
-            if (element) {
-                element.textContent = statusText;
-                element.className = statusClass;
-            }
-
-            if (iconElement) {
-                iconElement.className = `vehicle-icon ${statusClass}`;
-            }
-
-            const speedElement = document.getElementById(`${vehicleId.toLowerCase()}-speed`);
-            if (speedElement) speedElement.textContent = speedText;
-
-            const lastUpdateElement = document.getElementById(`${vehicleId.toLowerCase()}-last-update`);
-            if (lastUpdateElement) lastUpdateElement.textContent = lastUpdateTime;
-        }
-
-        function startMonitoring(isAdmin = false) {
-            const vehiclesRef = database.ref('vehicles');
-            vehiclesRef.on('child_changed', snapshot => {
-                const vehicle = snapshot.val();
-                if (vehicle) {
-                    if (isAdmin) {
-                        checkAndCountLap(snapshot.key, [vehicle.coords.lat, vehicle.coords.lon]);
-                    }
-                    updateVehicleMarker(snapshot.key, vehicle);
-                    if (snapshot.key === currentUserId) {
-                        updateMyVehicleUI(snapshot.key, vehicle);
-                    }
-                }
-            });
-            vehiclesRef.on('child_added', snapshot => {
-                const vehicle = snapshot.val();
-                if (vehicle) {
-                    if (isAdmin) {
-                        checkAndCountLap(snapshot.key, [vehicle.coords.lat, vehicle.coords.lon]);
-                    }
-                    updateVehicleMarker(snapshot.key, vehicle);
-                    if (snapshot.key === currentUserId) {
-                        updateMyVehicleUI(snapshot.key, vehicle);
-                    }
-                }
-            });
-            vehiclesRef.on('child_removed', snapshot => {
-                const id = snapshot.key;
-                if (markers[id]) {
-                    map.removeLayer(markers[id]);
-                    delete markers[id];
-                }
-            });
-        }
-
+        
         function updateVehicleNamesInUI() {
             for (let i = 1; i <= 4; i++) {
                 const mobileId = 'Movil' + i;
                 const element = document.getElementById(`${mobileId.toLowerCase()}-name`);
-                if (element && vehicleNames[mobileId.toLowerCase()]) {
-                    element.textContent = vehicleNames[mobileId.toLowerCase()];
+                if (element && vehicleNames[mobileId]) {
+                    element.textContent = vehicleNames[mobileId];
                 }
             }
         }
-
-        document.getElementById('vehicleNumberSubmit').addEventListener('click', function() {
-            const vehicleNumber = document.getElementById('vehicleNumberInput').value.trim();
-            if (!vehicleNumber) {
-                alert('Por favor ingrese un número de vehículo');
-                return;
+        
+        function initMap() {
+            map = L.map('map', {
+                zoomControl: false,
+                tap: false,
+                dragging: true
+            }).setView(SCL_COORDS, ZOOM_INICIAL);
+            L.control.zoom({
+                position: 'bottomright'
+            }).addTo(map);
+            const savedProvider = localStorage.getItem('mapProvider') || 'esri';
+            document.getElementById('mapProvider').value = savedProvider;
+            setMapProvider(savedProvider);
+            L.marker(SCL_COORDS)
+                .addTo(map)
+                .bindPopup('✈️ Aeropuerto SCL')
+                .openPopup();
+            createUserPositionMarker(SCL_COORDS);
+            
+            if (L.Browser.touch) {
+                map.doubleClickZoom.disable();
             }
-            const auth = JSON.parse(localStorage.getItem('gpsAuth'));
-            auth.vehicleNumber = vehicleNumber;
-            localStorage.setItem('gpsAuth', JSON.stringify(auth));
-            document.getElementById('vehicleNumberModal').style.display = 'none';
-            setupAfterVehicleNumber(auth.isAdmin);
-        });
-
-        document.getElementById('vehicleNumberInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                document.getElementById('vehicleNumberSubmit').click();
+        }
+        
+        function setMapProvider(providerKey) {
+            if (currentTileLayer) {
+                map.removeLayer(currentTileLayer);
             }
-        });
+            
+            const provider = mapProviders[providerKey];
+            currentTileLayer = L.tileLayer(provider.url, {
+                attribution: provider.attribution,
+                maxZoom: provider.maxZoom
+            }).addTo(map);
+            localStorage.setItem('mapProvider', providerKey);
+        }
+        
+        function setupUI() {
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+            const panel = document.getElementById('controlPanel');
+            const toggleBtn = document.getElementById('togglePanel');
+            
+            toggleBtn.addEventListener('click', function() {
+                panel.classList.toggle('visible');
+            });
+            const refreshBtn = document.getElementById('refreshBtn');
+            refreshBtn.addEventListener('click', function() {
+                refreshBtn.classList.add('loading');
+                
+                if (isViewer) {
+                    fetchVehicleData();
+                }
+                
+                setTimeout(() => {
+                    const isPanelVisible = panel.classList.contains('visible');
+                    localStorage.setItem('panelState', isPanelVisible ? 'open' : 'closed');
+                    refreshBtn.classList.remove('loading');
+                }, 500);
+            });
+            document.getElementById('mapProvider').addEventListener('change', function(e) {
+                setMapProvider(e.target.value);
+            });
+            document.getElementById('routeSelector').addEventListener('change', function(e) {
+                showRoute(e.target.value);
+            });
+            document.getElementById('forceLocationBtn').addEventListener('click', function() {
+                forceLocationUpdate();
+            });
+            document.getElementById('emergencyLocateBtn').addEventListener('click', function() {
+                centerOnUserLocation();
+            });
+            
+            document.getElementById('vehicleNumberSubmit').addEventListener('click', function() {
+                const vehicleNumber = document.getElementById('vehicleNumberInput').value.trim();
+                
+                if (!vehicleNumber) {
+                    alert('Por favor ingrese un número de vehículo');
+                    return;
+                }
+                
+                const auth = JSON.parse(localStorage.getItem('gpsAuth'));
+                auth.vehicleNumber = vehicleNumber;
+                localStorage.setItem('gpsAuth', JSON.stringify(auth));
+                
+                document.getElementById('vehicleNumberModal').style.display = 'none';
+                setupAfterVehicleNumber();
+            });
+            
+            document.getElementById('vehicleNumberInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    document.getElementById('vehicleNumberSubmit').click();
+                }
+            });
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+            
+            if ('wakeLock' in navigator) {
+                document.addEventListener('visibilitychange', async () => {
+                    if (document.visibilityState === 'visible') {
+                        await requestWakeLock();
+                    }
+                });
+            }
+            
+            const mapTouchOverlay = document.getElementById('mapTouchOverlay');
+            mapTouchOverlay.addEventListener('click', function() {
+                panel.classList.remove('visible');
+            });
+        }
+        
+        function showRoute(routeId) {
+            if (currentRouteLayer) {
+                map.removeLayer(currentRouteLayer);
+                currentRouteLayer = null;
+            }
+            
+            if (routeId === 'none') return;
+            let coordinates;
+            let color;
+            
+            if (routeId === 'route1') {
+                coordinates = route1Coordinates;
+                color = '#e74c3c';
+            } else if (routeId === 'route2') {
+                coordinates = route2Coordinates;
+                color = '#9b59b6';
+            }
+            
+            currentRouteLayer = L.polyline(coordinates, {
+                color: color,
+                weight: 4,
+                opacity: 0.7,
+                smoothFactor: 1
+            }).addTo(map);
+            
+            const bounds = L.latLngBounds(coordinates);
+            map.fitBounds(bounds, { padding: [50, 50] });
+        }
+        
+        function handleVisibilityChange() {
+            const notification = document.getElementById('statusNotification');
+            if (document.visibilityState === 'visible') {
+                notification.textContent = 'Aplicación en primer plano';
+                notification.style.display = 'block';
+                setTimeout(() => { notification.style.display = 'none'; }, 3000);
+                if (!isViewer) {
+                    forceLocationUpdate();
+                }
+            } else {
+                notification.textContent = 'Aplicación en segundo plano - El GPS sigue activo';
+                notification.style.display = 'block';
+                setTimeout(() => { notification.style.display = 'none'; }, 3000);
+            }
+        }
+        
+        async function requestWakeLock() {
+            try {
+                if ('wakeLock' in navigator) {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    wakeLock.addEventListener('release', () => {
+                    });
+                }
+            } catch (err) {
+            }
+        }
+        
+        function initializeAllMarkers() {
+            const mobileIds = ['Movil1', 'Movil2', 'Movil3', 'Movil4'];
+            mobileIds.forEach(mobileId => {
+                createMarker(mobileId, INACTIVE_COORDS, false);
+                lastUpdateTimes[mobileId] = Date.now();
+            });
+        }
+        
+        function initializeCurrentUserMarker() {
+            createMarker(currentUserId, INACTIVE_COORDS, false);
+            lastUpdateTimes[currentUserId] = Date.now();
+        }
+        
+        function createUserPositionMarker(coords) {
+            if (userPositionMarker) {
+                map.removeLayer(userPositionMarker);
+            }
+            if (userAccuracyCircle) {
+                map.removeLayer(userAccuracyCircle);
+            }
+            
+            const userIcon = L.divIcon({
+                className: 'user-position-marker',
+                html: `
+                    <div style="background-color: #3498db; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.5);"></div>
+                    <div class="pulse-circle"></div>
+                `,
+                iconSize: [20, 20],
+                iconAnchor: [10, 10]
+            });
+            userPositionMarker = L.marker(coords, { icon: userIcon, zIndexOffset: 1000 })
+                .addTo(map)
+                .bindPopup('<b>Tu ubicación actual</b>');
+            map.setView(coords, 16);
+        }
+        
+        function updateUserPositionMarker(coords, accuracy) {
+            if (!userPositionMarker) {
+                createUserPositionMarker(coords);
+            } else {
+                userPositionMarker.setLatLng(coords);
+            }
+            
+            if (userAccuracyCircle) {
+                map.removeLayer(userAccuracyCircle);
+            }
+            
+            if (accuracy && accuracy < 1000) {
+                userAccuracyCircle = L.circle(coords, {
+                    radius: accuracy,
+                    className: 'accuracy-circle'
+                }).addTo(map);
+            }
+            
+            document.getElementById('current-user-coords').textContent = 
+                `${coords[0].toFixed(6)}, ${coords[1].toFixed(6)}`;
+            document.getElementById('accuracyValue').textContent = 
+                accuracy ? `${accuracy.toFixed(1)} metros` : 'Desconocida';
+            document.getElementById('lastUpdateValue').textContent = new Date().toLocaleTimeString();
+        }
+        
+        function startGPSTracking(mobileId) {
+            if (locationUpdateInterval) clearInterval(locationUpdateInterval);
+            
+            requestWakeLock();
+            
+            updatePosition(mobileId);
+            
+            locationUpdateInterval = setInterval(() => {
+                updatePosition(mobileId);
+            }, 60000);
+            setupBackgroundGeolocation(mobileId);
+            
+            setTimeout(() => updatePosition(mobileId), 2000);
+        }
+        
+        function setupBackgroundGeolocation(mobileId) {
+            if ('geolocation' in navigator) {
+                const geoOptions = {
+                    enableHighAccuracy: true,
+                    maximumAge: 10000,
+                    timeout: 10000
+                };
+                if (backgroundGeolocationWatchId !== null) {
+                    navigator.geolocation.clearWatch(backgroundGeolocationWatchId);
+                }
+                
+                backgroundGeolocationWatchId = navigator.geolocation.watchPosition(
+                    (position) => {
+                        const coords = [
+                            position.coords.latitude,
+                            position.coords.longitude
+                        ];
+                        const accuracy = position.coords.accuracy;
+                        
+                        updateDiagnostic('good', 'watchPosition', accuracy);
+                        savePosition(mobileId, coords, accuracy);
+                    },
+                    (error) => {
+                        updateDiagnostic('bad', `Error: ${getGeolocationErrorText(error)}`);
+                        updateStatus(mobileId, 'offline');
+                    },
+                    geoOptions
+                );
+            } else {
+                updateDiagnostic('bad', 'Geolocalización no soportada');
+            }
+        }
+        
+        function updatePosition(mobileId) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    position => {
+                        const coords = [
+                            position.coords.latitude,
+                            position.coords.longitude
+                        ];
+                        const accuracy = position.coords.accuracy;
+                        
+                        updateDiagnostic('good', 'getCurrentPosition', accuracy);
+                        savePosition(mobileId, coords, accuracy);
+                    },
+                    error => {
+                        navigator.geolocation.getCurrentPosition(
+                            position => {
+                                const coords = [
+                                    position.coords.latitude,
+                                    position.coords.longitude
+                                ];
+                                const accuracy = position.coords.accuracy;
+                                
+                                updateDiagnostic('warning', 'Método alternativo', accuracy);
+                                savePosition(mobileId, coords, accuracy);
+                            },
+                            error2 => {
+                                console.error('Error GPS con método alternativo:', error2);
+                                updateDiagnostic('bad', `Error: ${getGeolocationErrorText(error2)}`);
+                                updateStatus(mobileId, 'offline');
+                                
+                                if (lastKnownPosition) {
+                                    updateDiagnostic('warning', 'Usando última posición conocida');
+                                    savePosition(mobileId, lastKnownPosition, 1000);
+                                }
+                            },
+                            { 
+                                enableHighAccuracy: false,
+                                timeout: 15000,
+                                maximumAge: 300000
+                            }
+                        );
+                    },
+                    { 
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
+                    }
+                );
+            } else {
+                updateDiagnostic('bad', 'Geolocalización no soportada');
+                alert("Tu navegador no soporta geolocalización");
+            }
+        }
+        
+        function forceLocationUpdate() {
+            if (!currentUserId) return;
+            updateDiagnostic('warning', 'Forzando actualización...');
+            
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    const coords = [
+                        position.coords.latitude,
+                        position.coords.longitude
+                    ];
+                    const accuracy = position.coords.accuracy;
+                    
+                    updateDiagnostic('good', 'Forzado exitoso', accuracy);
+                    savePosition(currentUserId, coords, accuracy);
+                    
+                    showNotification('Ubicación actualizada forzosamente', 3000);
+                },
+                error => {
+                    updateDiagnostic('bad', `Forzado fallido: ${getGeolocationErrorText(error)}`);
+                    showNotification('Error al forzar ubicación', 3000);
+                },
+                { 
+                    enableHighAccuracy: true,
+                    timeout: 20000,
+                    maximumAge: 0
+                }
+            );
+        }
+        
+        function centerOnUserLocation() {
+            if (lastKnownPosition) {
+                map.setView(lastKnownPosition, 16);
+                showNotification('Centrado en tu ubicación', 2000);
+            } else {
+                updatePosition(currentUserId);
+                showNotification('Buscando tu ubicación...', 2000);
+            }
+        }
+        
+        function getGeolocationErrorText(error) {
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    return "Permiso denegado";
+                case error.POSITION_UNAVAILABLE:
+                    return "Posición no disponible";
+                case error.TIMEOUT:
+                    return "Tiempo agotado";
+                default:
+                    return "Error desconocido";
+            }
+        }
+        
+        function updateDiagnostic(status, method, accuracy = null) {
+            const statusElement = document.getElementById('gpsStatus');
+            const methodElement = document.getElementById('methodValue');
+            
+            statusElement.textContent = status === 'good' ? 'ACTIVO' : 
+                                      status === 'warning' ? 'LIMITADO' : 'INACTIVO';
+            statusElement.className = `diagnostic-value ${status}`;
+            
+            methodElement.textContent = method;
+            if (accuracy !== null) {
+                document.getElementById('accuracyValue').textContent = `${accuracy.toFixed(1)} metros`;
+            }
+            
+            document.getElementById('lastUpdateValue').textContent = new Date().toLocaleTimeString();
+            const locationStatus = document.getElementById('locationStatus');
+            if (status === 'good') {
+                locationStatus.textContent = 'Ubicación activa';
+                locationStatus.style.color = 'green';
+            } else if (status === 'warning') {
+                locationStatus.textContent = 'Ubicación limitada';
+                locationStatus.style.color = 'orange';
+            } else {
+                locationStatus.textContent = 'Ubicación inactiva';
+                locationStatus.style.color = 'red';
+            }
+        }
+        
+        function showNotification(message, duration) {
+            const notification = document.getElementById('statusNotification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+            setTimeout(() => { notification.style.display = 'none'; }, duration);
+        }
+        
+        function savePosition(mobileId, coords, accuracy) {
+            const now = Date.now();
+            lastKnownPosition = coords;
+            
+            updateUserPositionMarker(coords, accuracy);
+            
+            if (!isViewer) {
+                database.ref(`vehicles/${mobileId}`).set({
+                    coords: {
+                        lat: coords[0],
+                        lng: coords[1]
+                    },
+                    status: 'online',
+                    lastUpdate: now,
+                    accuracy: accuracy,
+                    displayName: vehicleNames[mobileId] || mobileId
+                });
+            }
+            
+            lastUpdateTimes[mobileId] = now;
+            updateMarker(mobileId, coords, true);
+            updateStatus(mobileId, 'online');
+            
+            if (mobileId === currentUserId) {
+                map.setView(coords, Math.max(map.getZoom(), 16));
+            }
+        }
+        
+        function startMonitoring() {
+            fetchVehicleData();
+            viewerUpdateInterval = setInterval(fetchVehicleData, UPDATE_INTERVAL);
+        }
+        
+        function fetchVehicleData() {
+            database.ref('vehicles').once('value')
+                .then(snapshot => {
+                    const vehiclesData = snapshot.val() || {};
+                    let newDataFound = false;
 
+                    Object.keys(vehiclesData).forEach(mobileId => {
+                        const vehicle = vehiclesData[mobileId];
+                        if (vehicle && vehicle.lastUpdate) {
+                            if (!vehicleCache[mobileId] || vehicle.lastUpdate > vehicleCache[mobileId].lastUpdate) {
+                                vehicleCache[mobileId] = vehicle;
+                                newDataFound = true;
+                            }
+                        }
+                    });
+
+                    if (newDataFound) {
+                        updateMarkersFromCache();
+                    } else {
+                        console.log('No hay datos nuevos, usando caché.');
+                        checkConnectionStatus();
+                    }
+                })
+                .catch(error => {
+                    console.error("Error al obtener datos de la flota:", error);
+                    checkConnectionStatus();
+                });
+        }
+        
+        function updateMarkersFromCache() {
+            const now = Date.now();
+            Object.keys(vehicleCache).forEach(mobileId => {
+                const vehicle = vehicleCache[mobileId];
+                if (vehicle) {
+                    const isOnline = (now - vehicle.lastUpdate) < TEN_MINUTES;
+                    const coords = isOnline ? [vehicle.coords.lat, vehicle.coords.lng] : INACTIVE_COORDS;
+
+                    if (vehicle.displayName && vehicle.displayName !== mobileId) {
+                        vehicleNames[mobileId] = vehicle.displayName;
+                        localStorage.setItem('vehicleNames', JSON.stringify(vehicleNames));
+                        const nameElement = document.getElementById(`${mobileId.toLowerCase()}-name`);
+                        if (nameElement) {
+                            nameElement.textContent = vehicle.displayName;
+                        }
+                    }
+
+                    updateMarker(mobileId, coords, isOnline);
+                    updateStatus(mobileId, isOnline ? 'online' : 'offline');
+                }
+            });
+            updateVehicleNamesInUI();
+        }
+
+        function checkConnectionStatus() {
+            const now = Date.now();
+            Object.keys(vehicleCache).forEach(mobileId => {
+                const vehicle = vehicleCache[mobileId];
+                if (vehicle) {
+                    const lastUpdate = vehicle.lastUpdate || 0;
+                    const isOnline = (now - lastUpdate) < TEN_MINUTES;
+                    
+                    if (!isOnline) {
+                        updateStatus(mobileId, 'offline');
+                        if (markers[mobileId]) {
+                            const icon = L.divIcon({
+                                className: 'vehicle-marker offline',
+                                html: `
+                                    <div class="vehicle-marker offline"></div>
+                                    <div class="vehicle-label">${vehicleNames[mobileId] || mobileId}</div>
+                                `,
+                                iconSize: [32, 42],
+                                iconAnchor: [16, 16],
+                                popupAnchor: [0, -16]
+                            });
+                            markers[mobileId]
+                                .setIcon(icon)
+                                .setLatLng(INACTIVE_COORDS)
+                                .setPopupContent(`<b>${vehicleNames[mobileId] || mobileId}</b><br>Desconectado<br>Última actualización: ${new Date(lastUpdate).toLocaleTimeString()}`);
+                        }
+                    }
+                }
+            });
+        }
+        
+        function createMarker(mobileId, coords, isOnline) {
+            if (markers[mobileId]) return;
+            const displayName = vehicleNames[mobileId] || mobileId;
+            
+            const container = L.divIcon({
+                className: 'vehicle-marker-container',
+                html: `
+                    <div class="vehicle-marker ${isOnline ? 'online' : 'offline'}"></div>
+                    <div class="vehicle-label">${displayName}</div>
+                `,
+                iconSize: [32, 42],
+                iconAnchor: [16, 16],
+                popupAnchor: [0, -16]
+            });
+            markers[mobileId] = L.marker(coords, { 
+                icon: container,
+                title: displayName
+            }).addTo(map)
+            .bindPopup(`<b>${displayName}</b><br>${isOnline ? 'En ruta' : 'Desconectado'}`);
+        }
+        
+        function updateMarker(mobileId, coords, isOnline) {
+            const displayName = vehicleNames[mobileId] || mobileId;
+            
+            if (!markers[mobileId]) {
+                createMarker(mobileId, coords, isOnline);
+            } else {
+                const container = L.divIcon({
+                    className: 'vehicle-marker-container',
+                    html: `
+                        <div class="vehicle-marker ${isOnline ? 'online' : 'offline'}"></div>
+                        <div class="vehicle-label">${displayName}</div>
+                    `,
+                    iconSize: [32, 42],
+                    iconAnchor: [16, 16],
+                    popupAnchor: [0, -16]
+                });
+                markers[mobileId]
+                    .setLatLng(coords)
+                    .setIcon(container)
+                    .setPopupContent(`<b>${displayName}</b><br>${isOnline ? 'En ruta' : 'Desconectado'}<br>Última actualización: ${new Date().toLocaleTimeString()}`);
+            }
+        }
+        
+        function updateStatus(mobileId, status) {
+            if (mobileId === currentUserId) {
+                const element = document.getElementById('current-user-status');
+                const iconElement = document.getElementById('current-user-icon');
+                
+                if (element) {
+                    element.textContent = status === 'online' ? 'En ruta' : 'Desconectado';
+                    element.className = status === 'online' ? 'online' : 'offline';
+                }
+                
+                if (iconElement) {
+                    iconElement.className = `user-icon ${status === 'online' ? 'online' : 'offline'}`;
+                }
+            } 
+            else if (isViewer) {
+                const element = document.getElementById(`${mobileId.toLowerCase()}-status`);
+                const iconElement = document.getElementById(`${mobileId.toLowerCase()}-icon`);
+                
+                if (element) {
+                    element.textContent = status === 'online' ? 'En ruta' : 'Desconectado';
+                    element.className = status === 'online' ? 'online' : 'offline';
+                }
+                
+                if (iconElement) {
+                    iconElement.className = `vehicle-icon ${status === 'online' ? 'online' : 'offline'}`;
+                }
+            }
+        }
+        
         function logout() {
             if (gpsInterval) clearInterval(gpsInterval);
             if (locationUpdateInterval) clearInterval(locationUpdateInterval);
@@ -1381,14 +1399,11 @@ font-weight: 600;">
                 });
             }
             database.ref('vehicles').off();
-            database.ref('laps').off();
             firebase.auth().signOut();
             localStorage.removeItem('gpsAuth');
             localStorage.removeItem('panelState');
             window.location.href = 'login.html';
         }
-
-        document.getElementById('logoutBtn').addEventListener('click', logout);
     </script>
 </body>
 </html>
