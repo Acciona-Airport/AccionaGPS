@@ -1445,13 +1445,16 @@
             document.getElementById('lastUpdateValue').textContent = new Date().toLocaleTimeString();
             
             const locationStatus = document.getElementById('locationStatus');
-            if (status === 'good') {
+            if (accuracy && accuracy < 1000) {
+                updateDiagnostic('good', 'Ubicación actualizada', accuracy);
                 locationStatus.textContent = 'Ubicación activa';
                 locationStatus.style.color = 'green';
-            } else if (status === 'warning') {
-                locationStatus.textContent = 'Ubicación limitada';
+            } else if (accuracy) {
+                updateDiagnostic('warning', 'Precisión limitada', accuracy);
+                locationStatus.textContent = 'Precisión limitada';
                 locationStatus.style.color = 'orange';
             } else {
+                updateDiagnostic('bad', 'Sin datos de precisión');
                 locationStatus.textContent = 'Ubicación inactiva';
                 locationStatus.style.color = 'red';
             }
@@ -1880,3 +1883,4 @@
     </script>
 </body>
 </html>
+
