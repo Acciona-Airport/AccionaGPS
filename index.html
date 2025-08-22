@@ -834,7 +834,7 @@
         </button>
     </div>
 
-    <div class="refresh-container">
+    <div class="refresh-container" id="refreshContainer">
         <button class="refresh-btn" id="refreshBtn">
             <svg class="refresh-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
                 <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
@@ -905,10 +905,10 @@
         let vehicleNames = {};
         
         let lapCounters = {
-            Movil1: { shift1: 0, shift2: 0, shift3: 0, lastLapTime: null, isNearStart: false },
-            Movil2: { shift1: 0, shift2: 0, shift3: 0, lastLapTime: null, isNearStart: false },
-            Movil3: { shift1: 0, shift2: 0, shift3: 0, lastLapTime: null, isNearStart: false },
-            Movil4: { shift1: 0, shift2: 0, shift3: 0, lastLapTime: null, isNearStart: false }
+            Movil1: { shift1: 0, shift2: 0, shift3: 0, lastLapTime: null, isNearStart: false, lastResetDate: null },
+            Movil2: { shift1: 0, shift2: 0, shift3: 0, lastLapTime: null, isNearStart: false, lastResetDate: null },
+            Movil3: { shift1: 0, shift2: 0, shift3: 0, lastLapTime: null, isNearStart: false, lastResetDate: null },
+            Movil4: { shift1: 0, shift2: 0, shift3: 0, lastLapTime: null, isNearStart: false, lastResetDate: null }
         };
         let startPointMarker = null;
         
@@ -1011,6 +1011,11 @@
             const displayName = (currentUserId === 'Funcionarios') ? 'Yo' : (vehicleNames[currentUserId] || currentUserId);
             document.getElementById('current-user-name').textContent = displayName;
             
+            // Ocultar botón de actualizar para usuarios Funcionarios
+            if (currentUserId === 'Funcionarios') {
+                document.getElementById('refreshContainer').style.display = 'none';
+            }
+            
             if (currentUserId === 'Admin') {
                 document.getElementById('adminDashboard').style.display = 'block';
                 loadLapCounters();
@@ -1048,9 +1053,29 @@
         function loadLapCounters() {
             const savedLapCounters = localStorage.getItem('lapCounters');
             if (savedLapCounters) {
-                lapCounters = JSON.parse(savedLapCounters);
+                const savedData = JSON.parse(savedLapCounters);
+                
+                // Verificar si necesitamos resetear los contadores por cambio de día
+                const today = new Date().toDateString();
+                Object.keys(savedData).forEach(vehicle => {
+                    if (savedData[vehicle].lastResetDate !== today) {
+                        // Resetear contadores si es un nuevo día
+                        savedData[vehicle].shift1 = 0;
+                        savedData[vehicle].shift2 = 0;
+                        savedData[vehicle].shift3 = 0;
+                        savedData[vehicle].lastResetDate = today;
+                    }
+                });
+                
+                lapCounters = savedData;
                 Object.keys(lapCounters).forEach(vehicle => {
                     updateLapCounterUI(vehicle);
+                });
+            } else {
+                // Inicializar con fecha actual si no hay datos guardados
+                const today = new Date().toDateString();
+                Object.keys(lapCounters).forEach(vehicle => {
+                    lapCounters[vehicle].lastResetDate = today;
                 });
             }
             updateMetrics();
@@ -1074,6 +1099,7 @@
             });
             document.getElementById('totalLaps').textContent = totalLaps;
             
+            // Contar solo vehículos que estén "En ruta" (online)
             let activeCount = 0;
             Object.keys(vehicleCache).forEach(vehicle => {
                 if (vehicleCache[vehicle] && vehicleCache[vehicle].status === 'online') {
@@ -1127,12 +1153,31 @@
             const hour = now.getHours();
             let shift;
             
-            if (hour >= 13 && hour < 22) {
-                shift = 'shift1';
-            } else if (hour >= 22 || hour < 6) {
+            // Determinar el turno según la hora actual
+            // Turno noche (22:00-6:00) se considera parte del día siguiente
+            let adjustedHour = hour;
+            let currentDate = now.toDateString();
+            
+            if (hour >= 22) {
+                // Después de las 22:00, pertenece al turno 2 del día actual
                 shift = 'shift2';
-            } else {
+            } else if (hour < 6) {
+                // Antes de las 6:00, pertenece al turno 2 del día anterior
+                shift = 'shift2';
+                // Pero lo contamos para el día actual en la interfaz
+                currentDate = new Date(now.getTime() - 6 * 60 * 60 * 1000).toDateString();
+            } else if (hour >= 6 && hour < 13) {
                 shift = 'shift3';
+            } else {
+                shift = 'shift1';
+            }
+            
+            // Verificar si necesitamos resetear los contadores por cambio de día
+            if (lapCounters[vehicle].lastResetDate !== currentDate) {
+                lapCounters[vehicle].shift1 = 0;
+                lapCounters[vehicle].shift2 = 0;
+                lapCounters[vehicle].shift3 = 0;
+                lapCounters[vehicle].lastResetDate = currentDate;
             }
             
             lapCounters[vehicle][shift]++;
@@ -1811,5 +1856,3 @@
     </script>
 </body>
 </html>
-
-
