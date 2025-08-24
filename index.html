@@ -9,6 +9,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#f44336">
     <meta name="mobile-web-app-capable" content="yes">
+    <!-- Biblioteca para exportar a Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root {
             --white: #ffffff;
@@ -560,6 +562,26 @@
             font-size: 12px;
             color: #666;
         }
+        
+        /* Botón para descargar datos */
+        .download-btn {
+            background: var(--blue-primary);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: background 0.3s;
+        }
+        .download-btn:hover {
+            background: var(--blue-dark);
+        }
+        
         /* Eliminado el estilo start-point-marker */
     </style>
 </head>
@@ -727,6 +749,15 @@
                             <div class="metric-label">Última Actualización</div>
                         </div>
                     </div>
+                    
+                    <!-- Botón para descargar datos en Excel -->
+                    <button class="download-btn" id="downloadExcelBtn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M5.884 6.68a.5.5 0 1 0-.768.64L7.349 10l-2.233 2.68a.5.5 0 0 0 .768.64L8 10.781l2.116 2.54a.5.5 0 0 0 .768-.641L8.651 10l2.233-2.68a.5.5 0 0 0-.768-.64L8 9.219l-2.116-2.54z"/>
+                            <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/>
+                        </svg>
+                        Descargar Datos del Día
+                    </button>
                 </div>
                 
                 <div class="dashboard-content" id="performanceContent">
@@ -1012,6 +1043,9 @@
                 document.getElementById('adminDashboard').style.display = 'block';
                 loadLapCounters();
                 setupDashboardTabs();
+                
+                // Configurar el botón de descarga de Excel
+                document.getElementById('downloadExcelBtn').addEventListener('click', downloadExcelData);
             }
             
             if (isViewer) {
@@ -1091,7 +1125,7 @@
             });
             document.getElementById('totalLaps').textContent = totalLaps;
             
-            // Contar solo vehículos que estén "En ruta" (online)
+            // Contar solo vehículos que estén "En línea" (online)
             let activeCount = 0;
             Object.keys(vehicleCache).forEach(vehicle => {
                 if (vehicleCache[vehicle] && vehicleCache[vehicle].status === 'online') {
@@ -1111,6 +1145,73 @@
             document.getElementById('avgSpeed').textContent = '20 km/h';
             document.getElementById('fuelEfficiency').textContent = '5.2 km/L';
             document.getElementById('operatingHours').textContent = '8.5 h';
+        }
+        
+        function downloadExcelData() {
+            // Obtener datos de coordenadas almacenados
+            const coordinateData = getCoordinateDataForToday();
+            
+            // Crear libro de Excel
+            const wb = XLSX.utils.book_new();
+            
+            // Crear hoja de datos
+            const ws = XLSX.utils.json_to_sheet(coordinateData);
+            
+            // Añadir hoja al libro
+            XLSX.utils.book_append_sheet(wb, ws, "Coordenadas");
+            
+            // Generar nombre de archivo con fecha actual
+            const today = new Date();
+            const fileName = `coordenadas_${today.getDate()}-${today.getMonth()+1}-${today.getFullYear()}.xlsx`;
+            
+            // Descargar archivo
+            XLSX.writeFile(wb, fileName);
+            
+            showNotification("Datos descargados exitosamente", 3000);
+        }
+        
+        function getCoordinateDataForToday() {
+            // Obtener datos almacenados
+            const storedData = localStorage.getItem('coordinateData');
+            const today = new Date().toDateString();
+            
+            if (!storedData) return [];
+            
+            const allData = JSON.parse(storedData);
+            
+            // Filtrar datos del día actual
+            return allData.filter(item => {
+                const itemDate = new Date(item.timestamp).toDateString();
+                return itemDate === today;
+            });
+        }
+        
+        function storeCoordinateData(vehicleId, coords, status, laps) {
+            // Obtener datos existentes
+            const storedData = localStorage.getItem('coordinateData');
+            let coordinateData = storedData ? JSON.parse(storedData) : [];
+            
+            // Añadir nuevo registro
+            coordinateData.push({
+                vehicleId: vehicleId,
+                vehicleName: vehicleNames[vehicleId] || vehicleId,
+                latitude: coords[0],
+                longitude: coords[1],
+                status: status,
+                laps: laps || 0,
+                timestamp: new Date().toISOString()
+            });
+            
+            // Limitar datos a 3 días
+            const threeDaysAgo = new Date();
+            threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+            
+            coordinateData = coordinateData.filter(item => {
+                return new Date(item.timestamp) >= threeDaysAgo;
+            });
+            
+            // Guardar datos
+            localStorage.setItem('coordinateData', JSON.stringify(coordinateData));
         }
         
         function checkLapCompletion(vehicle, coords) {
@@ -1218,17 +1319,6 @@
             createUserPositionMarker(SCL_COORDS);
             
             // Eliminado el marcador de punto de inicio parpadeante
-            // startPointMarker = L.marker(START_POINT, {
-            //     icon: L.divIcon({
-            //         className: 'start-point-marker',
-            //         iconSize: [16, 16],
-            //         iconAnchor: [8, 8]
-            //     })
-            // }).addTo(map);
-            
-            if (L.Browser.touch) {
-                map.doubleClickZoom.disable();
-            }
         }
         
         function setMapProvider(providerKey) {
@@ -1677,6 +1767,10 @@
             
             if (currentUserId === 'Admin') {
                 checkLapCompletion(mobileId, coords);
+                // Almacenar datos de coordenadas
+                const laps = lapCounters[mobileId] ? 
+                    lapCounters[mobileId].shift1 + lapCounters[mobileId].shift2 + lapCounters[mobileId].shift3 : 0;
+                storeCoordinateData(mobileId, coords, 'online', laps);
             }
             
             if (mobileId === currentUserId) {
@@ -1705,6 +1799,11 @@
                                 if (currentUserId === 'Admin') {
                                     const coords = [vehicle.coords.lat, vehicle.coords.lng];
                                     checkLapCompletion(mobileId, coords);
+                                    
+                                    // Almacenar datos de coordenadas
+                                    const laps = lapCounters[mobileId] ? 
+                                        lapCounters[mobileId].shift1 + lapCounters[mobileId].shift2 + lapCounters[mobileId].shift3 : 0;
+                                    storeCoordinateData(mobileId, coords, vehicle.status, laps);
                                 }
                             }
                         }
