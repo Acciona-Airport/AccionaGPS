@@ -106,6 +106,7 @@
             flex-direction: column;
             gap: 4px;
             width: 20px;
+            height: 16px;
         }
         .hamburger-line {
             height: 2px;
@@ -581,8 +582,6 @@
         .download-btn:hover {
             background: var(--blue-dark);
         }
-        
-        /* Eliminado el estilo start-point-marker */
     </style>
 </head>
 <body>
@@ -1134,7 +1133,10 @@
             });
             document.getElementById('activeVehicles').textContent = activeCount;
             
-            document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+            // Mostrar hora local de Chile
+            const now = new Date();
+            const chileTime = new Date(now.toLocaleString("en-US", {timeZone: "America/Santiago"}));
+            document.getElementById('lastUpdate').textContent = chileTime.toLocaleTimeString('es-CL');
             
             let totalDistance = 0;
             Object.keys(lapCounters).forEach(vehicle => {
@@ -1180,9 +1182,26 @@
             const allData = JSON.parse(storedData);
             
             // Filtrar datos del día actual
-            return allData.filter(item => {
+            const todayData = allData.filter(item => {
                 const itemDate = new Date(item.timestamp).toDateString();
                 return itemDate === today;
+            });
+            
+            // Formatear datos para Excel con fecha y hora separadas
+            return todayData.map(item => {
+                const date = new Date(item.timestamp);
+                const chileDate = new Date(date.toLocaleString("en-US", {timeZone: "America/Santiago"}));
+                
+                return {
+                    'Número de Equipo': item.vehicleName,
+                    'ID del Vehículo': item.vehicleId,
+                    'Latitud': item.latitude,
+                    'Longitud': item.longitude,
+                    'Estado': item.status,
+                    'Número de Vueltas': item.laps,
+                    'Fecha': chileDate.toLocaleDateString('es-CL'),
+                    'Hora': chileDate.toLocaleTimeString('es-CL')
+                };
             });
         }
         
@@ -1317,8 +1336,6 @@
                 .openPopup();
                 
             createUserPositionMarker(SCL_COORDS);
-            
-            // Eliminado el marcador de punto de inicio parpadeante
         }
         
         function setMapProvider(providerKey) {
@@ -1532,7 +1549,11 @@
                 `${coords[0].toFixed(6)}, ${coords[1].toFixed(6)}`;
             document.getElementById('accuracyValue').textContent = 
                 accuracy ? `${accuracy.toFixed(1)} metros` : 'Desconocida';
-            document.getElementById('lastUpdateValue').textContent = new Date().toLocaleTimeString();
+            
+            // Mostrar hora local de Chile
+            const now = new Date();
+            const chileTime = new Date(now.toLocaleString("en-US", {timeZone: "America/Santiago"}));
+            document.getElementById('lastUpdateValue').textContent = chileTime.toLocaleTimeString('es-CL');
             
             const locationStatus = document.getElementById('locationStatus');
             if (accuracy && accuracy < 1000) {
@@ -1594,6 +1615,59 @@
                         updateStatus(mobileId, 'offline');
                     },
                     geoOptions
+                );
+            } else {
+                updateDiagnostic('bad', 'Geolocalización no soportada');
+            }
+        }
+        
+        function updatePosition(mobileId) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    position => {
+                        const coords = [
+                            position.coords.latitude,
+                            position.coords.longitude
+                        ];
+                        const accuracy = position.coords.accuracy;
+                        
+                        updateDiagnostic('good', 'getCurrentPosition', accuracy);
+                        savePosition(mobileId, coords, accuracy);
+                    },
+                    error => {
+                        navigator.geolocation.getCurrentPosition(
+                            position => {
+                                const coords = [
+                                    position.coords.latitude,
+                                    position.coords.longitude
+                                ];
+                                const accuracy = position.coords.accuracy;
+                                
+                                updateDiagnostic('warning', 'Método alternativo', accuracy);
+                                savePosition(mobileId, coords, accuracy);
+                            },
+                            error2 => {
+                                console.error('Error GPS con método alternativo:', error2);
+                                updateDiagnostic('bad', `Error: ${getGeolocationErrorText(error2)}`);
+                                updateStatus(mobileId, 'offline');
+                                
+                                if (lastKnownPosition) {
+                                    updateDiagnostic('warning', 'Usando última posición conocida');
+                                    savePosition(mobileId, lastKnownPosition, 1000);
+                                }
+                            },
+                            { 
+                                enableHighAccuracy: false,
+                                timeout: 15000,
+                                maximumAge: 300000
+                            }
+                        );
+                    },
+                    { 
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
+                    }
                 );
             } else {
                 updateDiagnostic('bad', 'Geolocalización no soportada');
