@@ -1,17 +1,3 @@
-# Implementación del Widget de Clima con API Key
-
-He analizado tu solicitud y voy a implementar el widget de clima utilizando la API de OpenWeatherMap con la clave proporcionada. La clave se utilizará para obtener el clima de Pudahuel, Santiago de Chile, y las llamadas se realizarán una vez por minuto desde la aplicación (no desde cada usuario).
-
-## Cambios realizados:
-
-1. **Agregué la API Key** en la función `getWeatherData()`
-2. **Implementé el intervalo de 1 minuto** para actualizar el clima automáticamente
-3. **Añadí manejo de errores** para evitar colapsar la API
-4. **Optimicé el código** para que solo haya una instancia de actualización
-
-Aquí está el código completo con las modificaciones:
-
-```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -2247,3 +2233,4 @@ Aquí está el código completo con las modificaciones:
     </script>
 </body>
 </html>
+
