@@ -1221,13 +1221,13 @@
                 timestamp: new Date().toISOString()
             });
             
-            // Limitar datos a 3 días
-            const threeDaysAgo = new Date();
-            threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
-            
-            coordinateData = coordinateData.filter(item => {
-                return new Date(item.timestamp) >= threeDaysAgo;
-            });
+            // Limitar datos a 7 días
+            const sevenDaysAgo = new Date();
+sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+coordinateData = coordinateData.filter(item => {
+    return new Date(item.timestamp) >= sevenDaysAgo;
+});
             
             // Guardar datos
             localStorage.setItem('coordinateData', JSON.stringify(coordinateData));
@@ -2006,3 +2006,4 @@
     </script>
 </body>
 </html>
+
