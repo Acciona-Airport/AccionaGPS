@@ -1671,59 +1671,6 @@
                 );
             } else {
                 updateDiagnostic('bad', 'Geolocalización no soportada');
-            }
-        }
-        
-        function updatePosition(mobileId) {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    position => {
-                        const coords = [
-                            position.coords.latitude,
-                            position.coords.longitude
-                        ];
-                        const accuracy = position.coords.accuracy;
-                        
-                        updateDiagnostic('good', 'getCurrentPosition', accuracy);
-                        savePosition(mobileId, coords, accuracy);
-                    },
-                    error => {
-                        navigator.geolocation.getCurrentPosition(
-                            position => {
-                                const coords = [
-                                    position.coords.latitude,
-                                    position.coords.longitude
-                                ];
-                                const accuracy = position.coords.accuracy;
-                                
-                                updateDiagnostic('warning', 'Método alternativo', accuracy);
-                                savePosition(mobileId, coords, accuracy);
-                            },
-                            error2 => {
-                                console.error('Error GPS con método alternativo:', error2);
-                                updateDiagnostic('bad', `Error: ${getGeolocationErrorText(error2)}`);
-                                updateStatus(mobileId, 'offline');
-                                
-                                if (lastKnownPosition) {
-                                    updateDiagnostic('warning', 'Usando última posición conocida');
-                                    savePosition(mobileId, lastKnownPosition, 1000);
-                                }
-                            },
-                            { 
-                                enableHighAccuracy: false,
-                                timeout: 15000,
-                                maximumAge: 300000
-                            }
-                        );
-                    },
-                    { 
-                        enableHighAccuracy: true,
-                        timeout: 10000,
-                        maximumAge: 0
-                    }
-                );
-            } else {
-                updateDiagnostic('bad', 'Geolocalización no soportada');
                 alert("Tu navegador no soporta geolocalización");
             }
         }
@@ -1794,7 +1741,10 @@
                 document.getElementById('accuracyValue').textContent = `${accuracy.toFixed(1)} metros`;
             }
             
-            document.getElementById('lastUpdateValue').textContent = new Date().toLocaleTimeString();
+            // Mostrar hora local de Chile
+            const now = new Date();
+            const chileTime = new Date(now.toLocaleString("en-US", {timeZone: "America/Santiago"}));
+            document.getElementById('lastUpdateValue').textContent = chileTime.toLocaleTimeString('es-CL');
             
             const locationStatus = document.getElementById('locationStatus');
             if (status === 'good') {
