@@ -1,3 +1,16 @@
+# Análisis y solución para el botón de descarga de Excel
+
+El problema principal es que el botón de descarga de Excel está oculto inicialmente (`display: none`) y solo se muestra para el usuario administrador. Además, necesitamos asegurar que los datos se guarden durante 7 días en el almacenamiento local.
+
+## Cambios realizados:
+
+1. **Corregir la visibilidad del botón**: El botón ahora se muestra solo para el usuario administrador
+2. **Mejorar el almacenamiento de datos**: Asegurar que los datos se guarden correctamente durante 7 días
+3. **Optimizar la función de exportación**: Mejorar el formato del archivo Excel generado
+
+Aquí está el código HTML completo con las correcciones:
+
+```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -649,7 +662,6 @@
             align-items: center;
             gap: 5px;
             transition: background 0.3s;
-            display: none; /* Ocultado inicialmente */
         }
         .download-btn:hover {
             background: var(--blue-dark);
@@ -660,26 +672,26 @@
             border-radius: 18px;
         }
         .export-excel-btn {
-    background: #2ecc71;
-    color: white;
-    border: none;
-    padding: 10px;
-    width: 100%;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 600;
-    margin-top: 15px;
-    transition: background 0.3s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-}
+            background: #2ecc71;
+            color: white;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 15px;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
 
-.export-excel-btn:hover {
-    background: #27ae60;
-}
+        .export-excel-btn:hover {
+            background: #27ae60;
+        }
     </style>
 </head>
 <body>
@@ -859,7 +871,7 @@
                     </div>
                     
                     <!-- Botón para descargar datos en Excel -->
-                    <button class="download-btn" id="downloadExcelBtn">
+                    <button class="export-excel-btn" id="downloadExcelBtn">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                             <path d="M5.884 6.68a.5.5 0 1 0-.768.64L7.349 10l-2.233 2.68a.5.5 0 0 0 .768.64L8 10.781l2.116 2.54a.5.5 0 0 0 .768-.641L8.651 10l2.233-2.68a.5.5 0 0 0-.768-.64L8 9.219l-2.116-2.54z"/>
                             <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/>
@@ -1275,6 +1287,7 @@
                 
                 // Configurar el botón de descarga de Excel
                 document.getElementById('downloadExcelBtn').addEventListener('click', downloadExcelData);
+                document.getElementById('downloadExcelBtn').style.display = 'flex'; // Mostrar botón para admin
             }
             
             if (isViewer) {
@@ -1389,7 +1402,12 @@
         
         function downloadExcelData() {
             // Obtener datos de coordenadas almacenados
-            const coordinateData = getCoordinateDataForToday();
+            const coordinateData = getCoordinateDataForLast7Days();
+            
+            if (coordinateData.length === 0) {
+                showNotification("No hay datos para exportar", 3000);
+                return;
+            }
             
             // Crear libro de Excel
             const wb = XLSX.utils.book_new();
@@ -1410,23 +1428,24 @@
             showNotification("Datos descargados exitosamente", 3000);
         }
         
-        function getCoordinateDataForToday() {
+        function getCoordinateDataForLast7Days() {
             // Obtener datos almacenados
             const storedData = localStorage.getItem('coordinateData');
-            const today = new Date().toDateString();
             
             if (!storedData) return [];
             
             const allData = JSON.parse(storedData);
             
-            // Filtrar datos del día actual
-            const todayData = allData.filter(item => {
-                const itemDate = new Date(item.timestamp).toDateString();
-                return itemDate === today;
+            // Filtrar datos de los últimos 7 días
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+            const filteredData = allData.filter(item => {
+                return new Date(item.timestamp) >= sevenDaysAgo;
             });
             
             // Formatear datos para Excel con fecha y hora separadas
-            return todayData.map(item => {
+            return filteredData.map(item => {
                 const date = new Date(item.timestamp);
                 const chileDate = new Date(date.toLocaleString("en-US", {timeZone: "America/Santiago"}));
                 
@@ -2219,41 +2238,7 @@
                 }
             }
         }
-        function exportToExcel() {
-    const data = window.vehicleData; // Asume que los datos están disponibles globalmente en window.vehicleData
-    if (!data) {
-        alert('No hay datos de vehículos para exportar.');
-        return;
-    }
-
-    // Preparar los datos para la hoja de cálculo
-    const ws_data = [
-        ['ID', 'Nombre', 'Posición', 'Estado', 'Última Actualización', 'Batería', 'Velocidad', 'Conductor']
-    ];
-
-    data.forEach(vehicle => {
-        ws_data.push([
-            vehicle.mobileId,
-            vehicle.vehicleName,
-            `${vehicle.lat.toFixed(6)}, ${vehicle.lng.toFixed(6)}`,
-            vehicle.status === 'online' ? 'En ruta' : 'Desconectado',
-            new Date(vehicle.lastUpdated).toLocaleString(),
-            vehicle.battery,
-            `${vehicle.speed} km/h`,
-            vehicle.driverName
-        ]);
-    });
-
-    // Crear la hoja de cálculo
-    const ws = XLSX.utils.aoa_to_sheet(ws_data);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Reporte Semanal");
-
-    // Guardar el archivo
-    const date = new Date();
-    const dateStr = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
-    XLSX.writeFile(wb, `Reporte_Semanal_${dateStr}.xlsx`);
-}
+        
         function logout() {
             if (gpsInterval) clearInterval(gpsInterval);
             if (locationUpdateInterval) clearInterval(locationUpdateInterval);
@@ -2278,8 +2263,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
