@@ -117,6 +117,11 @@
             margin-top: 4px;
             font-style: italic;
         }
+        .weather-feels-like {
+            font-size: 10px;
+            color: #666;
+            margin-top: 2px;
+        }
     
         @media (min-width: 768px) {
             .weather-widget {
@@ -537,13 +542,13 @@
         }
         
         .admin-dashboard {
-            display: none;
-            background: rgba(255, 255, 255, var(--transparency));
-            border-radius: 8px;
-            padding: 15px;
-            margin: 15px 0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            border: 1px solid var(--dashboard-border);
+    display: none;
+    background: rgba(255, 255, 255, var(--transparency));
+    border-radius: 8px;
+    padding: 15px;
+    margin: 15px 0;
+    box-shadow: none;
+    border: none;
 }
         .admin-dashboard h4 {
             color: var(--red-dark);
@@ -692,6 +697,7 @@
         <div class="weather-info">
             <div class="weather-temp" id="weatherTemp">--°C</div>
             <div class="weather-desc" id="weatherDesc">Cargando...</div>
+            <div class="weather-feels-like" id="weatherFeelsLike">Sensación: --°C</div>
             <div class="weather-location">Pudahuel, Santiago</div>
             <div class="weather-updating" id="weatherUpdating"></div>
         </div>
@@ -1035,6 +1041,8 @@
         let currentRouteLayer = null;
         let vehicleNames = {};
         
+        // Coordenadas exactas del Aeropuerto de Pudahuel
+        const PUDALUEL_COORDS = [-33.3931, -70.7858];
         
         let weatherUpdateInterval = null;
         
@@ -1126,7 +1134,7 @@
                 initMap();
                 setupUI();
                 
-                
+                // Iniciar actualizaciones del clima
                 startWeatherUpdates();
                 
                 if (!isViewer && !auth.vehicleNumber) {
@@ -1138,42 +1146,43 @@
             }
         });
 
-        
+        // Iniciar actualizaciones del clima
         function startWeatherUpdates() {
-            
+            // Obtener datos inmediatamente
             getWeatherData();
             
-           
-            weatherUpdateInterval = setInterval(getWeatherData, 60000);
+            // Actualizar cada 10 minutos (600000 ms) en lugar de cada minuto
+            weatherUpdateInterval = setInterval(getWeatherData, 600000);
             
-           
+            // Actualizar la hora de la próxima actualización
             updateNextUpdateTime();
         }
 
-        
+        // Actualizar la hora de la próxima actualización
         function updateNextUpdateTime() {
             const now = new Date();
-            const nextUpdate = new Date(now.getTime() + 60000);
+            const nextUpdate = new Date(now.getTime() + 600000);
             const nextUpdateStr = nextUpdate.toLocaleTimeString('es-CL', {hour: '2-digit', minute:'2-digit'});
             
             document.getElementById('weatherUpdating').textContent = `Próxima actualización: ${nextUpdateStr}`;
         }
 
-        
+        // Obtener datos del clima
         function getWeatherData() {
+            // Usar coordenadas exactas de Pudahuel
+            const lat = PUDALUEL_COORDS[0];
+            const lon = PUDALUEL_COORDS[1];
             
-            const lat = -33.4489;
-            const lon = -70.6693;
-            
-            
+            // Clave API de OpenWeatherMap
             const apiKey = '5a3cb2a80455a22f4bc920458df1b521';
             
-            
+            // Actualizar hora de próxima actualización
             updateNextUpdateTime();
             
-            
+            // Mostrar estado de carga
             document.getElementById('weatherDesc').textContent = 'Actualizando...';
             
+            // Hacer la petición a la API
             fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=es`)
                 .then(response => {
                     if (!response.ok) {
@@ -1186,42 +1195,41 @@
                 })
                 .catch(error => {
                     console.error('Error obteniendo datos del clima:', error);
-                   
-                    const sampleData = {
-                        main: { temp: 22 + Math.floor(Math.random() * 5) },
-                        weather: [{ 
-                            description: "Soleado", 
-                            icon: "01d",
-                            main: "Clear"
-                        }],
-                        name: "Pudahuel"
-                    };
-                    updateWeatherWidget(sampleData);
-                    document.getElementById('weatherDesc').textContent = 'Datos de muestra (error API)';
+                    // En caso de error, mostrar un mensaje apropiado
+                    document.getElementById('weatherDesc').textContent = 'Error al cargar datos';
+                    document.getElementById('weatherTemp').textContent = '--°C';
+                    document.getElementById('weatherFeelsLike').textContent = 'Sensación: --°C';
+                    document.getElementById('weatherIcon').textContent = '❓';
                 });
         }
 
-        
+        // Actualizar el widget del clima
         function updateWeatherWidget(data) {
             const tempElement = document.getElementById('weatherTemp');
             const descElement = document.getElementById('weatherDesc');
+            const feelsLikeElement = document.getElementById('weatherFeelsLike');
             const iconElement = document.getElementById('weatherIcon');
             
             if (data && data.main) {
-                tempElement.textContent = `${Math.round(data.main.temp)}°C`;
+                const temp = Math.round(data.main.temp);
+                const feelsLike = Math.round(data.main.feels_like);
+                
+                tempElement.textContent = `${temp}°C`;
                 descElement.textContent = data.weather[0].description;
+                feelsLikeElement.textContent = `Sensación: ${feelsLike}°C`;
                 
-                
+                // Actualizar icono según el clima
                 const iconCode = data.weather[0].icon;
                 iconElement.textContent = getWeatherIcon(iconCode);
             } else {
                 tempElement.textContent = '--°C';
                 descElement.textContent = 'Error al cargar';
+                feelsLikeElement.textContent = 'Sensación: --°C';
                 iconElement.textContent = '❓';
             }
         }
 
-      
+        // Obtener icono según código del clima
         function getWeatherIcon(iconCode) {
             const iconMap = {
                 '01d': '☀️', // Clear sky (day)
@@ -1247,7 +1255,7 @@
             return iconMap[iconCode] || '🌡️';
         }
 
-        
+        // Alternar visibilidad del widget del clima
         function toggleWeatherWidget() {
             const widget = document.getElementById('weatherWidget');
             widget.classList.toggle('expanded');
@@ -1263,7 +1271,7 @@
             const displayName = (currentUserId === 'Funcionarios') ? 'Yo' : (vehicleNames[currentUserId] || currentUserId);
             document.getElementById('current-user-name').textContent = displayName;
             
-            
+            // Ocultar botón de actualización para funcionarios
             if (currentUserId === 'Funcionarios') {
                 document.getElementById('refreshContainer').style.display = 'none';
             }
@@ -1273,7 +1281,7 @@
                 loadLapCounters();
                 setupDashboardTabs();
                 
-               
+                // Configurar botón de descarga de Excel
                 document.getElementById('downloadExcelBtn').addEventListener('click', downloadExcelData);
                 document.getElementById('downloadExcelBtn').style.display = 'flex'; 
             }
@@ -1288,7 +1296,7 @@
                 startGPSTracking(currentUserId);
             }
             
-           
+            // Agregar evento de clic al widget del clima
             document.getElementById('weatherWidget').addEventListener('click', toggleWeatherWidget);
         }
         
@@ -1314,11 +1322,11 @@
             if (savedLapCounters) {
                 const savedData = JSON.parse(savedLapCounters);
                 
-                
+                // Verificar si es un nuevo día
                 const today = new Date().toDateString();
                 Object.keys(savedData).forEach(vehicle => {
                     if (savedData[vehicle].lastResetDate !== today) {
-                        
+                        // Reiniciar contadores para el nuevo día
                         savedData[vehicle].shift1 = 0;
                         savedData[vehicle].shift2 = 0;
                         savedData[vehicle].shift3 = 0;
@@ -1331,7 +1339,7 @@
                     updateLapCounterUI(vehicle);
                 });
             } else {
-                
+                // Inicializar contadores para el día actual
                 const today = new Date().toDateString();
                 Object.keys(lapCounters).forEach(vehicle => {
                     lapCounters[vehicle].lastResetDate = today;
@@ -1358,11 +1366,11 @@
             });
             document.getElementById('totalLaps').textContent = totalLaps;
             
-            
+            // Calcular vehículos activos
             let activeCount = 0;
             Object.keys(vehicleCache).forEach(vehicle => {
                 if (vehicleCache[vehicle] && vehicleCache[vehicle].status === 'online') {
-                    
+                    // Verificar si la última actualización fue hace menos de 10 minutos
                     const lastUpdate = vehicleCache[vehicle].lastUpdate || 0;
                     const isOnline = (Date.now() - lastUpdate) < TEN_MINUTES;
                     if (isOnline) {
@@ -1372,11 +1380,12 @@
             });
             document.getElementById('activeVehicles').textContent = activeCount;
             
-            
+            // Actualizar hora de última actualización
             const now = new Date();
             const chileTime = new Date(now.toLocaleString("en-US", {timeZone: "America/Santiago"}));
             document.getElementById('lastUpdate').textContent = chileTime.toLocaleTimeString('es-CL');
             
+            // Calcular métricas de rendimiento
             let totalDistance = 0;
             Object.keys(lapCounters).forEach(vehicle => {
                 totalDistance += (lapCounters[vehicle].shift1 + lapCounters[vehicle].shift2 + lapCounters[vehicle].shift3) * 15;
@@ -1389,7 +1398,7 @@
         }
         
         function downloadExcelData() {
-           
+            // Obtener datos de coordenadas de los últimos 7 días
             const coordinateData = getCoordinateDataForLast7Days();
             
             if (coordinateData.length === 0) {
@@ -1397,34 +1406,34 @@
                 return;
             }
             
-            
+            // Crear un nuevo libro de trabajo
             const wb = XLSX.utils.book_new();
             
-           
+            // Convertir datos a hoja de cálculo
             const ws = XLSX.utils.json_to_sheet(coordinateData);
             
-            
+            // Añadir la hoja al libro
             XLSX.utils.book_append_sheet(wb, ws, "Coordenadas");
             
-            
+            // Generar nombre de archivo con fecha actual
             const today = new Date();
             const fileName = `coordenadas_${today.getDate()}-${today.getMonth()+1}-${today.getFullYear()}.xlsx`;
             
-            
+            // Descargar el archivo
             XLSX.writeFile(wb, fileName);
             
             showNotification("Datos descargados exitosamente", 3000);
         }
         
         function getCoordinateDataForLast7Days() {
-            
+            // Obtener datos almacenados en localStorage
             const storedData = localStorage.getItem('coordinateData');
             
             if (!storedData) return [];
             
             const allData = JSON.parse(storedData);
             
-            
+            // Filtrar datos de los últimos 7 días
             const sevenDaysAgo = new Date();
             sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
@@ -1432,7 +1441,7 @@
                 return new Date(item.timestamp) >= sevenDaysAgo;
             });
             
-            
+            // Formatear datos para Excel
             return filteredData.map(item => {
                 const date = new Date(item.timestamp);
                 const chileDate = new Date(date.toLocaleString("en-US", {timeZone: "America/Santiago"}));
@@ -1451,11 +1460,11 @@
         }
         
         function storeCoordinateData(vehicleId, coords, status, laps) {
-           
+            // Obtener datos existentes o inicializar array vacío
             const storedData = localStorage.getItem('coordinateData');
             let coordinateData = storedData ? JSON.parse(storedData) : [];
             
-            
+            // Añadir nuevo dato
             coordinateData.push({
                 vehicleId: vehicleId,
                 vehicleName: vehicleNames[vehicleId] || vehicleId,
@@ -1466,7 +1475,7 @@
                 timestamp: new Date().toISOString()
             });
             
-            
+            // Mantener solo datos de los últimos 7 días
             const sevenDaysAgo = new Date();
             sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
@@ -1474,7 +1483,7 @@
                 return new Date(item.timestamp) >= sevenDaysAgo;
             });
             
-            
+            // Guardar datos actualizados
             localStorage.setItem('coordinateData', JSON.stringify(coordinateData));
         }
         
@@ -1494,7 +1503,7 @@
         }
         
         function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371000;
+            const R = 6371000; // Radio de la Tierra en metros
             const dLat = (lat2 - lat1) * Math.PI / 180;
             const dLon = (lon2 - lon1) * Math.PI / 180;
             const a = 
@@ -1510,18 +1519,17 @@
             const hour = now.getHours();
             let shift;
             
-            
-            
+            // Ajustar para turnos nocturnos que cruzan días
             let adjustedHour = hour;
             let currentDate = now.toDateString();
             
             if (hour >= 22) {
-                
+                // Después de las 10 PM, turno 3
                 shift = 'shift3';
             } else if (hour < 6) {
-                
+                // Antes de las 6 AM, también turno 3 (noche anterior)
                 shift = 'shift3';
-                
+                // Ajustar la fecha al día anterior
                 currentDate = new Date(now.getTime() - 6 * 60 * 60 * 1000).toDateString();
             } else if (hour >= 6 && hour < 13) {
                 shift = 'shift1';
@@ -1529,7 +1537,7 @@
                 shift = 'shift2';
             }
             
-            
+            // Reiniciar contadores si es un nuevo día
             if (lapCounters[vehicle].lastResetDate !== currentDate) {
                 lapCounters[vehicle].shift1 = 0;
                 lapCounters[vehicle].shift2 = 0;
@@ -1562,9 +1570,9 @@
                 zoomControl: false,
                 tap: false,
                 dragging: true,
-                preferCanvas: true, 
-                fadeAnimation: false, 
-                markerZoomAnimation: false 
+                preferCanvas: true, // Mejor rendimiento para muchos marcadores
+                fadeAnimation: false, // Desactivar animaciones para mejor rendimiento
+                markerZoomAnimation: false // Desactivar animaciones de zoom para marcadores
             }).setView(SCL_COORDS, ZOOM_INICIAL);
             
             L.control.zoom({
@@ -1592,9 +1600,9 @@
             currentTileLayer = L.tileLayer(provider.url, {
                 attribution: provider.attribution,
                 maxZoom: provider.maxZoom,
-                updateWhenIdle: true, 
-                reuseTiles: true, 
-                detectRetina: false 
+                updateWhenIdle: true, // Mejor rendimiento
+                reuseTiles: true, // Mejor rendimiento
+                detectRetina: false // Mejor rendimiento en dispositivos retina
             }).addTo(map);
             
             localStorage.setItem('mapProvider', providerKey);
@@ -1632,7 +1640,8 @@
                 showRoute(e.target.value);
             });
             
-             document.getElementById('forceLocationBtn').addEventListener('click', function() {
+            // Botón para forzar actualización de ubicación
+            document.getElementById('forceLocationBtn').addEventListener('click', function() {
                 forceLocationUpdate();
             });
             
@@ -1986,7 +1995,7 @@
                 document.getElementById('accuracyValue').textContent = `${accuracy.toFixed(1)} metros`;
             }
             
-            
+            // Mostrar hora local de Chile
             const now = new Date();
             const chileTime = new Date(now.toLocaleString("en-US", {timeZone: "America/Santiago"}));
             document.getElementById('lastUpdateValue').textContent = chileTime.toLocaleTimeString('es-CL');
@@ -2036,7 +2045,7 @@
             
             if (currentUserId === 'Admin') {
                 checkLapCompletion(mobileId, coords);
-                
+                // Almacenar datos de coordenadas
                 const laps = lapCounters[mobileId] ? 
                     lapCounters[mobileId].shift1 + lapCounters[mobileId].shift2 + lapCounters[mobileId].shift3 : 0;
                 storeCoordinateData(mobileId, coords, 'online', laps);
@@ -2069,7 +2078,7 @@
                                     const coords = [vehicle.coords.lat, vehicle.coords.lng];
                                     checkLapCompletion(mobileId, coords);
                                     
-                                    
+                                    // Almacenar datos de coordenadas
                                     const laps = lapCounters[mobileId] ? 
                                         lapCounters[mobileId].shift1 + lapCounters[mobileId].shift2 + lapCounters[mobileId].shift3 : 0;
                                     storeCoordinateData(mobileId, coords, vehicle.status, laps);
