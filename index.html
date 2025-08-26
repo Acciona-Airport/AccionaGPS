@@ -1196,7 +1196,7 @@
         const WEATHER_API = {
             name: "WeatherAPI",
             url: (lat, lon, apiKey) => `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${lat},${lon}&lang=es&aqi=yes`,
-            apiKey: "f4a384b6308a4d9ba0e175849242702",
+            apiKey: "bba45e8f8b3f4e398a5181130252608",
             parser: data => {
                 if (!data || !data.current) return null;
                 return {
@@ -2446,3 +2446,4 @@
     </script>
 </body>
 </html>
+
