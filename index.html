@@ -149,7 +149,6 @@
             width: 280px;
             transform: translateX(100%);
             transition: transform 0.3s ease;
-            border: 1px solid var(--red-light);
             position: relative;
             right: -100%;
             max-height: 80vh;
@@ -157,6 +156,8 @@
             -webkit-overflow-scrolling: touch;
             pointer-events: auto;
             backdrop-filter: blur(5px);
+            /* Eliminado el borde blanco */
+            border: none;
         }
         .control-panel.visible {
             transform: translateX(0);
@@ -164,7 +165,8 @@
         }
         .toggle-panel {
             background: rgba(255,255,255,var(--transparency));
-            border: 1px solid var(--red-light);
+            /* Eliminado el borde blanco */
+            border: none;
             width: 40px;
             height: 60px;
             border-radius: 8px 0 0 8px;
@@ -205,7 +207,8 @@
         .vehicle-card {
             margin-bottom: 12px;
             padding-bottom: 12px;
-            border-bottom: 1px solid var(--red-light);
+            /* Cambiado a línea blanca */
+            border-bottom: 1px solid white;
         }
         .vehicle-card:last-child {
             border-bottom: none;
@@ -425,6 +428,8 @@
             align-items: center;
             justify-content: center;
             font-size: 24px;
+            /* Eliminado el borde blanco */
+            border: none;
         }
         .accuracy-circle {
             fill: rgba(52, 152, 219, 0.2);
@@ -548,6 +553,7 @@
     padding: 15px;
     margin: 15px 0;
     box-shadow: none;
+    /* Eliminado el borde blanco */
     border: none;
 }
         .admin-dashboard h4 {
@@ -555,12 +561,14 @@
             margin-top: 0;
             margin-bottom: 15px;
             padding-bottom: 10px;
-            border-bottom: 1px solid var(--dashboard-border);
+            /* Cambiado a línea blanca */
+            border-bottom: 1px solid white;
         }
         .dashboard-tabs {
             display: flex;
             margin-bottom: 15px;
-            border-bottom: 1px solid var(--dashboard-border);
+            /* Cambiado a línea blanca */
+            border-bottom: 1px solid white;
         }
         .dashboard-tab {
             padding: 8px 15px;
@@ -583,6 +591,11 @@
             padding: 10px;
             background: var(--dashboard-bg);
             border-radius: 6px;
+            /* Cambiado a línea blanca */
+            border-bottom: 1px solid white;
+        }
+        .lap-counter:last-child {
+            border-bottom: none;
         }
         .lap-counter h5 {
             margin: 0 0 8px 0;
@@ -693,7 +706,7 @@
     
     
     <div class="weather-widget" id="weatherWidget">
-        <div class="weather-icon" id="weatherIcon">☀️</div>
+        <div class="weather-icon" id="weatherIcon"☀️</div>
         <div class="weather-info">
             <div class="weather-temp" id="weatherTemp">--°C</div>
             <div class="weather-desc" id="weatherDesc">Cargando...</div>
