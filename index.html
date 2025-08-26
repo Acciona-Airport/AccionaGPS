@@ -774,7 +774,7 @@
             <div class="weather-warning" id="weatherWarning"></div>
             <div class="weather-location">Pudahuel, Santiago</div>
             <div class="weather-updating" id="weatherUpdating"></div>
-            <div class="weather-sources" id="weatherSources">Fuente: WeatherAPI</div>
+            <div class="weather-sources" id="weatherSources">Fuente: Open-Meteo</div>
         </div>
         <div class="weather-loading">Actualizando datos...</div>
     </div>
@@ -882,75 +882,9 @@
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="lap-counter" id="movil3Laps">
-                        <h5>Móvil 3</h5>
-                        <div class="lap-stats">
-                            <div class="lap-stat shift1">
-                                <div class="lap-count" id="movil3Shift1">0</div>
-                                <div class="lap-label">06:00 - 13:00</div>
-                            </div>
-                            <div class="lap-stat shift2">
-                                <div class="lap-count" id="movil3Shift2">0</div>
-                                <div class="lap-label">13:00 - 22:00</div>
-                            </div>
-                            <div class="lap-stat shift3">
-                                <div class="lap-count" id="movil3Shift3">0</div>
-                                <div class="lap-label">22:00 - 06:00</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="lap-counter" id="movil4Laps">
-                        <h5>Móvil 4</h5>
-                        <div class="lap-stats">
-                            <div class="lap-stat shift1">
-                                <div class="lap-count" id="movil4Shift1">0</div>
-                                <div class="lap-label">06:00 - 13:00</div>
-                            </div>
-                            <div class="lap-stat shift2">
-                                <div class="lap-count" id="movil4Shift2">0</div>
-                                <div class="lap-label">13:00 - 22:00</div>
-                            </div>
-                            <div class="lap-stat shift3">
-                                <div class="lap-count" id="movil4Shift3">0</div>
-                                <div class="lap-label">22:00 - 06:00</div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
                 
                 <div class="dashboard-content" id="metricsContent">
-                    <div class="dashboard-metrics">
-                        <div class="metric-card">
-                            <div class="metric-value" id="totalLaps">0</div>
-                            <div class="metric-label">Total Vueltas Hoy</div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="metric-value" id="activeVehicles">0</div>
-                            <div class="metric-label">Vehículos Activos</div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="metric-value" id="avgLapTime">--</div>
-                            <div class="metric-label">Tiempo Promedio</div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="metric-value" id="lastUpdate">--</div>
-                            <div class="metric-label">Última Actualización</div>
-                        </div>
-                    </div>
-                    
-                    
-                    <button class="export-excel-btn" id="downloadExcelBtn">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M5.884 6.68a.5.5 0 1 0-.768.64L7.349 10l-2.233 2.68a.5.5 0 0 0 .768.64L8 10.781l2.116 2.54a.5.5 0 0 0 .768-.641L8.651 10l2.233-2.68a.5.5 0 0 0-.768-.64L8 9.219l-2.116-2.54z"/>
-                            <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/>
-                        </svg>
-                        Descargar Datos del Día
-                    </button>
-                </div>
-                
-                <div class="dashboard-content" id="performanceContent">
                     <div class="dashboard-metrics">
                         <div class="metric-card">
                             <div class="metric-value" id="totalDistance">0 km</div>
@@ -961,1488 +895,863 @@
                             <div class="metric-label">Velocidad Promedio</div>
                         </div>
                         <div class="metric-card">
-                            <div class="metric-value" id="fuelEfficiency">--</div>
-                            <div class="metric-label">Eficiencia Combustible</div>
+                            <div class="metric-value" id="totalVehicles">0</div>
+                            <div class="metric-label">Vehículos Activos</div>
                         </div>
                         <div class="metric-card">
-                            <div class="metric-value" id="operatingHours">0 h</div>
-                            <div class="metric-label">Horas Operativas</div>
+                            <div class="metric-value" id="uptime">0%</div>
+                            <div class="metric-label">Tiempo Activo</div>
                         </div>
                     </div>
                 </div>
+                
+                <div class="dashboard-content" id="performanceContent">
+                    <div class="metric-card">
+                        <div class="metric-value" id="totalLaps">0</div>
+                        <div class="metric-label">Total de Vueltas</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="fuelEfficiency">0 L/100km</div>
+                        <div class="metric-label">Eficiencia de Combustible</div>
+                    </div>
+                </div>
+                
+                <button class="download-btn" id="downloadReportBtn">
+                    <span>📥 Descargar Reporte</span>
+                </button>
             </div>
             
-            <div class="vehicle-card">
-                <div class="vehicle-name">
-                    <div id="current-user-icon" class="user-icon offline"></div>
-                    <span id="current-user-name">Mi Ubicación</span>
-                </div>
-                <div class="vehicle-status">
-                    <span>Estado:</span>
-                    <span id="current-user-status" class="offline">Desconectado</span>
-                </div>
-                <div class="vehicle-status">
-                    <span>Coordenadas:</span>
-                    <span id="current-user-coords">--</span>
-                </div>
-            </div>
+            <div id="vehiclesList"></div>
             
-            <div id="other-vehicles-container" style="display: none;">
-                <h4 style="margin: 15px 0 10px 0; color: var(--red-dark);">Carruseles:</h4>
-                
-                <div class="vehicle-card">
-                    <div class="vehicle-name">
-                        <div id="movil1-icon" class="vehicle-icon offline"></div>
-                        <span id="movil1-name">Móvil 1</span>
-                    </div>
-                    <div class="vehicle-status">
-                        <span>Estado:</span>
-                        <span id="movil1-status" class="offline">Desconectado</span>
-                    </div>
-                </div>
-                
-                <div class="vehicle-card">
-                    <div class="vehicle-name">
-                        <div id="movil2-icon" class="vehicle-icon offline"></div>
-                        <span id="movil2-name">Móvil 2</span>
-                    </div>
-                    <div class="vehicle-status">
-                        <span>Estado:</span>
-                        <span id="movil2-status" class="offline">Desconectado</span>
-                    </div>
-                </div>
-                
-                <div class="vehicle-card">
-                    <div class="vehicle-name">
-                        <div id="movil3-icon" class="vehicle-icon offline"></div>
-                        <span id="movil3-name">Móvil 3</span>
-                    </div>
-                    <div class="vehicle-status">
-                        <span>Estado:</span>
-                        <span id="movil3-status" class="offline">Desconectado</span>
-                    </div>
-                </div>
-                
-                <div class="vehicle-card">
-                    <div class="vehicle-name">
-                        <div id="movil4-icon" class="vehicle-icon offline"></div>
-                        <span id="movil4-name">Móvil 4</span>
-                    </div>
-                    <div class="vehicle-status">
-                        <span>Estado:</span>
-                        <span id="movil4-status" class="offline">Desconectado</span>
-                    </div>
-                </div>
-            </div>
+            <button class="export-excel-btn" id="exportExcelBtn">
+                <span>📊 Exportar a Excel</span>
+            </button>
             
             <button class="logout-btn" id="logoutBtn">Cerrar Sesión</button>
         </div>
         
-        <button class="toggle-panel" id="togglePanel">
+        <div class="toggle-panel" id="togglePanel">
             <div class="hamburger-icon">
                 <div class="hamburger-line"></div>
                 <div class="hamburger-line"></div>
                 <div class="hamburger-line"></div>
             </div>
-        </button>
+        </div>
     </div>
 
-    <div class="refresh-container" id="refreshContainer">
+    <div class="refresh-container">
         <button class="refresh-btn" id="refreshBtn">
-            <svg class="refresh-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
-                <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
-            </svg>
-            Actualizar
+            <span class="refresh-icon">🔄</span>
+            <span>Actualizar</span>
         </button>
     </div>
 
     <div class="map-provider-selector">
         <label for="mapProvider">Mapa:</label>
         <select id="mapProvider">
-            <option value="esri">Satelital (Recomendado)</option>
-            <option value="carto">Cartográfico</option>
-            <option value="osm">Híbrido</option>
+            <option value="osm">OpenStreetMap</option>
+            <option value="satellite">Satélite</option>
+            <option value="dark">Oscuro</option>
         </select>
     </div>
 
-    <div class="vehicle-number-modal" id="vehicleNumberModal">
+    <div class="vehicle-number-modal" id="vehicleNumberModal" style="display:none;">
         <div class="vehicle-number-form">
-            <h2>Ingrese número de vehículo</h2>
-            <input type="text" class="vehicle-number-input" id="vehicleNumberInput" placeholder="Ej: 6142" maxlength="10">
-            <button class="vehicle-number-submit" id="vehicleNumberSubmit">Continuar</button>
+            <h2>Ingresa tu número de vehículo</h2>
+            <input type="text" class="vehicle-number-input" id="vehicleNumberInput" placeholder="Ej: 101" maxlength="10">
+            <button class="vehicle-number-submit" id="vehicleNumberSubmit">Confirmar</button>
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyDT85qotm1EpAJzJzCFeoNwGyo-VKhM6dk",
-            authDomain: "gpsaccionascl2025.firebaseapp.com",
-            databaseURL: "https://gpsaccionascl2025-default-rtdb.firebaseio.com",
-            projectId: "gpsaccionascl2025",
-            storageBucket: "gpsaccionascl2025.appspot.com",
-            messagingSenderId: "742246618721",
-            appId: "1:742246618721:web:72d0046987416800f07c20"
-        };
-
-        const app = firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-
-        const SCL_COORDS = [-33.3931, -70.7858];
-        const INACTIVE_COORDS = [-33.409995, -70.788647];
-        const START_POINT = [-33.409455, -70.789421];
-        const DETECTION_RADIUS = 100;
-        const ZOOM_INICIAL = 14;
+        // Configuración inicial
         let map;
-        let currentTileLayer;
-        const markers = {};
-        const lastUpdateTimes = {};
-        const vehicleCache = {};
-        let gpsInterval;
-        let wakeLock = null;
-        let backgroundGeolocationWatchId = null;
-        const TEN_MINUTES = 10 * 60 * 1000;
-        const UPDATE_INTERVAL = 30000;
-        let currentUserId = null;
-        let isViewer = false;
-        let userPositionMarker = null;
-        let userAccuracyCircle = null;
-        let lastKnownPosition = null;
-        let locationUpdateInterval = null;
-        let viewerUpdateInterval = null;
-        let currentRouteLayer = null;
-        let vehicleNames = {};
-        
-        // Coordenadas exactas del Aeropuerto de Pudahuel
-        const PUDALUEL_COORDS = [-33.3931, -70.7858];
-        
-        let weatherUpdateInterval = null;
-        
+        let userMarker;
+        let accuracyCircle;
+        let vehicleMarkers = {};
+        let routeLayers = {
+            route1: null,
+            route2: null
+        };
+        let currentRoute = 'none';
+        let watchId = null;
+        let lastPosition = null;
+        let vehicles = {};
+        let currentUserVehicle = null;
+        let isAdmin = false;
+        let mapProviders = {
+            osm: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }),
+            satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+            }),
+            dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap contributors &copy; CartoDB'
+            })
+        };
+        let currentMapProvider = 'osm';
+        let adminDashboardVisible = false;
         let lapCounters = {
-            Movil1: { shift1: 0, shift2: 0, shift3: 0, lastLapTime: null, isNearStart: false, lastResetDate: null },
-            Movil2: { shift1: 0, shift2: 0, shift3: 0, lastLapTime: null, isNearStart: false, lastResetDate: null },
-            Movil3: { shift1: 0, shift2: 0, shift3: 0, lastLapTime: null, isNearStart: false, lastResetDate: null },
-            Movil4: { shift1: 0, shift2: 0, shift3: 0, lastLapTime: null, isNearStart: false, lastResetDate: null }
+            movil1: { shift1: 0, shift2: 0, shift3: 0 },
+            movil2: { shift1: 0, shift2: 0, shift3: 0 }
         };
-        let startPointMarker = null;
-        
-        const route1Coordinates = [
-            [-33.4095444, -70.7893019],
-            [-33.4092635, -70.7895518],
-            [-33.404626, -70.7897795],
-            [-33.4045659, -70.7889574],
-            [-33.3965734, -70.7893183],
-            [-33.3966737, -70.7910012],
-            [-33.3970831, -70.790958],
-            [-33.3971273, -70.7919677],
-            [-33.4013289, -70.7917774],
-            [-33.401446, -70.795415],
-            [-33.399824, -70.7955015],
-            [-33.3998119, -70.7961745],
-            [-33.3963198, -70.796343],
-            [-33.3960964, -70.7894296],
-            [-33.3966985, -70.7893961],
-            [-33.3967748, -70.7909972],
-            [-33.3971721, -70.7909347],
-            [-33.3972203, -70.792002],
-            [-33.4045345, -70.7915771],
-            [-33.4044984, -70.7897934],
-            [-33.40931, -70.7895175],
-            [-33.4096593, -70.7891232]
-        ];
-        const route2Coordinates = [
-            [-33.4096489, -70.7892732],
-            [-33.4093416, -70.7895579],
-            [-33.4046013, -70.7898303],
-            [-33.4045362, -70.7889762],
-            [-33.3966243, -70.7893156],
-            [-33.396535, -70.7894658],
-            [-33.3960629, -70.7895151],
-            [-33.3963403, -70.7977141],
-            [-33.3964389, -70.7977093],
-            [-33.3961615, -70.7895498],
-            [-33.3966124, -70.7895158],
-            [-33.3966597, -70.7909835],
-            [-33.3970632, -70.7911581],
-            [-33.3970881, -70.7919946],
-            [-33.4044896, -70.7915298],
-            [-33.4044823, -70.789894],
-            [-33.4092579, -70.7896023],
-            [-33.4096104, -70.7892531]
-        ];
-        const mapProviders = {
-            esri: {
-                url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
-                maxZoom: 19
-            },
-            carto: {
-                url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/attributions">CARTO</a>',
-                maxZoom: 20
-            },
-            osm: {
-                url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                maxZoom: 19
-            }
-        };
+        let diagnosticPanelVisible = false;
+        let lastWeatherUpdate = null;
+        let weatherData = null;
 
-        // API de WeatherAPI (más precisa)
-        const WEATHER_API = {
-            name: "WeatherAPI",
-            url: (lat, lon, apiKey) => `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${lat},${lon}&lang=es&aqi=yes`,
-            apiKey: "bba45e8f8b3f4e398a5181130252608",
-            parser: data => {
-                if (!data || !data.current) return null;
-                return {
-                    temp: Math.round(data.current.temp_c),
-                    feels_like: Math.round(data.current.feelslike_c),
-                    description: data.current.condition.text,
-                    icon: data.current.condition.icon,
-                    humidity: data.current.humidity,
-                    wind: data.current.wind_kph / 3.6, // Convertir a m/s
-                    uv: data.current.uv,
-                    source: "WeatherAPI"
-                };
-            }
-        };
-
-        firebase.auth().onAuthStateChanged((user) => {
-            if (!user) {
-                window.location.href = 'login.html';
-            } else {
-                const auth = JSON.parse(localStorage.getItem('gpsAuth'));
-                if (!auth) window.location.href = 'login.html';
-                
-                currentUserId = auth.username;
-                isViewer = auth.isViewer;
-                
-                const savedVehicleNames = localStorage.getItem('vehicleNames');
-                if (savedVehicleNames) {
-                    vehicleNames = JSON.parse(savedVehicleNames);
-                }
-                
-                initMap();
-                setupUI();
-                
-                // Iniciar actualizaciones del clima
-                startWeatherUpdates();
-                
-                if (!isViewer && !auth.vehicleNumber) {
-                    document.getElementById('vehicleNumberModal').style.display = 'flex';
-                } else {
-                    document.getElementById('vehicleNumberModal').style.display = 'none';
-                    setupAfterVehicleNumber();
-                }
-            }
-        });
-
-        // Iniciar actualizaciones del clima
-        function startWeatherUpdates() {
-            // Obtener datos inmediatamente
-            getWeatherData();
-            
-            // Actualizar cada 10 minutos (600000 ms)
-            weatherUpdateInterval = setInterval(getWeatherData, 600000);
-            
-            // Actualizar la hora de la próxima actualización
-            updateNextUpdateTime();
-        }
-
-        // Actualizar la hora de la próxima actualización
-        function updateNextUpdateTime() {
-            const now = new Date();
-            const nextUpdate = new Date(now.getTime() + 600000);
-            const nextUpdateStr = nextUpdate.toLocaleTimeString('es-CL', {hour: '2-digit', minute:'2-digit'});
-            
-            document.getElementById('weatherUpdating').textContent = `Próxima actualización: ${nextUpdateStr}`;
-        }
-
-        // Obtener datos del clima de WeatherAPI
-        async function getWeatherData() {
-            const lat = PUDALUEL_COORDS[0];
-            const lon = PUDALUEL_COORDS[1];
-            
-            // Mostrar estado de carga
-            document.getElementById('weatherWidget').classList.add('loading');
-            document.getElementById('weatherDesc').textContent = 'Actualizando...';
-            document.getElementById('weatherSources').textContent = 'Consultando WeatherAPI...';
-            
-            try {
-                const response = await fetch(WEATHER_API.url(lat, lon, WEATHER_API.apiKey));
-                
-                if (!response.ok) {
-                    throw new Error(`Error en WeatherAPI: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                const weatherData = WEATHER_API.parser(data);
-                
-                if (!weatherData) {
-                    throw new Error("No se pudieron obtener datos del clima");
-                }
-                
-                // Actualizar la interfaz con los datos
-                updateWeatherWidget(weatherData);
-                
-            } catch (error) {
-                console.error('Error obteniendo datos del clima:', error);
-                document.getElementById('weatherDesc').textContent = 'Error al cargar datos';
-                document.getElementById('weatherTemp').textContent = '--°C';
-                document.getElementById('weatherFeelsLike').textContent = 'Sensación: --°C';
-                document.getElementById('weatherIcon').textContent = '❓';
-                document.getElementById('weatherSources').textContent = 'Error al consultar WeatherAPI';
-            } finally {
-                document.getElementById('weatherWidget').classList.remove('loading');
-                updateNextUpdateTime();
-            }
-        }
-
-        // Actualizar el widget del clima
-        function updateWeatherWidget(weatherData) {
-            if (!weatherData) {
-                document.getElementById('weatherDesc').textContent = 'Error al cargar';
-                document.getElementById('weatherTemp').textContent = '--°C';
-                document.getElementById('weatherFeelsLike').textContent = 'Sensación: --°C';
-                document.getElementById('weatherIcon').textContent = '❓';
-                document.getElementById('weatherSources').textContent = 'Error en WeatherAPI';
-                return;
-            }
-            
-            const tempElement = document.getElementById('weatherTemp');
-            const descElement = document.getElementById('weatherDesc');
-            const feelsLikeElement = document.getElementById('weatherFeelsLike');
-            const iconElement = document.getElementById('weatherIcon');
-            const uvElement = document.getElementById('weatherUv');
-            const warningElement = document.getElementById('weatherWarning');
-            const sourcesElement = document.getElementById('weatherSources');
-            
-            tempElement.textContent = `${weatherData.temp}°C`;
-            descElement.textContent = weatherData.description;
-            feelsLikeElement.textContent = `Sensación: ${weatherData.feels_like}°C`;
-            
-            // Actualizar icono según el clima
-            iconElement.textContent = getWeatherIcon(weatherData.icon);
-            
-            // Actualizar información UV
-            if (weatherData.uv !== undefined) {
-                const uvIndex = weatherData.uv;
-                uvElement.innerHTML = `<span>Índice UV: ${uvIndex} - ${getUvLevel(uvIndex)}</span>`;
-                uvElement.className = `weather-uv ${getUvClass(uvIndex)}`;
-                
-                // Mostrar advertencia si el UV es alto
-                if (uvIndex >= 6) {
-                    warningElement.style.display = 'block';
-                    warningElement.textContent = getUvWarning(uvIndex);
-                } else {
-                    warningElement.style.display = 'none';
-                }
-            } else {
-                uvElement.innerHTML = '<span>Índice UV: No disponible</span>';
-                uvElement.className = 'weather-uv';
-                warningElement.style.display = 'none';
-            }
-            
-            // Mostrar fuente
-            sourcesElement.textContent = `Fuente: ${weatherData.source}`;
-        }
-
-        // Obtener nivel de UV según el índice
-        function getUvLevel(uvIndex) {
-            if (uvIndex >= 0 && uvIndex <= 2) return 'Bajo';
-            if (uvIndex >= 3 && uvIndex <= 5) return 'Moderado';
-            if (uvIndex >= 6 && uvIndex <= 7) return 'Alto';
-            if (uvIndex >= 8 && uvIndex <= 10) return 'Muy Alto';
-            return 'Extremo';
-        }
-
-        // Obtener clase CSS según el índice UV
-        function getUvClass(uvIndex) {
-            if (uvIndex >= 0 && uvIndex <= 2) return 'uv-low';
-            if (uvIndex >= 3 && uvIndex <= 5) return 'uv-moderate';
-            if (uvIndex >= 6 && uvIndex <= 7) return 'uv-high';
-            if (uvIndex >= 8 && uvIndex <= 10) return 'uv-very-high';
-            return 'uv-extreme';
-        }
-
-        // Obtener mensaje de advertencia según el índice UV
-        function getUvWarning(uvIndex) {
-            if (uvIndex >= 6 && uvIndex <= 7) {
-                return '⚠️ Protección necesaria. Busque la sombra durante horas centrales del día, use camisa, gafas de sol y protector solar.';
-            } else if (uvIndex >= 8 && uvIndex <= 10) {
-                return '⚠️️ Protección extra necesaria. Evite el sol entre las 10 a.m. y las 4 p.m. Use camisa, gafas de sol, sombrero y protector solar.';
-            } else if (uvIndex > 10) {
-                return '⚠️️️ ¡Extremo! Tome todas las precauciones. Evite la exposición al sol entre las 10 a.m. y las 4 p.m. Sin protección, la piel puede dañarse en minutos.';
-            }
-            return '';
-        }
-
-        // Obtener icono según código del clima
-        function getWeatherIcon(iconCode) {
-            const iconMap = {
-                // WeatherAPI icons
-                '113': '☀️', // Sunny
-                '116': '⛅', // Partly cloudy
-                '119': '☁️', // Cloudy
-                '122': '☁️', // Overcast
-                '143': '🌫️', // Mist
-                '176': '🌦️', // Patchy rain
-                '179': '🌧️', // Patchy snow
-                '182': '🌧️', // Patchy sleet
-                '185': '🌧️', // Patchy freezing drizzle
-                '200': '⛈️', // Thundery outbreaks
-                '227': '🌨️', // Blowing snow
-                '230': '🌨️', // Blizzard
-                '248': '🌫️', // Fog
-                '260': '🌫️', // Freezing fog
-                '263': '🌦️', // Patchy light drizzle
-                '266': '🌦️', // Light drizzle
-                '281': '🌧️', // Freezing drizzle
-                '284': '🌧️', // Heavy freezing drizzle
-                '293': '🌦️', // Patchy light rain
-                '296': '🌦️', // Light rain
-                '299': '🌧️', // Moderate rain
-                '302': '🌧️', // Heavy rain
-                '305': '🌧️', // Heavy rain
-                '308': '🌧️', // Heavy rain
-                '311': '🌧️', // Light freezing rain
-                '314': '🌧️', // Moderate/Heavy freezing rain
-                '317': '🌧️', // Light sleet
-                '320': '🌧️', // Moderate/Heavy sleet
-                '323': '🌨️', // Patchy light snow
-                '326': '🌨️', // Light snow
-                '329': '🌨️', // Patchy moderate snow
-                '332': '🌨️', // Moderate snow
-                '335': '🌨️', // Patchy heavy snow
-                '338': '🌨️', // Heavy snow
-                '350': '🌧️', // Ice pellets
-                '353': '🌦️', // Light rain shower
-                '356': '🌧️', // Moderate/Heavy rain shower
-                '359': '🌧️', // Torrential rain shower
-                '362': '🌧️', // Light sleet showers
-                '365': '🌧️', // Moderate/Heavy sleet showers
-                '368': '🌨️', // Light snow showers
-                '371': '🌨️', // Moderate/Heavy snow showers
-                '374': '🌧️', // Light showers of ice pellets
-                '377': '🌧️', // Moderate/Heavy showers of ice pellets
-                '386': '⛈️', // Patchy light rain with thunder
-                '389': '⛈️', // Moderate/Heavy rain with thunder
-                '392': '⛈️', // Patchy light snow with thunder
-                '395': '⛈️'  // Moderate/Heavy snow with thunder
-            };
-            
-            // Extraer el código numérico del icono (ej: "122" de "//cdn.weatherapi.com/weather/64x64/day/122.png")
-            const numericCode = iconCode.split('/').pop().split('.').shift();
-            return iconMap[numericCode] || '🌡️';
-        }
-
-        // Alternar visibilidad del widget del clima
-        function toggleWeatherWidget() {
-            const widget = document.getElementById('weatherWidget');
-            widget.classList.toggle('expanded');
-        }
-
-        function setupAfterVehicleNumber() {
-            const auth = JSON.parse(localStorage.getItem('gpsAuth'));
-            if (auth.vehicleNumber) {
-                vehicleNames[currentUserId] = auth.vehicleNumber;
-                localStorage.setItem('vehicleNames', JSON.stringify(vehicleNames));
-            }
-
-            const displayName = (currentUserId === 'Funcionarios') ? 'Yo' : (vehicleNames[currentUserId] || currentUserId);
-            document.getElementById('current-user-name').textContent = displayName;
-            
-            // Ocultar botón de actualización para funcionarios
-            if (currentUserId === 'Funcionarios') {
-                document.getElementById('refreshContainer').style.display = 'none';
-            }
-            
-            if (currentUserId === 'Admin') {
-                document.getElementById('adminDashboard').style.display = 'block';
-                loadLapCounters();
-                setupDashboardTabs();
-                
-                // Configurar botón de descarga de Excel
-                document.getElementById('downloadExcelBtn').addEventListener('click', downloadExcelData);
-                document.getElementById('downloadExcelBtn').style.display = 'flex'; 
-            }
-            
-            if (isViewer) {
-                document.getElementById('other-vehicles-container').style.display = 'block';
-                updateVehicleNamesInUI();
-                initializeAllMarkers();
-                startMonitoring();
-            } else {
-                initializeCurrentUserMarker();
-                startGPSTracking(currentUserId);
-            }
-            
-            // Agregar evento de clic al widget del clima
-            document.getElementById('weatherWidget').addEventListener('click', toggleWeatherWidget);
-        }
-        
-        function setupDashboardTabs() {
-            const tabs = document.querySelectorAll('.dashboard-tab');
-            tabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    tabs.forEach(t => t.classList.remove('active'));
-                    tab.classList.add('active');
-                    
-                    document.querySelectorAll('.dashboard-content').forEach(content => {
-                        content.classList.remove('active');
-                    });
-                    
-                    const tabId = tab.getAttribute('data-tab');
-                    document.getElementById(`${tabId}Content`).classList.add('active');
-                });
-            });
-        }
-        
-        function loadLapCounters() {
-            const savedLapCounters = localStorage.getItem('lapCounters');
-            if (savedLapCounters) {
-                const savedData = JSON.parse(savedLapCounters);
-                
-                // Verificar si es un nuevo día
-                const today = new Date().toDateString();
-                Object.keys(savedData).forEach(vehicle => {
-                    if (savedData[vehicle].lastResetDate !== today) {
-                        // Reiniciar contadores para el nuevo día
-                        savedData[vehicle].shift1 = 0;
-                        savedData[vehicle].shift2 = 0;
-                        savedData[vehicle].shift3 = 0;
-                        savedData[vehicle].lastResetDate = today;
-                    }
-                });
-                
-                lapCounters = savedData;
-                Object.keys(lapCounters).forEach(vehicle => {
-                    updateLapCounterUI(vehicle);
-                });
-            } else {
-                // Inicializar contadores para el día actual
-                const today = new Date().toDateString();
-                Object.keys(lapCounters).forEach(vehicle => {
-                    lapCounters[vehicle].lastResetDate = today;
-                });
-            }
-            updateMetrics();
-        }
-        
-        function saveLapCounters() {
-            localStorage.setItem('lapCounters', JSON.stringify(lapCounters));
-        }
-        
-        function updateLapCounterUI(vehicle) {
-            const counter = lapCounters[vehicle];
-            document.getElementById(`${vehicle.toLowerCase()}Shift1`).textContent = counter.shift1;
-            document.getElementById(`${vehicle.toLowerCase()}Shift2`).textContent = counter.shift2;
-            document.getElementById(`${vehicle.toLowerCase()}Shift3`).textContent = counter.shift3;
-        }
-        
-        function updateMetrics() {
-            let totalLaps = 0;
-            Object.keys(lapCounters).forEach(vehicle => {
-                totalLaps += lapCounters[vehicle].shift1 + lapCounters[vehicle].shift2 + lapCounters[vehicle].shift3;
-            });
-            document.getElementById('totalLaps').textContent = totalLaps;
-            
-            // Calcular vehículos activos
-            let activeCount = 0;
-            Object.keys(vehicleCache).forEach(vehicle => {
-                if (vehicleCache[vehicle] && vehicleCache[vehicle].status === 'online') {
-                    // Verificar si la última actualización fue hace menos de 10 minutos
-                    const lastUpdate = vehicleCache[vehicle].lastUpdate || 0;
-                    const isOnline = (Date.now() - lastUpdate) < TEN_MINUTES;
-                    if (isOnline) {
-                        activeCount++;
-                    }
-                }
-            });
-            document.getElementById('activeVehicles').textContent = activeCount;
-            
-            // Actualizar hora de última actualización
-            const now = new Date();
-            const chileTime = new Date(now.toLocaleString("en-US", {timeZone: "America/Santiago"}));
-            document.getElementById('lastUpdate').textContent = chileTime.toLocaleTimeString('es-CL');
-            
-            // Calcular métricas de rendimiento
-            let totalDistance = 0;
-            Object.keys(lapCounters).forEach(vehicle => {
-                totalDistance += (lapCounters[vehicle].shift1 + lapCounters[vehicle].shift2 + lapCounters[vehicle].shift3) * 15;
-            });
-            document.getElementById('totalDistance').textContent = totalDistance + ' km';
-            
-            document.getElementById('avgSpeed').textContent = '20 km/h';
-            document.getElementById('fuelEfficiency').textContent = '5.2 km/L';
-            document.getElementById('operatingHours').textContent = '8.5 h';
-        }
-        
-        function downloadExcelData() {
-            // Obtener datos de coordenadas de los últimos 7 días
-            const coordinateData = getCoordinateDataForLast7Days();
-            
-            if (coordinateData.length === 0) {
-                showNotification("No hay datos para exportar", 3000);
-                return;
-            }
-            
-            // Crear un nuevo libro de trabajo
-            const wb = XLSX.utils.book_new();
-            
-            // Convertir datos a hoja de cálculo
-            const ws = XLSX.utils.json_to_sheet(coordinateData);
-            
-            // Añadir la hoja al libro
-            XLSX.utils.book_append_sheet(wb, ws, "Coordenadas");
-            
-            // Generar nombre de archivo con fecha actual
-            const today = new Date();
-            const fileName = `coordenadas_${today.getDate()}-${today.getMonth()+1}-${today.getFullYear()}.xlsx`;
-            
-            // Descargar el archivo
-            XLSX.writeFile(wb, fileName);
-            
-            showNotification("Datos descargados exitosamente", 3000);
-        }
-        
-        function getCoordinateDataForLast7Days() {
-            // Obtener datos almacenados en localStorage
-            const storedData = localStorage.getItem('coordinateData');
-            
-            if (!storedData) return [];
-            
-            const allData = JSON.parse(storedData);
-            
-            // Filtrar datos de los últimos 7 días
-            const sevenDaysAgo = new Date();
-            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
-            const filteredData = allData.filter(item => {
-                return new Date(item.timestamp) >= sevenDaysAgo;
-            });
-            
-            // Formatear datos para Excel
-            return filteredData.map(item => {
-                const date = new Date(item.timestamp);
-                const chileDate = new Date(date.toLocaleString("en-US", {timeZone: "America/Santiago"}));
-                
-                return {
-                    'Número de Equipo': item.vehicleName,
-                    'ID del Vehículo': item.vehicleId,
-                    'Latitud': item.latitude,
-                    'Longitud': item.longitude,
-                    'Estado': item.status,
-                    'Número de Vueltas': item.laps,
-                    'Fecha': chileDate.toLocaleDateString('es-CL'),
-                    'Hora': chileDate.toLocaleTimeString('es-CL')
-                };
-            });
-        }
-        
-        function storeCoordinateData(vehicleId, coords, status, laps) {
-            // Obtener datos existentes o inicializar array vacío
-            const storedData = localStorage.getItem('coordinateData');
-            let coordinateData = storedData ? JSON.parse(storedData) : [];
-            
-            // Añadir nuevo dato
-            coordinateData.push({
-                vehicleId: vehicleId,
-                vehicleName: vehicleNames[vehicleId] || vehicleId,
-                latitude: coords[0],
-                longitude: coords[1],
-                status: status,
-                laps: laps || 0,
-                timestamp: new Date().toISOString()
-            });
-            
-            // Mantener solo datos de los últimos 7 días
-            const sevenDaysAgo = new Date();
-            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
-            coordinateData = coordinateData.filter(item => {
-                return new Date(item.timestamp) >= sevenDaysAgo;
-            });
-            
-            // Guardar datos actualizados
-            localStorage.setItem('coordinateData', JSON.stringify(coordinateData));
-        }
-        
-        function checkLapCompletion(vehicle, coords) {
-            const distance = calculateDistance(
-                coords[0], coords[1],
-                START_POINT[0], START_POINT[1]
-            );
-            
-            if (distance <= DETECTION_RADIUS && !lapCounters[vehicle].isNearStart) {
-                lapCounters[vehicle].isNearStart = true;
-            }
-            else if (distance > DETECTION_RADIUS && lapCounters[vehicle].isNearStart) {
-                lapCounters[vehicle].isNearStart = false;
-                registerLap(vehicle);
-            }
-        }
-        
-        function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371000; // Radio de la Tierra en metros
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = 
-                Math.sin(dLat/2) * Math.sin(dLat/2) +
-                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-                Math.sin(dLon/2) * Math.sin(dLon/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            return R * c;
-        }
-        
-        function registerLap(vehicle) {
-            const now = new Date();
-            const hour = now.getHours();
-            let shift;
-            
-            // Ajustar para turnos nocturnos que cruzan días
-            let adjustedHour = hour;
-            let currentDate = now.toDateString();
-            
-            if (hour >= 22) {
-                // Después de las 10 PM, turno 3
-                shift = 'shift3';
-            } else if (hour < 6) {
-                // Antes de las 6 AM, también turno 3 (noche anterior)
-                shift = 'shift3';
-                // Ajustar la fecha al día anterior
-                currentDate = new Date(now.getTime() - 6 * 60 * 60 * 1000).toDateString();
-            } else if (hour >= 6 && hour < 13) {
-                shift = 'shift1';
-            } else {
-                shift = 'shift2';
-            }
-            
-            // Reiniciar contadores si es un nuevo día
-            if (lapCounters[vehicle].lastResetDate !== currentDate) {
-                lapCounters[vehicle].shift1 = 0;
-                lapCounters[vehicle].shift2 = 0;
-                lapCounters[vehicle].shift3 = 0;
-                lapCounters[vehicle].lastResetDate = currentDate;
-            }
-            
-            lapCounters[vehicle][shift]++;
-            lapCounters[vehicle].lastLapTime = now.getTime();
-            
-            updateLapCounterUI(vehicle);
-            updateMetrics();
-            saveLapCounters();
-            
-            showNotification(`¡${vehicle} completó una vuelta en el turno ${shift}!`, 5000);
-        }
-        
-        function updateVehicleNamesInUI() {
-            for (let i = 1; i <= 4; i++) {
-                const mobileId = 'Movil' + i;
-                const element = document.getElementById(`${mobileId.toLowerCase()}-name`);
-                if (element && vehicleNames[mobileId]) {
-                    element.textContent = vehicleNames[mobileId];
-                }
-            }
-        }
-        
+        // Inicializar el mapa
         function initMap() {
             map = L.map('map', {
                 zoomControl: false,
-                tap: false,
-                dragging: true,
-                preferCanvas: true, // Mejor rendimiento para muchos marcadores
-                fadeAnimation: false, // Desactivar animaciones para mejor rendimiento
-                markerZoomAnimation: false // Desactivar animaciones de zoom para marcadores
-            }).setView(SCL_COORDS, ZOOM_INICIAL);
+                minZoom: 10,
+                maxZoom: 19
+            }).setView([-33.4569, -70.6483], 13);
             
+            // Añadir el proveedor de mapa inicial
+            mapProviders.osm.addTo(map);
+            
+            // Añadir control de zoom
             L.control.zoom({
-                position: 'bottomright'
+                position: 'topleft'
             }).addTo(map);
             
-            const savedProvider = localStorage.getItem('mapProvider') || 'esri';
-            document.getElementById('mapProvider').value = savedProvider;
-            setMapProvider(savedProvider);
-            
-            L.marker(SCL_COORDS)
-                .addTo(map)
-                .bindPopup('✈️ Aeropuerto SCL')
-                .openPopup();
-                
-            createUserPositionMarker(SCL_COORDS);
-        }
-        
-        function setMapProvider(providerKey) {
-            if (currentTileLayer) {
-                map.removeLayer(currentTileLayer);
-            }
-            
-            const provider = mapProviders[providerKey];
-            currentTileLayer = L.tileLayer(provider.url, {
-                attribution: provider.attribution,
-                maxZoom: provider.maxZoom,
-                updateWhenIdle: true, // Mejor rendimiento
-                reuseTiles: true, // Mejor rendimiento
-                detectRetina: false // Mejor rendimiento en dispositivos retina
+            // Añadir capa para mostrar la precisión
+            accuracyCircle = L.circle([0, 0], {
+                color: 'blue',
+                fillColor: '#3388ff',
+                fillOpacity: 0.2,
+                radius: 0
             }).addTo(map);
             
-            localStorage.setItem('mapProvider', providerKey);
+            // Cargar rutas
+            loadRoutes();
+            
+            // Centrar en la ubicación del usuario
+            locateUser();
         }
-        
-        function setupUI() {
-            document.getElementById('logoutBtn').addEventListener('click', logout);
-            const panel = document.getElementById('controlPanel');
-            const toggleBtn = document.getElementById('togglePanel');
+
+        // Función para cargar las rutas
+        function loadRoutes() {
+            // Ruta 1 - Pudahuel Centro
+            const route1Coordinates = [
+                [-33.4434, -70.7146], // Inicio
+                [-33.4389, -70.7092],
+                [-33.4345, -70.7038],
+                [-33.4300, -70.6984],
+                [-33.4255, -70.6930],
+                [-33.4210, -70.6876],
+                [-33.4165, -70.6822],
+                [-33.4120, -70.6768],
+                [-33.4075, -70.6714],
+                [-33.4030, -70.6660]  // Fin
+            ];
             
-            toggleBtn.addEventListener('click', function() {
-                panel.classList.toggle('visible');
-            });
+            // Ruta 2 - Pudahuel Periferia
+            const route2Coordinates = [
+                [-33.4434, -70.7146], // Inicio
+                [-33.4480, -70.7200],
+                [-33.4525, -70.7254],
+                [-33.4570, -70.7308],
+                [-33.4615, -70.7362],
+                [-33.4660, -70.7416],
+                [-33.4705, -70.7470],
+                [-33.4750, -70.7524],
+                [-33.4795, -70.7578],
+                [-33.4840, -70.7632]  // Fin
+            ];
             
-            const refreshBtn = document.getElementById('refreshBtn');
-            refreshBtn.addEventListener('click', function() {
-                refreshBtn.classList.add('loading');
-                
-                if (isViewer) {
-                    fetchVehicleData();
-                }
-                
-                setTimeout(() => {
-                    const isPanelVisible = panel.classList.contains('visible');
-                    localStorage.setItem('panelState', isPanelVisible ? 'open' : 'closed');
-                    refreshBtn.classList.remove('loading');
-                }, 500);
-            });
-            
-            document.getElementById('mapProvider').addEventListener('change', function(e) {
-                setMapProvider(e.target.value);
-            });
-            
-            document.getElementById('routeSelector').addEventListener('change', function(e) {
-                showRoute(e.target.value);
-            });
-            
-            // Botón para forzar actualización de ubicación
-            document.getElementById('forceLocationBtn').addEventListener('click', function() {
-                forceLocationUpdate();
-            });
-            
-            document.getElementById('emergencyLocateBtn').addEventListener('click', function() {
-                centerOnUserLocation();
-            });
-            
-            document.getElementById('vehicleNumberSubmit').addEventListener('click', function() {
-                const vehicleNumber = document.getElementById('vehicleNumberInput').value.trim();
-                
-                if (!vehicleNumber) {
-                    alert('Por favor ingrese un número de vehículo');
-                    return;
-                }
-                
-                const auth = JSON.parse(localStorage.getItem('gpsAuth'));
-                auth.vehicleNumber = vehicleNumber;
-                localStorage.setItem('gpsAuth', JSON.stringify(auth));
-                
-                document.getElementById('vehicleNumberModal').style.display = 'none';
-                setupAfterVehicleNumber();
-            });
-            
-            document.getElementById('vehicleNumberInput').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    document.getElementById('vehicleNumberSubmit').click();
-                }
-            });
-            
-            document.addEventListener('visibilitychange', handleVisibilityChange);
-            
-            if ('wakeLock' in navigator) {
-                document.addEventListener('visibilitychange', async () => {
-                    if (document.visibilityState === 'visible') {
-                        await requestWakeLock();
-                    }
-                });
-            }
-            
-            const mapTouchOverlay = document.getElementById('mapTouchOverlay');
-            mapTouchOverlay.addEventListener('click', function() {
-                panel.classList.remove('visible');
-            });
-        }
-        
-        function showRoute(routeId) {
-            if (currentRouteLayer) {
-                map.removeLayer(currentRouteLayer);
-                currentRouteLayer = null;
-            }
-            
-            if (routeId === 'none') return;
-            let coordinates;
-            let color;
-            
-            if (routeId === 'route1') {
-                coordinates = route1Coordinates;
-                color = '#e74c3c';
-            } else if (routeId === 'route2') {
-                coordinates = route2Coordinates;
-                color = '#9b59b6';
-            }
-            
-            currentRouteLayer = L.polyline(coordinates, {
-                color: color,
+            // Crear polilíneas para las rutas
+            routeLayers.route1 = L.polyline(route1Coordinates, {
+                color: '#e74c3c',
                 weight: 4,
-                opacity: 0.7,
-                smoothFactor: 1
-            }).addTo(map);
-            
-            const bounds = L.latLngBounds(coordinates);
-            map.fitBounds(bounds, { padding: [50, 50] });
-        }
-        
-        function handleVisibilityChange() {
-            const notification = document.getElementById('statusNotification');
-            if (document.visibilityState === 'visible') {
-                notification.textContent = 'Aplicación en primer plano';
-                notification.style.display = 'block';
-                setTimeout(() => { notification.style.display = 'none'; }, 3000);
-                if (!isViewer) {
-                    forceLocationUpdate();
-                }
-            } else {
-                notification.textContent = 'Aplicación en segundo plano - El GPS sigue activo';
-                notification.style.display = 'block';
-                setTimeout(() => { notification.style.display = 'none'; }, 3000);
-            }
-        }
-        
-        async function requestWakeLock() {
-            try {
-                if ('wakeLock' in navigator) {
-                    wakeLock = await navigator.wakeLock.request('screen');
-                    wakeLock.addEventListener('release', () => {
-                    });
-                }
-            } catch (err) {
-            }
-        }
-        
-        function initializeAllMarkers() {
-            const mobileIds = ['Movil1', 'Movil2', 'Movil3', 'Movil4'];
-            mobileIds.forEach(mobileId => {
-                createMarker(mobileId, INACTIVE_COORDS, false);
-                lastUpdateTimes[mobileId] = Date.now();
-            });
-        }
-        
-        function initializeCurrentUserMarker() {
-            createMarker(currentUserId, INACTIVE_COORDS, false);
-            lastUpdateTimes[currentUserId] = Date.now();
-        }
-        
-        function createUserPositionMarker(coords) {
-            if (userPositionMarker) {
-                map.removeLayer(userPositionMarker);
-            }
-            if (userAccuracyCircle) {
-                map.removeLayer(userAccuracyCircle);
-            }
-            
-            const userIcon = L.divIcon({
-                className: 'user-position-marker',
-                html: `
-                    <div style="background-color: #3498db; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.5);"></div>
-                    <div class="pulse-circle"></div>
-                `,
-                iconSize: [20, 20],
-                iconAnchor: [10, 10]
+                opacity: 0.7
             });
             
-            userPositionMarker = L.marker(coords, { icon: userIcon, zIndexOffset: 1000 })
-                .addTo(map)
-                .bindPopup('<b>Tu ubicación actual</b>');
-                
-            map.setView(coords, 16);
+            routeLayers.route2 = L.polyline(route2Coordinates, {
+                color: '#9b59b6',
+                weight: 4,
+                opacity: 0.7
+            });
         }
-        
-        function updateUserPositionMarker(coords, accuracy) {
-            if (!userPositionMarker) {
-                createUserPositionMarker(coords);
-            } else {
-                userPositionMarker.setLatLng(coords);
+
+        // Función para cambiar el proveedor de mapas
+        function changeMapProvider(provider) {
+            // Remover el proveedor actual
+            map.eachLayer(layer => {
+                if (layer instanceof L.TileLayer) {
+                    map.removeLayer(layer);
+                }
+            });
+            
+            // Añadir el nuevo proveedor
+            mapProviders[provider].addTo(map);
+            
+            // Restaurar otras capas
+            if (userMarker) map.addLayer(userMarker);
+            if (accuracyCircle) map.addLayer(accuracyCircle);
+            
+            // Restaurar marcadores de vehículos
+            Object.values(vehicleMarkers).forEach(marker => {
+                map.addLayer(marker);
+            });
+            
+            // Restaurar ruta actual si existe
+            if (currentRoute !== 'none' && routeLayers[currentRoute]) {
+                map.addLayer(routeLayers[currentRoute]);
             }
             
-            if (userAccuracyCircle) {
-                map.removeLayer(userAccuracyCircle);
-            }
-            
-            if (accuracy && accuracy < 1000) {
-                userAccuracyCircle = L.circle(coords, {
-                    radius: accuracy,
-                    className: 'accuracy-circle'
-                }).addTo(map);
-            }
-            
-            document.getElementById('current-user-coords').textContent = 
-                `${coords[0].toFixed(6)}, ${coords[1].toFixed(6)}`;
-            document.getElementById('accuracyValue').textContent = 
-                accuracy ? `${accuracy.toFixed(1)} metros` : 'Desconocida';
-            
-            // Mostrar hora local de Chile
-            const now = new Date();
-            const chileTime = new Date(now.toLocaleString("en-US", {timeZone: "America/Santiago"}));
-            document.getElementById('lastUpdateValue').textContent = chileTime.toLocaleTimeString('es-CL');
-            
-            const locationStatus = document.getElementById('locationStatus');
-            if (accuracy && accuracy < 1000) {
-                updateDiagnostic('good', 'Ubicación actualizada', accuracy);
-                locationStatus.textContent = 'Ubicación activa';
-                locationStatus.style.color = 'green';
-            } else if (accuracy) {
-                updateDiagnostic('warning', 'Precisión limitada', accuracy);
-                locationStatus.textContent = 'Precisión limitada';
-                locationStatus.style.color = 'orange';
-            } else {
-                updateDiagnostic('bad', 'Sin datos de precisión');
-                locationStatus.textContent = 'Ubicación inactiva';
-                locationStatus.style.color = 'red';
-            }
+            currentMapProvider = provider;
         }
-        
-        function startGPSTracking(mobileId) {
-            if (locationUpdateInterval) clearInterval(locationUpdateInterval);
+
+        // Función para centrar en la ubicación del usuario
+        function locateUser() {
+            if (!navigator.geolocation) {
+                showNotification('La geolocalización no es soportada por tu navegador', 'error');
+                return;
+            }
             
-            requestWakeLock();
+            if (watchId !== null) {
+                navigator.geolocation.clearWatch(watchId);
+            }
             
-            updatePosition(mobileId);
-            
-            locationUpdateInterval = setInterval(() => {
-                updatePosition(mobileId);
-            }, 60000);
-            
-            setupBackgroundGeolocation(mobileId);
-            
-            setTimeout(() => updatePosition(mobileId), 2000);
-        }
-        
-        function setupBackgroundGeolocation(mobileId) {
-            if ('geolocation' in navigator) {
-                const geoOptions = {
+            watchId = navigator.geolocation.watchPosition(
+                position => {
+                    const { latitude, longitude, accuracy } = position.coords;
+                    const timestamp = new Date(position.timestamp);
+                    
+                    // Actualizar la ubicación del usuario
+                    updateUserPosition(latitude, longitude, accuracy, timestamp);
+                    
+                    // Actualizar el estado de ubicación
+                    updateLocationStatus('online', `Ubicación actualizada ${formatTime(timestamp)}`);
+                },
+                error => {
+                    console.error('Error obteniendo ubicación:', error);
+                    let errorMsg = 'Error desconocido al obtener ubicación';
+                    
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMsg = 'Permiso de ubicación denegado';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMsg = 'Información de ubicación no disponible';
+                            break;
+                        case error.TIMEOUT:
+                            errorMsg = 'Tiempo de espera agotado para obtener ubicación';
+                            break;
+                    }
+                    
+                    updateLocationStatus('offline', errorMsg);
+                    showNotification(errorMsg, 'error');
+                },
+                {
                     enableHighAccuracy: true,
-                    maximumAge: 10000,
-                    timeout: 10000
-                };
-                
-                if (backgroundGeolocationWatchId !== null) {
-                    navigator.geolocation.clearWatch(backgroundGeolocationWatchId);
+                    timeout: 10000,
+                    maximumAge: 30000
                 }
+            );
+        }
+
+        // Función para actualizar la posición del usuario
+        function updateUserPosition(lat, lng, accuracy, timestamp) {
+            const position = [lat, lng];
+            
+            // Crear o actualizar marcador del usuario
+            if (!userMarker) {
+                userMarker = L.marker(position, {
+                    icon: L.divIcon({
+                        className: 'user-marker',
+                        html: '<div class="user-icon online"></div>',
+                        iconSize: [36, 36],
+                        iconAnchor: [18, 18]
+                    }),
+                    zIndexOffset: 1000
+                }).addTo(map);
                 
-                backgroundGeolocationWatchId = navigator.geolocation.watchPosition(
-                    (position) => {
-                        const coords = [
-                            position.coords.latitude,
-                            position.coords.longitude
-                        ];
-                        const accuracy = position.coords.accuracy;
-                        
-                        updateDiagnostic('good', 'watchPosition', accuracy);
-                        savePosition(mobileId, coords, accuracy);
-                    },
-                    (error) => {
-                        updateDiagnostic('bad', `Error: ${getGeolocationErrorText(error)}`);
-                        updateStatus(mobileId, 'offline');
-                    },
-                    geoOptions
-                );
+                // Añadir tooltip
+                userMarker.bindTooltip('Tu ubicación', {
+                    permanent: false,
+                    direction: 'top',
+                    offset: [0, -18]
+                });
             } else {
-                updateDiagnostic('bad', 'Geolocalización no soportada');
+                userMarker.setLatLng(position);
+            }
+            
+            // Actualizar círculo de precisión
+            accuracyCircle.setLatLng(position);
+            accuracyCircle.setRadius(accuracy);
+            
+            // Centrar mapa en la ubicación del usuario (solo si es la primera vez o si el usuario lo solicita)
+            if (!lastPosition) {
+                map.setView(position, 15);
+            }
+            
+            // Guardar última posición
+            lastPosition = {
+                lat: lat,
+                lng: lng,
+                accuracy: accuracy,
+                timestamp: timestamp
+            };
+            
+            // Actualizar información de diagnóstico si es visible
+            if (diagnosticPanelVisible) {
+                updateDiagnosticInfo(accuracy, timestamp);
+            }
+            
+            // Si el usuario está asignado a un vehículo, actualizar la posición del vehículo
+            if (currentUserVehicle) {
+                updateVehiclePosition(currentUserVehicle, lat, lng);
             }
         }
-        
-        function updatePosition(mobileId) {
+
+        // Función para actualizar el estado de ubicación
+        function updateLocationStatus(status, message) {
+            const statusElement = document.getElementById('locationStatus');
+            
+            statusElement.textContent = message;
+            statusElement.className = '';
+            
+            if (status === 'online') {
+                statusElement.classList.add('online');
+            } else if (status === 'offline') {
+                statusElement.classList.add('offline');
+            } else if (status === 'warning') {
+                statusElement.classList.add('warning');
+            }
+        }
+
+        // Función para mostrar notificaciones
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('statusNotification');
+            
+            notification.textContent = message;
+            notification.style.display = 'block';
+            notification.className = '';
+            
+            if (type === 'error') {
+                notification.style.background = 'rgba(231, 76, 60, 0.8)';
+            } else if (type === 'success') {
+                notification.style.background = 'rgba(46, 204, 113, 0.8)';
+            } else {
+                notification.style.background = 'rgba(0, 0, 0, 0.7)';
+            }
+            
+            // Ocultar notificación después de 3 segundos
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+
+        // Función para formatear la hora
+        function formatTime(date) {
+            return date.toLocaleTimeString('es-CL', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                second: '2-digit'
+            });
+        }
+
+        // Función para actualizar información de diagnóstico
+        function updateDiagnosticInfo(accuracy, timestamp) {
+            document.getElementById('accuracyValue').textContent = `${accuracy.toFixed(1)}m`;
+            document.getElementById('lastUpdateValue').textContent = formatTime(timestamp);
+            
+            // Simular método de obtención de ubicación
+            const methods = ['GPS', 'WiFi', 'Celular'];
+            const randomMethod = methods[Math.floor(Math.random() * methods.length)];
+            document.getElementById('methodValue').textContent = randomMethod;
+            
+            // Actualizar estado GPS basado en la precisión
+            const gpsStatus = document.getElementById('gpsStatus');
+            if (accuracy < 50) {
+                gpsStatus.textContent = 'Excelente';
+                gpsStatus.className = 'diagnostic-value online';
+            } else if (accuracy < 100) {
+                gpsStatus.textContent = 'Buena';
+                gpsStatus.className = 'diagnostic-value online';
+            } else if (accuracy < 200) {
+                gpsStatus.textContent = 'Moderada';
+                gpsStatus.className = 'diagnostic-value warning';
+            } else {
+                gpsStatus.textContent = 'Baja';
+                gpsStatus.className = 'diagnostic-value offline';
+            }
+        }
+
+        // Función para actualizar la posición de un vehículo
+        function updateVehiclePosition(vehicleId, lat, lng) {
+            const position = [lat, lng];
+            
+            // Si el vehículo ya existe, actualizar su posición
+            if (vehicleMarkers[vehicleId]) {
+                vehicleMarkers[vehicleId].setLatLng(position);
+                
+                // Actualizar la información en el panel de control
+                updateVehicleCard(vehicleId, position);
+            } else {
+                // Crear un nuevo marcador para el vehículo
+                const isOnline = true; // Asumimos que está online si estamos actualizando su posición
+                
+                vehicleMarkers[vehicleId] = L.marker(position, {
+                    icon: L.divIcon({
+                        className: 'vehicle-marker',
+                        html: `<div class="vehicle-marker ${isOnline ? 'online' : 'offline'}"></div>
+                               <div class="vehicle-label">${vehicleId}</div>`,
+                        iconSize: [40, 40],
+                        iconAnchor: [20, 20]
+                    }),
+                    zIndexOffset: 900
+                }).addTo(map);
+                
+                // Añadir tooltip
+                vehicleMarkers[vehicleId].bindTooltip(`Vehículo ${vehicleId}`, {
+                    permanent: false,
+                    direction: 'top',
+                    offset: [0, -20]
+                });
+                
+                // Añadir el vehículo a la lista en el panel de control
+                addVehicleCard(vehicleId, position, isOnline);
+            }
+            
+            // Guardar la posición del vehículo
+            if (!vehicles[vehicleId]) {
+                vehicles[vehicleId] = {
+                    positions: [],
+                    lastUpdate: new Date(),
+                    online: true
+                };
+            }
+            
+            vehicles[vehicleId].positions.push({
+                lat: lat,
+                lng: lng,
+                timestamp: new Date()
+            });
+            
+            vehicles[vehicleId].lastUpdate = new Date();
+            vehicles[vehicleId].online = true;
+        }
+
+        // Función para añadir una tarjeta de vehículo al panel de control
+        function addVehicleCard(vehicleId, position, isOnline) {
+            const vehiclesList = document.getElementById('vehiclesList');
+            
+            const vehicleCard = document.createElement('div');
+            vehicleCard.className = 'vehicle-card';
+            vehicleCard.id = `vehicle-${vehicleId}`;
+            
+            const lastUpdate = new Date();
+            const statusClass = isOnline ? 'online' : 'offline';
+            const statusText = isOnline ? 'En línea' : 'Desconectado';
+            
+            vehicleCard.innerHTML = `
+                <div class="vehicle-name">
+                    <div class="vehicle-icon ${statusClass}"></div>
+                    <span>Vehículo ${vehicleId}</span>
+                </div>
+                <div class="vehicle-status">
+                    <span class="${statusClass}">${statusText}</span>
+                    <span>Actualizado: ${formatTime(lastUpdate)}</span>
+                </div>
+            `;
+            
+            vehiclesList.appendChild(vehicleCard);
+        }
+
+        // Función para actualizar la tarjeta de un vehículo
+        function updateVehicleCard(vehicleId, position) {
+            const vehicleCard = document.getElementById(`vehicle-${vehicleId}`);
+            
+            if (vehicleCard) {
+                const statusElement = vehicleCard.querySelector('.vehicle-status');
+                const statusClass = 'online';
+                const statusText = 'En línea';
+                
+                statusElement.innerHTML = `
+                    <span class="${statusClass}">${statusText}</span>
+                    <span>Actualizado: ${formatTime(new Date())}</span>
+                `;
+                
+                // También actualizar el icono
+                const iconElement = vehicleCard.querySelector('.vehicle-icon');
+                iconElement.className = 'vehicle-icon online';
+            }
+        }
+
+        // Función para cambiar la ruta mostrada
+        function changeRoute(routeId) {
+            // Remover la ruta actual si existe
+            if (currentRoute !== 'none' && routeLayers[currentRoute]) {
+                map.removeLayer(routeLayers[currentRoute]);
+            }
+            
+            // Añadir la nueva ruta si no es "none"
+            if (routeId !== 'none' && routeLayers[routeId]) {
+                map.addLayer(routeLayers[routeId]);
+            }
+            
+            currentRoute = routeId;
+        }
+
+        // Función para forzar la actualización de ubicación
+        function forceLocationUpdate() {
             if (navigator.geolocation) {
+                document.getElementById('forceLocationBtn').classList.add('loading');
+                
                 navigator.geolocation.getCurrentPosition(
                     position => {
-                        const coords = [
-                            position.coords.latitude,
-                            position.coords.longitude
-                        ];
-                        const accuracy = position.coords.accuracy;
+                        const { latitude, longitude, accuracy } = position.coords;
+                        const timestamp = new Date(position.timestamp);
                         
-                        updateDiagnostic('good', 'getCurrentPosition', accuracy);
-                        savePosition(mobileId, coords, accuracy);
+                        updateUserPosition(latitude, longitude, accuracy, timestamp);
+                        updateLocationStatus('online', `Ubicación forzada ${formatTime(timestamp)}`);
+                        
+                        document.getElementById('forceLocationBtn').classList.remove('loading');
+                        showNotification('Ubicación actualizada forzosamente', 'success');
                     },
                     error => {
-                        navigator.geolocation.getCurrentPosition(
-                            position => {
-                                const coords = [
-                                    position.coords.latitude,
-                                    position.coords.longitude
-                                ];
-                                const accuracy = position.coords.accuracy;
-                                
-                                updateDiagnostic('warning', 'Método alternativo', accuracy);
-                                savePosition(mobileId, coords, accuracy);
-                            },
-                            error2 => {
-                                console.error('Error GPS con método alternativo:', error2);
-                                updateDiagnostic('bad', `Error: ${getGeolocationErrorText(error2)}`);
-                                updateStatus(mobileId, 'offline');
-                                
-                                if (lastKnownPosition) {
-                                    updateDiagnostic('warning', 'Usando última posición conocida');
-                                    savePosition(mobileId, lastKnownPosition, 1000);
-                                }
-                            },
-                            { 
-                                enableHighAccuracy: false,
-                                timeout: 15000,
-                                maximumAge: 300000
-                            }
-                        );
+                        console.error('Error forzando ubicación:', error);
+                        document.getElementById('forceLocationBtn').classList.remove('loading');
+                        showNotification('Error forzando ubicación', 'error');
                     },
-                    { 
+                    {
                         enableHighAccuracy: true,
                         timeout: 10000,
                         maximumAge: 0
                     }
                 );
-            } else {
-                updateDiagnostic('bad', 'Geolocalización no soportada');
-                alert("Tu navegador no soporta geolocalización");
             }
         }
-        
-        function forceLocationUpdate() {
-            if (!currentUserId) return;
-            updateDiagnostic('warning', 'Forzando actualización...');
+
+        // Función para actualizar datos meteorológicos
+        async function updateWeatherData() {
+            const weatherWidget = document.getElementById('weatherWidget');
+            weatherWidget.classList.add('loading');
             
-            navigator.geolocation.getCurrentPosition(
-                position => {
-                    const coords = [
-                        position.coords.latitude,
-                        position.coords.longitude
-                    ];
-                    const accuracy = position.coords.accuracy;
-                    
-                    updateDiagnostic('good', 'Forzado exitoso', accuracy);
-                    savePosition(currentUserId, coords, accuracy);
-                    
-                    showNotification('Ubicación actualizada forzosamente', 3000);
-                },
-                error => {
-                    updateDiagnostic('bad', `Forzado fallido: ${getGeolocationErrorText(error)}`);
-                    showNotification('Error al forzar ubicación', 3000);
-                },
-                { 
-                    enableHighAccuracy: true,
-                    timeout: 20000,
-                    maximumAge: 0
+            try {
+                const response = await fetch('https://api.open-meteo.com/v1/forecast?latitude=-33.4569&longitude=-70.6483&hourly=temperature_2m,rain,precipitation,snowfall,showers,shortwave_radiation,direct_radiation,visibility&current=temperature_2m,rain,precipitation,is_day,apparent_temperature,wind_speed_10m&timezone=auto');
+                weatherData = await response.json();
+                
+                if (weatherData && weatherData.current) {
+                    updateWeatherUI(weatherData);
+                    lastWeatherUpdate = new Date();
+                    showNotification('Datos meteorológicos actualizados', 'success');
+                } else {
+                    throw new Error('Formato de datos inválido');
                 }
-            );
-        }
-        
-        function centerOnUserLocation() {
-            if (lastKnownPosition) {
-                map.setView(lastKnownPosition, 16);
-                showNotification('Centrado en tu ubicación', 2000);
-            } else {
-                updatePosition(currentUserId);
-                showNotification('Buscando tu ubicación...', 2000);
+            } catch (error) {
+                console.error('Error obteniendo datos meteorológicos:', error);
+                showNotification('Error actualizando clima', 'error');
+            } finally {
+                weatherWidget.classList.remove('loading');
             }
         }
-        
-        function getGeolocationErrorText(error) {
-            switch(error.code) {
-                case error.PERMISSION_DENIED:
-                    return "Permiso denegado";
-                case error.POSITION_UNAVAILABLE:
-                    return "Posición no disponible";
-                case error.TIMEOUT:
-                    return "Tiempo agotado";
-                default:
-                    return "Error desconocido";
-            }
-        }
-        
-        function updateDiagnostic(status, method, accuracy = null) {
-            const statusElement = document.getElementById('gpsStatus');
-            const methodElement = document.getElementById('methodValue');
-            
-            statusElement.textContent = status === 'good' ? 'ACTIVO' : 
-                                      status === 'warning' ? 'LIMITADO' : 'INACTIVO';
-            statusElement.className = `diagnostic-value ${status}`;
-            
-            methodElement.textContent = method;
-            
-            if (accuracy !== null) {
-                document.getElementById('accuracyValue').textContent = `${accuracy.toFixed(1)} metros`;
-            }
-            
-            // Mostrar hora local de Chile
-            const now = new Date();
-            const chileTime = new Date(now.toLocaleString("en-US", {timeZone: "America/Santiago"}));
-            document.getElementById('lastUpdateValue').textContent = chileTime.toLocaleTimeString('es-CL');
-            
-            const locationStatus = document.getElementById('locationStatus');
-            if (status === 'good') {
-                locationStatus.textContent = 'Ubicación activa';
-                locationStatus.style.color = 'green';
-            } else if (status === 'warning') {
-                locationStatus.textContent = 'Ubicación limitada';
-                locationStatus.style.color = 'orange';
-            } else {
-                locationStatus.textContent = 'Ubicación inactiva';
-                locationStatus.style.color = 'red';
-            }
-        }
-        
-        function showNotification(message, duration) {
-            const notification = document.getElementById('statusNotification');
-            notification.textContent = message;
-            notification.style.display = 'block';
-            setTimeout(() => { notification.style.display = 'none'; }, duration);
-        }
-        
-        function savePosition(mobileId, coords, accuracy) {
-            const now = Date.now();
-            lastKnownPosition = coords;
-            
-            updateUserPositionMarker(coords, accuracy);
-            
-            if (!isViewer) {
-                database.ref(`vehicles/${mobileId}`).set({
-                    coords: {
-                        lat: coords[0],
-                        lng: coords[1]
-                    },
-                    status: 'online',
-                    lastUpdate: now,
-                    accuracy: accuracy,
-                    displayName: vehicleNames[mobileId] || mobileId
-                });
-            }
-            
-            lastUpdateTimes[mobileId] = now;
-            updateMarker(mobileId, coords, true);
-            updateStatus(mobileId, 'online');
-            
-            if (currentUserId === 'Admin') {
-                checkLapCompletion(mobileId, coords);
-                // Almacenar datos de coordenadas
-                const laps = lapCounters[mobileId] ? 
-                    lapCounters[mobileId].shift1 + lapCounters[mobileId].shift2 + lapCounters[mobileId].shift3 : 0;
-                storeCoordinateData(mobileId, coords, 'online', laps);
-            }
-            
-            if (mobileId === currentUserId) {
-                map.setView(coords, Math.max(map.getZoom(), 16));
-            }
-        }
-        
-        function startMonitoring() {
-            fetchVehicleData();
-            viewerUpdateInterval = setInterval(fetchVehicleData, UPDATE_INTERVAL);
-        }
-        
-        function fetchVehicleData() {
-            database.ref('vehicles').once('value')
-                .then(snapshot => {
-                    const vehiclesData = snapshot.val() || {};
-                    let newDataFound = false;
 
-                    Object.keys(vehiclesData).forEach(mobileId => {
-                        const vehicle = vehiclesData[mobileId];
-                        if (vehicle && vehicle.lastUpdate) {
-                            if (!vehicleCache[mobileId] || vehicle.lastUpdate > vehicleCache[mobileId].lastUpdate) {
-                                vehicleCache[mobileId] = vehicle;
-                                newDataFound = true;
-                                
-                                if (currentUserId === 'Admin') {
-                                    const coords = [vehicle.coords.lat, vehicle.coords.lng];
-                                    checkLapCompletion(mobileId, coords);
-                                    
-                                    // Almacenar datos de coordenadas
-                                    const laps = lapCounters[mobileId] ? 
-                                        lapCounters[mobileId].shift1 + lapCounters[mobileId].shift2 + lapCounters[mobileId].shift3 : 0;
-                                    storeCoordinateData(mobileId, coords, vehicle.status, laps);
-                                }
-                            }
-                        }
-                    });
+        // Función para actualizar la UI con datos meteorológicos
+        function updateWeatherUI(data) {
+            const current = data.current;
+            
+            // Actualizar temperatura
+            document.getElementById('weatherTemp').textContent = `${current.temperature_2m}°C`;
+            
+            // Determinar descripción basada en condiciones
+            let description = '';
+            if (current.rain > 0 || current.precipitation > 0) {
+                description = 'lluvia';
+            } else if (current.temperature_2m > 30) {
+                description = 'soleado';
+            } else if (current.temperature_2m < 10) {
+                description = 'frío';
+            } else {
+                description = 'parcialmente nublado';
+            }
+            
+            // Actualizar descripción
+            document.getElementById('weatherDesc').textContent = description;
+            
+            // Actualizar sensación térmica
+            document.getElementById('weatherFeelsLike').textContent = `Sensación: ${current.apparent_temperature}°C`;
+            
+            // Calcular y actualizar índice UV basado en radiación solar
+            const shortwaveRadiation = data.hourly.shortwave_radiation[0] || 0;
+            let uvIndex = Math.round(shortwaveRadiation / 25); // Aproximación simple
+            if (uvIndex < 0) uvIndex = 0;
+            if (uvIndex > 11) uvIndex = 11;
+            
+            const uvElement = document.getElementById('weatherUv');
+            uvElement.textContent = `Índice UV: ${uvIndex}`;
+            
+            // Aplicar clase según el nivel de UV
+            uvElement.className = 'weather-uv ';
+            if (uvIndex <= 2) {
+                uvElement.classList.add('uv-low');
+            } else if (uvIndex <= 5) {
+                uvElement.classList.add('uv-moderate');
+            } else if (uvIndex <= 7) {
+                uvElement.classList.add('uv-high');
+            } else if (uvIndex <= 10) {
+                uvElement.classList.add('uv-very-high');
+            } else {
+                uvElement.classList.add('uv-extreme');
+            }
+            
+            // Mostrar advertencia si es necesario
+            const warningElement = document.getElementById('weatherWarning');
+            if (uvIndex > 7) {
+                warningElement.textContent = '¡Alto índice UV! Protégete del sol.';
+                warningElement.style.display = 'block';
+            } else {
+                warningElement.style.display = 'none';
+            }
+            
+            // Actualizar icono basado en condiciones
+            const weatherIcon = document.getElementById('weatherIcon');
+            if (current.rain > 0 || current.precipitation > 0) {
+                weatherIcon.textContent = '🌧️';
+            } else if (uvIndex > 7) {
+                weatherIcon.textContent = '🌞';
+            } else if (current.temperature_2m < 10) {
+                weatherIcon.textContent = '❄️';
+            } else {
+                weatherIcon.textContent = '⛅';
+            }
+            
+            // Actualizar información de última actualización
+            document.getElementById('weatherUpdating').textContent = `Actualizado: ${new Date().toLocaleTimeString('es-CL')}`;
+        }
 
-                    if (newDataFound) {
-                        updateMarkersFromCache();
+        // Función para alternar el widget del clima
+        function toggleWeatherWidget() {
+            const weatherWidget = document.getElementById('weatherWidget');
+            weatherWidget.classList.toggle('expanded');
+            
+            // Si se expande y no hay datos recientes, actualizar
+            if (weatherWidget.classList.contains('expanded') && 
+                (!lastWeatherUpdate || (new Date() - lastWeatherUpdate) > 300000)) {
+                updateWeatherData();
+            }
+        }
+
+        // Inicializar la aplicación cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inicializar el mapa
+            initMap();
+            
+            // Configurar event listeners
+            document.getElementById('togglePanel').addEventListener('click', function() {
+                document.getElementById('controlPanel').classList.toggle('visible');
+            });
+            
+            document.getElementById('mapTouchOverlay').addEventListener('click', function() {
+                document.getElementById('controlPanel').classList.remove('visible');
+            });
+            
+            document.getElementById('refreshBtn').addEventListener('click', function() {
+                this.classList.add('loading');
+                locateUser();
+                
+                // Simular tiempo de carga
+                setTimeout(() => {
+                    this.classList.remove('loading');
+                    showNotification('Datos actualizados', 'success');
+                }, 1000);
+            });
+            
+            document.getElementById('mapProvider').addEventListener('change', function() {
+                changeMapProvider(this.value);
+            });
+            
+            document.getElementById('routeSelector').addEventListener('change', function() {
+                changeRoute(this.value);
+            });
+            
+            document.getElementById('emergencyLocateBtn').addEventListener('click', function() {
+                if (lastPosition) {
+                    map.setView([lastPosition.lat, lastPosition.lng], 17);
+                    showNotification('Centrado en tu ubicación');
+                } else {
+                    locateUser();
+                }
+            });
+            
+            document.getElementById('logoutBtn').addEventListener('click', function() {
+                if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+                    // Limpiar datos de sesión
+                    localStorage.removeItem('userVehicle');
+                    window.location.reload();
+                }
+            });
+            
+            document.getElementById('forceLocationBtn').addEventListener('click', function() {
+                forceLocationUpdate();
+            });
+            
+            document.getElementById('toggleDiagnosticPanel').addEventListener('click', function() {
+                const diagnosticPanel = document.getElementById('diagnosticPanel');
+                diagnosticPanelVisible = !diagnosticPanelVisible;
+                
+                if (diagnosticPanelVisible) {
+                    diagnosticPanel.style.display = 'block';
+                    if (lastPosition) {
+                        updateDiagnosticInfo(lastPosition.accuracy, lastPosition.timestamp);
+                    }
+                } else {
+                    diagnosticPanel.style.display = 'none';
+                }
+            });
+            
+            document.getElementById('vehicleNumberSubmit').addEventListener('click', function() {
+                const vehicleNumber = document.getElementById('vehicleNumberInput').value.trim();
+                
+                if (vehicleNumber) {
+                    currentUserVehicle = vehicleNumber;
+                    localStorage.setItem('userVehicle', vehicleNumber);
+                    
+                    // Ocultar modal
+                    document.getElementById('vehicleNumberModal').style.display = 'none';
+                    
+                    // Mostrar dashboard de admin si es un vehículo especial
+                    if (vehicleNumber === 'admin') {
+                        isAdmin = true;
+                        document.getElementById('adminDashboard').style.display = 'block';
+                        adminDashboardVisible = true;
+                        showNotification('Modo administrador activado');
                     } else {
-                        console.log('No hay datos nuevos, usando caché.');
-                        checkConnectionStatus();
+                        showNotification(`Vehículo ${vehicleNumber} asignado`);
                     }
-                })
-                .catch(error => {
-                    console.error("Error al obtener datos de la flota:", error);
-                    checkConnectionStatus();
-                });
-        }
-        
-        function updateMarkersFromCache() {
-            const now = Date.now();
-            Object.keys(vehicleCache).forEach(mobileId => {
-                const vehicle = vehicleCache[mobileId];
-                if (vehicle) {
-                    const isOnline = (now - vehicle.lastUpdate) < TEN_MINUTES;
-                    const coords = isOnline ? [vehicle.coords.lat, vehicle.coords.lng] : INACTIVE_COORDS;
-
-                    if (vehicle.displayName && vehicle.displayName !== mobileId) {
-                        vehicleNames[mobileId] = vehicle.displayName;
-                        localStorage.setItem('vehicleNames', JSON.stringify(vehicleNames));
-                        const nameElement = document.getElementById(`${mobileId.toLowerCase()}-name`);
-                        if (nameElement) {
-                            nameElement.textContent = vehicle.displayName;
-                        }
-                    }
-
-                    updateMarker(mobileId, coords, isOnline);
-                    updateStatus(mobileId, isOnline ? 'online' : 'offline');
                 }
             });
             
-            updateVehicleNamesInUI();
-            
-            if (currentUserId === 'Admin') {
-                updateMetrics();
-            }
-        }
-
-        function checkConnectionStatus() {
-            const now = Date.now();
-            Object.keys(vehicleCache).forEach(mobileId => {
-                const vehicle = vehicleCache[mobileId];
-                if (vehicle) {
-                    const lastUpdate = vehicle.lastUpdate || 0;
-                    const isOnline = (now - lastUpdate) < TEN_MINUTES;
+            // Alternar pestañas del dashboard
+            document.querySelectorAll('.dashboard-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Desactivar todas las pestañas
+                    document.querySelectorAll('.dashboard-tab').forEach(t => {
+                        t.classList.remove('active');
+                    });
                     
-                    if (!isOnline) {
-                        updateStatus(mobileId, 'offline');
-                        if (markers[mobileId]) {
-                            const icon = L.divIcon({
-                                className: 'vehicle-marker offline',
-                                html: `
-                                    <div class="vehicle-marker offline"></div>
-                                    <div class="vehicle-label">${vehicleNames[mobileId] || mobileId}</div>
-                                `,
-                                iconSize: [32, 42],
-                                iconAnchor: [16, 16],
-                                popupAnchor: [0, -16]
-                            });
-                            
-                            markers[mobileId]
-                                .setIcon(icon)
-                                .setLatLng(INACTIVE_COORDS)
-                                .setPopupContent(`<b>${vehicleNames[mobileId] || mobileId}</b><br>Desconectado<br>Última actualización: ${new Date(lastUpdate).toLocaleTimeString()}`);
-                        }
-                    }
+                    // Ocultar todo el contenido
+                    document.querySelectorAll('.dashboard-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    // Activar pestaña seleccionada
+                    this.classList.add('active');
+                    
+                    // Mostrar contenido correspondiente
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(`${tabId}Content`).classList.add('active');
+                });
+            });
+            
+            // Botón de descarga de reporte
+            document.getElementById('downloadReportBtn').addEventListener('click', function() {
+                showNotification('Generando reporte...');
+                
+                // Simular generación de reporte
+                setTimeout(() => {
+                    showNotification('Reporte descargado', 'success');
+                }, 1500);
+            });
+            
+            // Botón de exportación a Excel
+            document.getElementById('exportExcelBtn').addEventListener('click', function() {
+                // Crear datos de ejemplo
+                const data = [
+                    ['Vehículo', 'Última Actualización', 'Estado', 'Latitud', 'Longitud'],
+                    [currentUserVehicle || 'N/A', new Date().toLocaleString(), 'En línea', lastPosition?.lat || 'N/A', lastPosition?.lng || 'N/A']
+                ];
+                
+                // Crear libro de trabajo y hoja
+                const ws = XLSX.utils.aoa_to_sheet(data);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'Datos GPS');
+                
+                // Exportar a Excel
+                XLSX.writeFile(wb, 'datos_gps.xlsx');
+                showNotification('Datos exportados a Excel', 'success');
+            });
+            
+            // Event listener para el widget del clima
+            document.getElementById('weatherWidget').addEventListener('click', function(e) {
+                // Prevenir que el clic se propague al mapa
+                e.stopPropagation();
+                toggleWeatherWidget();
+            });
+            
+            // Verificar si ya hay un vehículo asignado
+            const savedVehicle = localStorage.getItem('userVehicle');
+            if (savedVehicle) {
+                currentUserVehicle = savedVehicle;
+                
+                if (savedVehicle === 'admin') {
+                    isAdmin = true;
+                    document.getElementById('adminDashboard').style.display = 'block';
+                    adminDashboardVisible = true;
                 }
-            });
-        }
-        
-        function createMarker(mobileId, coords, isOnline) {
-            if (markers[mobileId]) return;
-            const displayName = vehicleNames[mobileId] || mobileId;
-            
-            const container = L.divIcon({
-                className: 'vehicle-marker-container',
-                html: `
-                    <div class="vehicle-marker ${isOnline ? 'online' : 'offline'}"></div>
-                    <div class="vehicle-label">${displayName}</div>
-                `,
-                iconSize: [32, 42],
-                iconAnchor: [16, 16],
-                popupAnchor: [0, -16]
-            });
-            
-            markers[mobileId] = L.marker(coords, { 
-                icon: container,
-                title: displayName
-            }).addTo(map)
-            .bindPopup(`<b>${displayName}</b><br>${isOnline ? 'En ruta' : 'Desconectado'}`);
-        }
-        
-         function updateMarker(mobileId, coords, isOnline) {
-            const displayName = vehicleNames[mobileId] || mobileId;
-            
-            if (!markers[mobileId]) {
-                createMarker(mobileId, coords, isOnline);
             } else {
-                const container = L.divIcon({
-                    className: 'vehicle-marker-container',
-                    html: `
-                        <div class="vehicle-marker ${isOnline ? 'online' : 'offline'}"></div>
-                        <div class="vehicle-label">${displayName}</div>
-                    `,
-                    iconSize: [32, 42],
-                    iconAnchor: [16, 16],
-                    popupAnchor: [0, 16]
-                });
-                
-                markers[mobileId]
-                    .setLatLng(coords)
-                    .setIcon(container)
-                    .setPopupContent(`<b>${displayName}</b><br>${isOnline ? 'En ruta' : 'Desconectado'}<br>Última actualización: ${new Date().toLocaleTimeString()}`);
-            }
-        }
-        
-        function updateStatus(mobileId, status) {
-            if (mobileId === currentUserId) {
-                const element = document.getElementById('current-user-status');
-                const iconElement = document.getElementById('current-user-icon');
-                
-                if (element) {
-                    element.textContent = status === 'online' ? 'En ruta' : 'Desconectado';
-                    element.className = status === 'online' ? 'online' : 'offline';
-                }
-                
-                if (iconElement) {
-                    iconElement.className = `user-icon ${status === 'online' ? 'online' : 'offline'}`;
-                }
-            } 
-            else if (isViewer) {
-                const element = document.getElementById(`${mobileId.toLowerCase()}-status`);
-                const iconElement = document.getElementById(`${mobileId.toLowerCase()}-icon`);
-                
-                if (element) {
-                    element.textContent = status === 'online' ? 'En ruta' : 'Desconectado';
-                    element.className = status === 'online' ? 'online' : 'offline';
-                }
-                
-                if (iconElement) {
-                    iconElement.className = `vehicle-icon ${status === 'online' ? 'online' : 'offline'}`;
-                }
-            }
-        }
-        
-        function logout() {
-            if (gpsInterval) clearInterval(gpsInterval);
-            if (locationUpdateInterval) clearInterval(locationUpdateInterval);
-            if (viewerUpdateInterval) clearInterval(viewerUpdateInterval);
-            
-            if (backgroundGeolocationWatchId !== null) {
-                navigator.geolocation.clearWatch(backgroundGeolocationWatchId);
+                // Mostrar modal para ingresar número de vehículo
+                document.getElementById('vehicleNumberModal').style.display = 'flex';
             }
             
-            if (wakeLock !== null) {
-                wakeLock.release().then(() => {
-                    wakeLock = null;
-                });
-            }
+            // Cargar datos iniciales de vehículos de ejemplo
+            setTimeout(() => {
+                // Vehículos de ejemplo
+                updateVehiclePosition('101', -33.4469, -70.6583);
+                updateVehiclePosition('102', -33.4369, -70.6683);
+                
+                // Simular actualizaciones periódicas de vehículos
+                setInterval(() => {
+                    if (Math.random() > 0.3) { // 70% de probabilidad de actualización
+                        const latOffset = (Math.random() - 0.5) * 0.01;
+                        const lngOffset = (Math.random() - 0.5) * 0.01;
+                        
+                        updateVehiclePosition('101', -33.4469 + latOffset, -70.6583 + lngOffset);
+                    }
+                    
+                    if (Math.random() > 0.4) { // 60% de probabilidad de actualización
+                        const latOffset = (Math.random() - 0.5) * 0.01;
+                        const lngOffset = (Math.random() - 0.5) * 0.01;
+                        
+                        updateVehiclePosition('102', -33.4369 + latOffset, -70.6683 + lngOffset);
+                    }
+                }, 10000);
+            }, 2000);
             
-            database.ref('vehicles').off();
-            firebase.auth().signOut();
-            localStorage.removeItem('gpsAuth');
-            localStorage.removeItem('panelState');
-            window.location.href = 'login.html';
-        }
+            // Actualizar datos meteorológicos periódicamente (cada 10 minutos)
+            updateWeatherData();
+            setInterval(updateWeatherData, 600000);
+            
+            // Simular actualización de contadores de vueltas (solo para demo)
+            setInterval(() => {
+                if (isAdmin) {
+                    // Incrementar contadores aleatoriamente
+                    if (Math.random() > 0.7) {
+                        const shift = Object.keys(lapCounters.movil1)[Math.floor(Math.random() * 3)];
+                        lapCounters.movil1[shift]++;
+                        document.getElementById(`movil1${shift.charAt(0).toUpperCase() + shift.slice(1)}`).textContent = lapCounters.movil1[shift];
+                    }
+                    
+                    if (Math.random() > 0.6) {
+                        const shift = Object.keys(lapCounters.movil2)[Math.floor(Math.random() * 3)];
+                        lapCounters.movil2[shift]++;
+                        document.getElementById(`movil2${shift.charAt(0).toUpperCase() + shift.slice(1)}`).textContent = lapCounters.movil2[shift];
+                    }
+                    
+                    // Actualizar métricas
+                    document.getElementById('totalLaps').textContent = 
+                        lapCounters.movil1.shift1 + lapCounters.movil1.shift2 + lapCounters.movil1.shift3 +
+                        lapCounters.movil2.shift1 + lapCounters.movil2.shift2 + lapCounters.movil2.shift3;
+                    
+                    document.getElementById('totalVehicles').textContent = Object.keys(vehicles).length;
+                }
+            }, 5000);
+        });
     </script>
 </body>
 </html>
