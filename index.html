@@ -1532,8 +1532,6 @@
             document.getElementById('weatherWidget').addEventListener('click', toggleWeatherWidget);
         }
         
-        // ... (el resto del código se mantiene igual)
-        
         function setupDashboardTabs() {
             const tabs = document.querySelectorAll('.dashboard-tab');
             tabs.forEach(tab => {
@@ -2417,7 +2415,7 @@
             .bindPopup(`<b>${displayName}</b><br>${isOnline ? 'En ruta' : 'Desconectado'}`);
         }
         
-         function updateMarker(mobileId, coords, isOnline) {
+        function updateMarker(mobileId, coords, isOnline) {
             const displayName = vehicleNames[mobileId] || mobileId;
             
             if (!markers[mobileId]) {
