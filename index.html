@@ -2415,7 +2415,7 @@
             .bindPopup(`<b>${displayName}</b><br>${isOnline ? 'En ruta' : 'Desconectado'}`);
         }
         
-        function updateMarker(mobileId, coords, isOnline) {
+         function updateMarker(mobileId, coords, isOnline) {
             const displayName = vehicleNames[mobileId] || mobileId;
             
             if (!markers[mobileId]) {
@@ -2429,7 +2429,7 @@
                     `,
                     iconSize: [32, 42],
                     iconAnchor: [16, 16],
-                    popupAnchor: [0, -16]
+                    popupAnchor: [0, 16]
                 });
                 
                 markers[mobileId]
