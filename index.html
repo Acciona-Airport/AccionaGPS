@@ -193,6 +193,21 @@
         .weather-widget.loading .weather-loading {
             display: block;
         }
+        .weather-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 5px;
+            margin-top: 8px;
+            font-size: 10px;
+        }
+        .weather-detail-item {
+            display: flex;
+            align-items: center;
+        }
+        .weather-detail-icon {
+            margin-right: 4px;
+            font-size: 12px;
+        }
     
         @media (min-width: 768px) {
             .weather-widget {
@@ -772,9 +787,27 @@
                 <span>Índice UV: --</span>
             </div>
             <div class="weather-warning" id="weatherWarning"></div>
+            <div class="weather-details">
+                <div class="weather-detail-item">
+                    <span class="weather-detail-icon">💧</span>
+                    <span id="weatherHumidity">--%</span>
+                </div>
+                <div class="weather-detail-item">
+                    <span class="weather-detail-icon">🌬️</span>
+                    <span id="weatherWind">-- km/h</span>
+                </div>
+                <div class="weather-detail-item">
+                    <span class="weather-detail-icon">☁️</span>
+                    <span id="weatherClouds">--%</span>
+                </div>
+                <div class="weather-detail-item">
+                    <span class="weather-detail-icon">🔆</span>
+                    <span id="weatherPressure">-- hPa</span>
+                </div>
+            </div>
             <div class="weather-location">Pudahuel, Santiago</div>
             <div class="weather-updating" id="weatherUpdating"></div>
-            <div class="weather-sources" id="weatherSources">Fuente: WeatherAPI</div>
+            <div class="weather-sources" id="weatherSources">Fuente: VisualCrossing</div>
         </div>
         <div class="weather-loading">Actualizando datos...</div>
     </div>
@@ -1192,22 +1225,23 @@
             }
         };
 
-        // API de WeatherAPI (más precisa)
-        const WEATHER_API = {
-            name: "WeatherAPI",
-            url: (lat, lon, apiKey) => `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${lat},${lon}&lang=es&aqi=yes`,
-            apiKey: "bba45e8f8b3f4e398a5181130252608",
+        // API de Visual Crossing (más precisa)
+        const VISUAL_CROSSING_API = {
+            name: "VisualCrossing",
+            url: (lat, lon) => `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${lat}%2C${lon}?unitGroup=us&key=WHNF6WFYLLBQL3CVLTT62R34P&contentType=json`,
             parser: data => {
-                if (!data || !data.current) return null;
+                if (!data || !data.currentConditions) return null;
                 return {
-                    temp: Math.round(data.current.temp_c),
-                    feels_like: Math.round(data.current.feelslike_c),
-                    description: data.current.condition.text,
-                    icon: data.current.condition.icon,
-                    humidity: data.current.humidity,
-                    wind: data.current.wind_kph / 3.6, // Convertir a m/s
-                    uv: data.current.uv,
-                    source: "WeatherAPI"
+                    temp: Math.round((data.currentConditions.temp - 32) * 5/9), // Convertir Fahrenheit a Celsius
+                    feels_like: Math.round((data.currentConditions.feelslike - 32) * 5/9), // Convertir Fahrenheit a Celsius
+                    description: data.currentConditions.conditions,
+                    icon: data.currentConditions.icon,
+                    humidity: data.currentConditions.humidity,
+                    wind: data.currentConditions.windspeed * 1.60934, // Convertir mph a km/h
+                    uv: data.currentConditions.uvindex,
+                    pressure: data.currentConditions.pressure,
+                    cloudcover: data.currentConditions.cloudcover,
+                    source: "VisualCrossing"
                 };
             }
         };
@@ -1263,7 +1297,7 @@
             document.getElementById('weatherUpdating').textContent = `Próxima actualización: ${nextUpdateStr}`;
         }
 
-        // Obtener datos del clima de WeatherAPI
+        // Obtener datos del clima de Visual Crossing
         async function getWeatherData() {
             const lat = PUDALUEL_COORDS[0];
             const lon = PUDALUEL_COORDS[1];
@@ -1271,17 +1305,17 @@
             // Mostrar estado de carga
             document.getElementById('weatherWidget').classList.add('loading');
             document.getElementById('weatherDesc').textContent = 'Actualizando...';
-            document.getElementById('weatherSources').textContent = 'Consultando WeatherAPI...';
+            document.getElementById('weatherSources').textContent = 'Consultando VisualCrossing...';
             
             try {
-                const response = await fetch(WEATHER_API.url(lat, lon, WEATHER_API.apiKey));
+                const response = await fetch(VISUAL_CROSSING_API.url(lat, lon));
                 
                 if (!response.ok) {
-                    throw new Error(`Error en WeatherAPI: ${response.status}`);
+                    throw new Error(`Error en VisualCrossing: ${response.status}`);
                 }
                 
                 const data = await response.json();
-                const weatherData = WEATHER_API.parser(data);
+                const weatherData = VISUAL_CROSSING_API.parser(data);
                 
                 if (!weatherData) {
                     throw new Error("No se pudieron obtener datos del clima");
@@ -1296,7 +1330,7 @@
                 document.getElementById('weatherTemp').textContent = '--°C';
                 document.getElementById('weatherFeelsLike').textContent = 'Sensación: --°C';
                 document.getElementById('weatherIcon').textContent = '❓';
-                document.getElementById('weatherSources').textContent = 'Error al consultar WeatherAPI';
+                document.getElementById('weatherSources').textContent = 'Error al consultar VisualCrossing';
             } finally {
                 document.getElementById('weatherWidget').classList.remove('loading');
                 updateNextUpdateTime();
@@ -1310,7 +1344,7 @@
                 document.getElementById('weatherTemp').textContent = '--°C';
                 document.getElementById('weatherFeelsLike').textContent = 'Sensación: --°C';
                 document.getElementById('weatherIcon').textContent = '❓';
-                document.getElementById('weatherSources').textContent = 'Error en WeatherAPI';
+                document.getElementById('weatherSources').textContent = 'Error en VisualCrossing';
                 return;
             }
             
@@ -1321,10 +1355,20 @@
             const uvElement = document.getElementById('weatherUv');
             const warningElement = document.getElementById('weatherWarning');
             const sourcesElement = document.getElementById('weatherSources');
+            const humidityElement = document.getElementById('weatherHumidity');
+            const windElement = document.getElementById('weatherWind');
+            const cloudsElement = document.getElementById('weatherClouds');
+            const pressureElement = document.getElementById('weatherPressure');
             
             tempElement.textContent = `${weatherData.temp}°C`;
             descElement.textContent = weatherData.description;
             feelsLikeElement.textContent = `Sensación: ${weatherData.feels_like}°C`;
+            
+            // Actualizar detalles adicionales
+            humidityElement.textContent = `${Math.round(weatherData.humidity)}%`;
+            windElement.textContent = `${Math.round(weatherData.wind)} km/h`;
+            cloudsElement.textContent = `${Math.round(weatherData.cloudcover)}%`;
+            pressureElement.textContent = `${Math.round(weatherData.pressure)} hPa`;
             
             // Actualizar icono según el clima
             iconElement.textContent = getWeatherIcon(weatherData.icon);
@@ -1385,60 +1429,22 @@
         // Obtener icono según código del clima
         function getWeatherIcon(iconCode) {
             const iconMap = {
-                // WeatherAPI icons
-                '113': '☀️', // Sunny
-                '116': '⛅', // Partly cloudy
-                '119': '☁️', // Cloudy
-                '122': '☁️', // Overcast
-                '143': '🌫️', // Mist
-                '176': '🌦️', // Patchy rain
-                '179': '🌧️', // Patchy snow
-                '182': '🌧️', // Patchy sleet
-                '185': '🌧️', // Patchy freezing drizzle
-                '200': '⛈️', // Thundery outbreaks
-                '227': '🌨️', // Blowing snow
-                '230': '🌨️', // Blizzard
-                '248': '🌫️', // Fog
-                '260': '🌫️', // Freezing fog
-                '263': '🌦️', // Patchy light drizzle
-                '266': '🌦️', // Light drizzle
-                '281': '🌧️', // Freezing drizzle
-                '284': '🌧️', // Heavy freezing drizzle
-                '293': '🌦️', // Patchy light rain
-                '296': '🌦️', // Light rain
-                '299': '🌧️', // Moderate rain
-                '302': '🌧️', // Heavy rain
-                '305': '🌧️', // Heavy rain
-                '308': '🌧️', // Heavy rain
-                '311': '🌧️', // Light freezing rain
-                '314': '🌧️', // Moderate/Heavy freezing rain
-                '317': '🌧️', // Light sleet
-                '320': '🌧️', // Moderate/Heavy sleet
-                '323': '🌨️', // Patchy light snow
-                '326': '🌨️', // Light snow
-                '329': '🌨️', // Patchy moderate snow
-                '332': '🌨️', // Moderate snow
-                '335': '🌨️', // Patchy heavy snow
-                '338': '🌨️', // Heavy snow
-                '350': '🌧️', // Ice pellets
-                '353': '🌦️', // Light rain shower
-                '356': '🌧️', // Moderate/Heavy rain shower
-                '359': '🌧️', // Torrential rain shower
-                '362': '🌧️', // Light sleet showers
-                '365': '🌧️', // Moderate/Heavy sleet showers
-                '368': '🌨️', // Light snow showers
-                '371': '🌨️', // Moderate/Heavy snow showers
-                '374': '🌧️', // Light showers of ice pellets
-                '377': '🌧️', // Moderate/Heavy showers of ice pellets
-                '386': '⛈️', // Patchy light rain with thunder
-                '389': '⛈️', // Moderate/Heavy rain with thunder
-                '392': '⛈️', // Patchy light snow with thunder
-                '395': '⛈️'  // Moderate/Heavy snow with thunder
+                'clear-day': '☀️',
+                'clear-night': '🌙',
+                'rain': '🌧️',
+                'snow': '❄️',
+                'sleet': '🌨️',
+                'wind': '💨',
+                'fog': '🌫️',
+                'cloudy': '☁️',
+                'partly-cloudy-day': '⛅',
+                'partly-cloudy-night': '☁️',
+                'hail': '🌨️',
+                'thunderstorm': '⛈️',
+                'tornado': '🌪️'
             };
             
-            // Extraer el código numérico del icono (ej: "122" de "//cdn.weatherapi.com/weather/64x64/day/122.png")
-            const numericCode = iconCode.split('/').pop().split('.').shift();
-            return iconMap[numericCode] || '🌡️';
+            return iconMap[iconCode] || '🌡️';
         }
 
         // Alternar visibilidad del widget del clima
@@ -1843,7 +1849,7 @@
                     return;
                 }
                 
-                const auth = JSON.parse(localStorage.getItem('gpsAuth'));
+                const auth = JSON.parse(localizedStorage.getItem('gpsAuth'));
                 auth.vehicleNumber = vehicleNumber;
                 localStorage.setItem('gpsAuth', JSON.stringify(auth));
                 
