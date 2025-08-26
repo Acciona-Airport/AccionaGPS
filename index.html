@@ -34,6 +34,13 @@
             --shift2-color: #9b59b6;
             --shift3-color: #e67e22;
             --transparency: 0.45;
+            
+            /* Colores para índices UV */
+            --uv-low: #27ae60;
+            --uv-moderate: #f39c12;
+            --uv-high: #e67e22;
+            --uv-very-high: #e74c3c;
+            --uv-extreme: #9b59b6;
         }
         * {
             -webkit-tap-highlight-color: transparent;
@@ -78,8 +85,8 @@
             border-radius: 12px;
             width: auto;
             height: auto;
-            min-width: 200px;
-            padding: 12px;
+            min-width: 220px;
+            padding: 15px;
         }
         .weather-icon {
             width: 34px;
@@ -88,32 +95,43 @@
             align-items: center;
             justify-content: center;
             font-size: 28px;
+            transition: all 0.3s ease;
+        }
+        .weather-widget.expanded .weather-icon {
+            margin-right: 12px;
         }
         .weather-info {
             display: none;
             flex-direction: column;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
         .weather-widget.expanded .weather-info {
             display: flex;
+            opacity: 1;
         }
         .weather-temp {
             font-size: 18px;
             font-weight: bold;
             color: #000;
+            margin-bottom: 4px;
         }
         .weather-desc {
             font-size: 12px;
             color: #000;
+            margin-bottom: 4px;
+            text-transform: capitalize;
         }
         .weather-location {
             font-size: 10px;
             color: #000;
             margin-top: 2px;
+            font-weight: 500;
         }
         .weather-updating {
             font-size: 9px;
-            color: #000;
-            margin-top: 4px;
+            color: #666;
+            margin-top: 8px;
             font-style: italic;
         }
         .weather-feels-like {
@@ -121,12 +139,59 @@
             color: #666;
             margin-top: 2px;
         }
+        .weather-uv {
+            display: flex;
+            align-items: center;
+            margin-top: 8px;
+            padding: 5px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        .uv-low {
+            background-color: rgba(39, 174, 96, 0.2);
+            color: var(--uv-low);
+        }
+        .uv-moderate {
+            background-color: rgba(243, 156, 18, 0.2);
+            color: var(--uv-moderate);
+        }
+        .uv-high {
+            background-color: rgba(230, 126, 34, 0.2);
+            color: var(--uv-high);
+        }
+        .uv-very-high {
+            background-color: rgba(231, 76, 60, 0.2);
+            color: var(--uv-very-high);
+        }
+        .uv-extreme {
+            background-color: rgba(155, 89, 182, 0.2);
+            color: var(--uv-extreme);
+        }
+        .weather-warning {
+            margin-top: 8px;
+            padding: 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            background-color: rgba(231, 76, 60, 0.2);
+            color: #d32f2f;
+            display: none;
+        }
         .weather-sources {
             font-size: 9px;
             color: #666;
-            margin-top: 4px;
+            margin-top: 8px;
             border-top: 1px solid #eee;
-            padding-top: 4px;
+            padding-top: 8px;
+        }
+        .weather-loading {
+            display: none;
+            font-size: 10px;
+            color: #666;
+            margin-top: 5px;
+        }
+        .weather-widget.loading .weather-loading {
+            display: block;
         }
     
         @media (min-width: 768px) {
@@ -136,6 +201,7 @@
             }
         }
 
+        /* Resto del CSS se mantiene igual */
         .control-panel-container {
             position: fixed;
             top: 15px;
@@ -695,17 +761,22 @@
     <div id="map"></div>
     <div class="map-touch-overlay" id="mapTouchOverlay"></div>
     
-    
+    <!-- Widget de clima mejorado -->
     <div class="weather-widget" id="weatherWidget">
-        <div class="weather-icon" id="weatherIcon">☀️</div>
+        <div class="weather-icon" id="weatherIcon">🌡️</div>
         <div class="weather-info">
             <div class="weather-temp" id="weatherTemp">--°C</div>
-            <div class="weather-desc" id="weatherDesc">Cargando...</div>
+            <div class="weather-desc" id="weatherDesc">Cargando datos...</div>
             <div class="weather-feels-like" id="weatherFeelsLike">Sensación: --°C</div>
+            <div class="weather-uv" id="weatherUv">
+                <span>Índice UV: --</span>
+            </div>
+            <div class="weather-warning" id="weatherWarning"></div>
             <div class="weather-location">Pudahuel, Santiago</div>
             <div class="weather-updating" id="weatherUpdating"></div>
-            <div class="weather-sources" id="weatherSources">Verificando múltiples fuentes...</div>
+            <div class="weather-sources" id="weatherSources">Fuente: WeatherAPI</div>
         </div>
+        <div class="weather-loading">Actualizando datos...</div>
     </div>
     
     <div class="status-notification" id="statusNotification"></div>
@@ -1121,58 +1192,23 @@
             }
         };
 
-        // APIs de clima
-        const WEATHER_APIS = {
-            openweathermap: {
-                name: "OpenWeatherMap",
-                url: (lat, lon, apiKey) => `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=es`,
-                apiKey: "5a3cb2a80455a22f4bc920458df1b521",
-                parser: data => {
-                    if (!data || !data.main) return null;
-                    return {
-                        temp: Math.round(data.main.temp),
-                        feels_like: Math.round(data.main.feels_like),
-                        description: data.weather[0].description,
-                        icon: data.weather[0].icon,
-                        humidity: data.main.humidity,
-                        wind: data.wind?.speed || 0,
-                        source: "OpenWeatherMap"
-                    };
-                }
-            },
-            weatherapi: {
-                name: "WeatherAPI",
-                url: (lat, lon, apiKey) => `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${lat},${lon}&lang=es`,
-                apiKey: "f4a384b6308a4d9ba0e175849242702",
-                parser: data => {
-                    if (!data || !data.current) return null;
-                    return {
-                        temp: Math.round(data.current.temp_c),
-                        feels_like: Math.round(data.current.feelslike_c),
-                        description: data.current.condition.text,
-                        icon: data.current.condition.icon,
-                        humidity: data.current.humidity,
-                        wind: data.current.wind_kph / 3.6, // Convertir a m/s
-                        source: "WeatherAPI"
-                    };
-                }
-            },
-            visualcrossing: {
-                name: "VisualCrossing",
-                url: (lat, lon, apiKey) => `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${lat},${lon}?unitGroup=metric&key=${apiKey}&contentType=json`,
-                apiKey: "X89A4K5WTRNNE5KJMLWY8LJ8E",
-                parser: data => {
-                    if (!data || !data.currentConditions) return null;
-                    return {
-                        temp: Math.round(data.currentConditions.temp),
-                        feels_like: Math.round(data.currentConditions.feelslike),
-                        description: data.currentConditions.conditions,
-                        icon: data.currentConditions.icon,
-                        humidity: data.currentConditions.humidity,
-                        wind: data.currentConditions.windspeed,
-                        source: "VisualCrossing"
-                    };
-                }
+        // API de WeatherAPI (más precisa)
+        const WEATHER_API = {
+            name: "WeatherAPI",
+            url: (lat, lon, apiKey) => `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${lat},${lon}&lang=es&aqi=yes`,
+            apiKey: "f4a384b6308a4d9ba0e175849242702",
+            parser: data => {
+                if (!data || !data.current) return null;
+                return {
+                    temp: Math.round(data.current.temp_c),
+                    feels_like: Math.round(data.current.feelslike_c),
+                    description: data.current.condition.text,
+                    icon: data.current.condition.icon,
+                    humidity: data.current.humidity,
+                    wind: data.current.wind_kph / 3.6, // Convertir a m/s
+                    uv: data.current.uv,
+                    source: "WeatherAPI"
+                };
             }
         };
 
@@ -1227,56 +1263,32 @@
             document.getElementById('weatherUpdating').textContent = `Próxima actualización: ${nextUpdateStr}`;
         }
 
-        // Obtener datos del clima de múltiples fuentes
+        // Obtener datos del clima de WeatherAPI
         async function getWeatherData() {
             const lat = PUDALUEL_COORDS[0];
             const lon = PUDALUEL_COORDS[1];
             
-            // Actualizar hora de próxima actualización
-            updateNextUpdateTime();
-            
             // Mostrar estado de carga
+            document.getElementById('weatherWidget').classList.add('loading');
             document.getElementById('weatherDesc').textContent = 'Actualizando...';
-            document.getElementById('weatherSources').textContent = 'Consultando múltiples fuentes...';
+            document.getElementById('weatherSources').textContent = 'Consultando WeatherAPI...';
             
             try {
-                // Obtener datos de todas las APIs
-                const weatherPromises = [];
-                const apiResults = [];
+                const response = await fetch(WEATHER_API.url(lat, lon, WEATHER_API.apiKey));
                 
-                for (const [key, api] of Object.entries(WEATHER_APIS)) {
-                    weatherPromises.push(
-                        fetch(api.url(lat, lon, api.apiKey))
-                            .then(response => {
-                                if (!response.ok) throw new Error(`Error en ${api.name}`);
-                                return response.json();
-                            })
-                            .then(data => {
-                                const parsed = api.parser(data);
-                                if (parsed) {
-                                    apiResults.push(parsed);
-                                }
-                                return parsed;
-                            })
-                            .catch(error => {
-                                console.warn(`Error obteniendo datos de ${api.name}:`, error);
-                                return null;
-                            })
-                    );
+                if (!response.ok) {
+                    throw new Error(`Error en WeatherAPI: ${response.status}`);
                 }
                 
-                // Esperar a que todas las peticiones terminen
-                await Promise.allSettled(weatherPromises);
+                const data = await response.json();
+                const weatherData = WEATHER_API.parser(data);
                 
-                if (apiResults.length === 0) {
-                    throw new Error("No se pudieron obtener datos de ninguna fuente");
+                if (!weatherData) {
+                    throw new Error("No se pudieron obtener datos del clima");
                 }
                 
-                // Calcular temperatura promedio ponderada
-                const weightedTemp = calculateWeightedTemperature(apiResults);
-                
-                // Actualizar la interfaz con los datos calculados
-                updateWeatherWidget(weightedTemp, apiResults);
+                // Actualizar la interfaz con los datos
+                updateWeatherWidget(weatherData);
                 
             } catch (error) {
                 console.error('Error obteniendo datos del clima:', error);
@@ -1284,109 +1296,21 @@
                 document.getElementById('weatherTemp').textContent = '--°C';
                 document.getElementById('weatherFeelsLike').textContent = 'Sensación: --°C';
                 document.getElementById('weatherIcon').textContent = '❓';
-                document.getElementById('weatherSources').textContent = 'Error al consultar fuentes';
+                document.getElementById('weatherSources').textContent = 'Error al consultar WeatherAPI';
+            } finally {
+                document.getElementById('weatherWidget').classList.remove('loading');
+                updateNextUpdateTime();
             }
-        }
-
-        // Calcular temperatura promedio ponderada
-        function calculateWeightedTemperature(weatherData) {
-            if (weatherData.length === 0) return null;
-            
-            // Si solo hay un resultado, usarlo directamente
-            if (weatherData.length === 1) {
-                return {
-                    temp: weatherData[0].temp,
-                    feels_like: weatherData[0].feels_like,
-                    description: weatherData[0].description,
-                    icon: weatherData[0].icon,
-                    sources: [weatherData[0].source]
-                };
-            }
-            
-            // Calcular promedio y desviación estándar
-            const temps = weatherData.map(data => data.temp);
-            const avgTemp = temps.reduce((sum, temp) => sum + temp, 0) / temps.length;
-            
-            // Calcular desviación estándar
-            const squareDiffs = temps.map(temp => Math.pow(temp - avgTemp, 2));
-            const avgSquareDiff = squareDiffs.reduce((sum, val) => sum + val, 0) / squareDiffs.length;
-            const stdDev = Math.sqrt(avgSquareDiff);
-            
-            // Filtrar valores atípicos (fuera de 1.5 desviaciones estándar)
-            const filteredData = weatherData.filter(data => 
-                Math.abs(data.temp - avgTemp) <= 1.5 * stdDev
-            );
-            
-            // Si después de filtrar nos quedamos sin datos, usar todos
-            const finalData = filteredData.length > 0 ? filteredData : weatherData;
-            
-            // Calcular promedio ponderado (dar más peso a fuentes confiables)
-            let totalWeight = 0;
-            let weightedTemp = 0;
-            let weightedFeelsLike = 0;
-            
-            finalData.forEach(data => {
-                // Asignar pesos según la fuente (puedes ajustar estos valores)
-                let weight = 1;
-                if (data.source === "OpenWeatherMap") weight = 1.2;
-                if (data.source === "WeatherAPI") weight = 1.0;
-                if (data.source === "VisualCrossing") weight = 0.8;
-                
-                weightedTemp += data.temp * weight;
-                weightedFeelsLike += data.feels_like * weight;
-                totalWeight += weight;
-            });
-            
-            const finalTemp = Math.round(weightedTemp / totalWeight);
-            const finalFeelsLike = Math.round(weightedFeelsLike / totalWeight);
-            
-            // Encontrar la descripción más común
-            const descCounts = {};
-            finalData.forEach(data => {
-                descCounts[data.description] = (descCounts[data.description] || 0) + 1;
-            });
-            
-            let mostCommonDesc = "Despejado";
-            let maxCount = 0;
-            for (const [desc, count] of Object.entries(descCounts)) {
-                if (count > maxCount) {
-                    mostCommonDesc = desc;
-                    maxCount = count;
-                }
-            }
-            
-            // Encontrar el icono más común
-            const iconCounts = {};
-            finalData.forEach(data => {
-                iconCounts[data.icon] = (iconCounts[data.icon] || 0) + 1;
-            });
-            
-            let mostCommonIcon = "01d";
-            maxCount = 0;
-            for (const [icon, count] of Object.entries(iconCounts)) {
-                if (count > maxCount) {
-                    mostCommonIcon = icon;
-                    maxCount = count;
-                }
-            }
-            
-            return {
-                temp: finalTemp,
-                feels_like: finalFeelsLike,
-                description: mostCommonDesc,
-                icon: mostCommonIcon,
-                sources: finalData.map(d => d.source)
-            };
         }
 
         // Actualizar el widget del clima
-        function updateWeatherWidget(weatherData, allData) {
+        function updateWeatherWidget(weatherData) {
             if (!weatherData) {
                 document.getElementById('weatherDesc').textContent = 'Error al cargar';
                 document.getElementById('weatherTemp').textContent = '--°C';
                 document.getElementById('weatherFeelsLike').textContent = 'Sensación: --°C';
                 document.getElementById('weatherIcon').textContent = '❓';
-                document.getElementById('weatherSources').textContent = 'Error en fuentes';
+                document.getElementById('weatherSources').textContent = 'Error en WeatherAPI';
                 return;
             }
             
@@ -1394,6 +1318,8 @@
             const descElement = document.getElementById('weatherDesc');
             const feelsLikeElement = document.getElementById('weatherFeelsLike');
             const iconElement = document.getElementById('weatherIcon');
+            const uvElement = document.getElementById('weatherUv');
+            const warningElement = document.getElementById('weatherWarning');
             const sourcesElement = document.getElementById('weatherSources');
             
             tempElement.textContent = `${weatherData.temp}°C`;
@@ -1403,37 +1329,63 @@
             // Actualizar icono según el clima
             iconElement.textContent = getWeatherIcon(weatherData.icon);
             
-            // Mostrar fuentes utilizadas
-            if (weatherData.sources && weatherData.sources.length > 0) {
-                const uniqueSources = [...new Set(weatherData.sources)];
-                sourcesElement.textContent = `Fuentes: ${uniqueSources.join(', ')}`;
+            // Actualizar información UV
+            if (weatherData.uv !== undefined) {
+                const uvIndex = weatherData.uv;
+                uvElement.innerHTML = `<span>Índice UV: ${uvIndex} - ${getUvLevel(uvIndex)}</span>`;
+                uvElement.className = `weather-uv ${getUvClass(uvIndex)}`;
+                
+                // Mostrar advertencia si el UV es alto
+                if (uvIndex >= 6) {
+                    warningElement.style.display = 'block';
+                    warningElement.textContent = getUvWarning(uvIndex);
+                } else {
+                    warningElement.style.display = 'none';
+                }
             } else {
-                sourcesElement.textContent = `Fuente: ${allData[0]?.source || 'Desconocida'}`;
+                uvElement.innerHTML = '<span>Índice UV: No disponible</span>';
+                uvElement.className = 'weather-uv';
+                warningElement.style.display = 'none';
             }
+            
+            // Mostrar fuente
+            sourcesElement.textContent = `Fuente: ${weatherData.source}`;
+        }
+
+        // Obtener nivel de UV según el índice
+        function getUvLevel(uvIndex) {
+            if (uvIndex >= 0 && uvIndex <= 2) return 'Bajo';
+            if (uvIndex >= 3 && uvIndex <= 5) return 'Moderado';
+            if (uvIndex >= 6 && uvIndex <= 7) return 'Alto';
+            if (uvIndex >= 8 && uvIndex <= 10) return 'Muy Alto';
+            return 'Extremo';
+        }
+
+        // Obtener clase CSS según el índice UV
+        function getUvClass(uvIndex) {
+            if (uvIndex >= 0 && uvIndex <= 2) return 'uv-low';
+            if (uvIndex >= 3 && uvIndex <= 5) return 'uv-moderate';
+            if (uvIndex >= 6 && uvIndex <= 7) return 'uv-high';
+            if (uvIndex >= 8 && uvIndex <= 10) return 'uv-very-high';
+            return 'uv-extreme';
+        }
+
+        // Obtener mensaje de advertencia según el índice UV
+        function getUvWarning(uvIndex) {
+            if (uvIndex >= 6 && uvIndex <= 7) {
+                return '⚠️ Protección necesaria. Busque la sombra durante horas centrales del día, use camisa, gafas de sol y protector solar.';
+            } else if (uvIndex >= 8 && uvIndex <= 10) {
+                return '⚠️️ Protección extra necesaria. Evite el sol entre las 10 a.m. y las 4 p.m. Use camisa, gafas de sol, sombrero y protector solar.';
+            } else if (uvIndex > 10) {
+                return '⚠️️️ ¡Extremo! Tome todas las precauciones. Evite la exposición al sol entre las 10 a.m. y las 4 p.m. Sin protección, la piel puede dañarse en minutos.';
+            }
+            return '';
         }
 
         // Obtener icono según código del clima
         function getWeatherIcon(iconCode) {
             const iconMap = {
-                '01d': '☀️', // Clear sky (day)
-                '01n': '🌙', // Clear sky (night)
-                '02d': '⛅', // Few clouds (day)
-                '02n': '⛅', // Few clouds (night)
-                '03d': '🌤️', // Scattered clouds
-                '03n': '🌤️',
-                '04d': '☁️', // Broken clouds
-                '04n': '☁️',
-                '09d': '🌧️', // Shower rain
-                '09n': '🌧️',
-                '10d': '🌦️', // Rain (day)
-                '10n': '🌦️', // Rain (night)
-                '11d': '⛈️', // Thunderstorm
-                '11n': '⛈️',
-                '13d': '❄️', // Snow
-                '13n': '❄️',
-                '50d': '🌫️', // Mist
-                '50n': '🌫️',
-                // Iconos de WeatherAPI
+                // WeatherAPI icons
                 '113': '☀️', // Sunny
                 '116': '⛅', // Partly cloudy
                 '119': '☁️', // Cloudy
@@ -1484,7 +1436,9 @@
                 '395': '⛈️'  // Moderate/Heavy snow with thunder
             };
             
-            return iconMap[iconCode] || '🌡️';
+            // Extraer el código numérico del icono (ej: "122" de "//cdn.weatherapi.com/weather/64x64/day/122.png")
+            const numericCode = iconCode.split('/').pop().split('.').shift();
+            return iconMap[numericCode] || '🌡️';
         }
 
         // Alternar visibilidad del widget del clima
