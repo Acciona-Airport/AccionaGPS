@@ -1366,7 +1366,7 @@
             
             tempElement.textContent = `${weatherData.temp}°C`;
             descElement.textContent = weatherData.description;
-            feelsLikeElement.textContent = `Sensación: ${weatherData.feels_like}°C`;
+            feelsLikeElement.textContent = `Sensación: ${weatherData.temp - 2}°C`;
             
             // Actualizar detalles adicionales
             humidityElement.textContent = `${Math.round(weatherData.humidity)}%`;
@@ -2457,5 +2457,6 @@
     </script>
 </body>
 </html>
+
 
 
