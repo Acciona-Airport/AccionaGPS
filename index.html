@@ -1384,12 +1384,13 @@
                 uvElement.className = `weather-uv ${getUvClass(uvIndex)}`;
                 
                 // Mostrar advertencia si el UV es alto
-                if (uvIndex >= 6) {
-                    warningElement.style.display = 'block';
-                    warningElement.textContent = getUvWarning(uvIndex);
-                } else {
-                    warningElement.style.display = 'none';
-                }
+               if (uvIndex >= 6) {
+    const warningLines = getUvWarning(uvIndex);
+    warningElement.style.display = 'block';
+    warningElement.innerHTML = warningLines.join('<br>');
+} else {
+    warningElement.style.display = 'none';
+}
             } else {
                 uvElement.innerHTML = '<span>Índice UV: No disponible</span>';
                 uvElement.className = 'weather-uv';
@@ -1421,13 +1422,13 @@
         // Obtener mensaje de advertencia según el índice UV
         function getUvWarning(uvIndex) {
     if (uvIndex >= 6 && uvIndex <= 7) {
-        return '⚠️ Protección necesaria.<br>Use ERP, gorro y protector solar.';
+        return ['⚠️ Protección necesaria.', 'Use ERP, gorro y protector solar.'];
     } else if (uvIndex >= 8 && uvIndex <= 10) {
-        return '⚠️ Protección necesaria.<br>Use ERP, gorro y protector solar.';
+        return ['⚠️ Protección necesaria.', 'Use ERP, gorro y protector solar.'];
     } else if (uvIndex > 10) {
-        return '⚠️️️ ¡Extremo! Tome todas las precauciones.<br>Use ERP, gorro y protector solar.';
+        return ['⚠️️️ ¡Extremo! Tome precauciones.', 'Use ERP, gorro y protector solar.'];
     }
-    return '';
+    return [];
 }
 
         // Obtener icono según código del clima
@@ -2456,4 +2457,5 @@
     </script>
 </body>
 </html>
+
 
