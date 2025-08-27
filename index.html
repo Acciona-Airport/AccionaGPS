@@ -41,6 +41,11 @@
             --uv-high: #e67e22;
             --uv-very-high: #e74c3c;
             --uv-extreme: #9b59b6;
+            
+            /* Colores para indicadores de distancia */
+            --distance-close: #27ae60;
+            --distance-medium: #f39c12;
+            --distance-far: #e74c3c;
         }
         * {
             -webkit-tap-highlight-color: transparent;
@@ -170,17 +175,17 @@
             color: var(--uv-extreme);
         }
         .weather-warning {
-    margin-top: 8px;
-    padding: 6px;
-    border-radius: 4px;
-    font-size: 10px;
-    background-color: rgba(231, 76, 60, 0.2);
-    color: #d32f2f;
-    display: none;
-    line-height: 1.3; /* Añadido para mejor espaciado entre líneas */
-    white-space: normal; /* Asegura que el texto pueda envolverse */
-    text-align: left; /* Alinea el texto a la izquierda */
-}
+            margin-top: 8px;
+            padding: 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            background-color: rgba(231, 76, 60, 0.2);
+            color: #d32f2f;
+            display: none;
+            line-height: 1.3;
+            white-space: normal;
+            text-align: left;
+        }
         .weather-sources {
             font-size: 9px;
             color: #666;
@@ -310,6 +315,40 @@
             justify-content: space-between;
             font-size: 14px;
             margin-top: 5px;
+        }
+        .vehicle-distance {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-top: 3px;
+            color: #666;
+        }
+        .distance-indicator {
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+        }
+        .distance-close {
+            color: var(--distance-close);
+        }
+        .distance-medium {
+            color: var(--distance-medium);
+        }
+        .distance-far {
+            color: var(--distance-far);
+        }
+        .distance-trend {
+            margin-left: 5px;
+            font-size: 14px;
+        }
+        .trend-approaching {
+            color: var(--distance-close);
+        }
+        .trend-moving-away {
+            color: var(--distance-far);
+        }
+        .trend-stable {
+            color: #666;
         }
         .online { color: var(--online-color); }
         .offline { color: #000000; }
@@ -458,11 +497,11 @@
             backdrop-filter: blur(5px);
         }
        .map-provider-selector select {
-    padding: 5px;
-    border-radius: 3px;
-    border: none;
-    background-color: transparent;
-}
+            padding: 5px;
+            border-radius: 3px;
+            border: none;
+            background-color: transparent;
+        }
         .status-notification {
             position: fixed;
             top: 10px;
@@ -559,13 +598,13 @@
             backdrop-filter: blur(5px);
         }
        .route-selector select {
-    padding: 5px;
-    border-radius: 3px;
-    border: none;
-    margin-top: 5px;
-    width: 100%;
-    background-color: transparent;
-}
+            padding: 5px;
+            border-radius: 3px;
+            border: none;
+            margin-top: 5px;
+            width: 100%;
+            background-color: transparent;
+        }
         
         .leaflet-bottom.leaflet-right {
             bottom: 160px;
@@ -631,14 +670,14 @@
         }
         
         .admin-dashboard {
-    display: none;
-    background: rgba(255, 255, 255, var(--transparency));
-    border-radius: 8px;
-    padding: 15px;
-    margin: 15px 0;
-    box-shadow: none;
-    border: none;
-}
+            display: none;
+            background: rgba(255, 255, 255, var(--transparency));
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            box-shadow: none;
+            border: none;
+        }
         .admin-dashboard h4 {
             color: var(--red-dark);
             margin-top: 0;
@@ -705,8 +744,8 @@
             margin-bottom: 3px;
         }
         .lap-label {
-        font-size: 11px;
-        color: black;
+            font-size: 11px;
+            color: black;
         }
         .dashboard-metrics {
             display: grid;
@@ -812,8 +851,8 @@
             <div class="weather-location">Pudahuel, Santiago</div>
             <div class="weather-updating" id="weatherUpdating"></div>
             <div class="weather-sources" id="weatherSources">Fuente: VisualCrossing</div>
+            <div class="weather-loading">Actualizando datos...</div>
         </div>
-        <div class="weather-loading">Actualizando datos...</div>
     </div>
     
     <div class="status-notification" id="statusNotification"></div>
@@ -1036,6 +1075,10 @@
                         <span>Estado:</span>
                         <span id="movil1-status" class="offline">Desconectado</span>
                     </div>
+                    <div class="vehicle-distance" id="movil1-distance">
+                        <span>Distancia:</span>
+                        <span class="distance-indicator">--</span>
+                    </div>
                 </div>
                 
                 <div class="vehicle-card">
@@ -1046,6 +1089,10 @@
                     <div class="vehicle-status">
                         <span>Estado:</span>
                         <span id="movil2-status" class="offline">Desconectado</span>
+                    </div>
+                    <div class="vehicle-distance" id="movil2-distance">
+                        <span>Distancia:</span>
+                        <span class="distance-indicator">--</span>
                     </div>
                 </div>
                 
@@ -1058,6 +1105,10 @@
                         <span>Estado:</span>
                         <span id="movil3-status" class="offline">Desconectado</span>
                     </div>
+                    <div class="vehicle-distance" id="movil3-distance">
+                        <span>Distancia:</span>
+                        <span class="distance-indicator">--</span>
+                    </div>
                 </div>
                 
                 <div class="vehicle-card">
@@ -1068,6 +1119,10 @@
                     <div class="vehicle-status">
                         <span>Estado:</span>
                         <span id="movil4-status" class="offline">Desconectado</span>
+                    </div>
+                    <div class="vehicle-distance" id="movil4-distance">
+                        <span>Distancia:</span>
+                        <span class="distance-indicator">--</span>
                     </div>
                 </div>
             </div>
@@ -1153,6 +1208,14 @@
         let viewerUpdateInterval = null;
         let currentRouteLayer = null;
         let vehicleNames = {};
+        
+        // Almacenar historial de posiciones para calcular tendencias
+        const positionHistory = {
+            Movil1: [],
+            Movil2: [],
+            Movil3: [],
+            Movil4: []
+        };
         
         // Coordenadas exactas del Aeropuerto de Pudahuel
         const PUDALUEL_COORDS = [-33.3931, -70.7858];
@@ -1369,7 +1432,7 @@
             feelsLikeElement.textContent = `Sensación: ${weatherData.temp - 2}°C`;
             
             // Actualizar detalles adicionales
-            humidityElement.textContent = `${Math.round(weatherData.humidity)}%`;
+            humidityElement.textContent = `${Math.round(weatherData.humanity)}%`;
             windElement.textContent = `${Math.round(weatherData.wind)} km/h`;
             cloudsElement.textContent = `${Math.round(weatherData.cloudcover)}%`;
             pressureElement.textContent = `${Math.round(weatherData.pressure)} hPa`;
@@ -1384,13 +1447,13 @@
                 uvElement.className = `weather-uv ${getUvClass(uvIndex)}`;
                 
                 // Mostrar advertencia si el UV es alto
-               if (uvIndex >= 6) {
-    const warningLines = getUvWarning(uvIndex);
-    warningElement.style.display = 'block';
-    warningElement.innerHTML = warningLines.join('<br>');
-} else {
-    warningElement.style.display = 'none';
-}
+                if (uvIndex >= 6) {
+                    const warningLines = getUvWarning(uvIndex);
+                    warningElement.style.display = 'block';
+                    warningElement.innerHTML = warningLines.join('<br>');
+                } else {
+                    warningElement.style.display = 'none';
+                }
             } else {
                 uvElement.innerHTML = '<span>Índice UV: No disponible</span>';
                 uvElement.className = 'weather-uv';
@@ -1421,15 +1484,15 @@
 
         // Obtener mensaje de advertencia según el índice UV
         function getUvWarning(uvIndex) {
-    if (uvIndex >= 6 && uvIndex <= 7) {
-        return ['⚠️ Protección necesaria.', 'Use ERP, gorro y protector solar.'];
-    } else if (uvIndex >= 8 && uvIndex <= 10) {
-        return ['⚠️ Protección necesaria.', 'Use ERP, gorro y protector solar.'];
-    } else if (uvIndex > 10) {
-        return ['⚠️️️ ¡Extremo! Tome precauciones.', 'Use ERP, gorro y protector solar.'];
-    }
-    return [];
-}
+            if (uvIndex >= 6 && uvIndex <= 7) {
+                return ['⚠️ Protección necesaria.', 'Use ERP, gorro y protector solar.'];
+            } else if (uvIndex >= 8 && uvIndex <= 10) {
+                return ['⚠️ Protección necesaria.', 'Use ERP, gorro y protector solar.'];
+            } else if (uvIndex > 10) {
+                return ['⚠️️️ ¡Extremo! Tome precauciones.', 'Use ERP, gorro y protector solar.'];
+            }
+            return [];
+        }
 
         // Obtener icono según código del clima
         function getWeatherIcon(iconCode) {
@@ -1483,7 +1546,7 @@
                 document.getElementById('downloadExcelBtn').style.display = 'flex'; 
             }
             
-            if (isViewer) {
+            if (isViewer || currentUserId === 'Funcionarios') {
                 document.getElementById('other-vehicles-container').style.display = 'block';
                 updateVehicleNamesInUI();
                 initializeAllMarkers();
@@ -1818,7 +1881,7 @@
             refreshBtn.addEventListener('click', function() {
                 refreshBtn.classList.add('loading');
                 
-                if (isViewer) {
+                if (isViewer || currentUserId === 'Funcionarios') {
                     fetchVehicleData();
                 }
                 
@@ -1854,7 +1917,7 @@
                     return;
                 }
                 
-                const auth = JSON.parse(localizedStorage.getItem('gpsAuth'));
+                const auth = JSON.parse(localStorage.getItem('gpsAuth'));
                 auth.vehicleNumber = vehicleNumber;
                 localStorage.setItem('gpsAuth', JSON.stringify(auth));
                 
@@ -2223,7 +2286,7 @@
             
             updateUserPositionMarker(coords, accuracy);
             
-            if (!isViewer) {
+            if (!isViewer && mobileId !== 'Funcionarios') {
                 database.ref(`vehicles/${mobileId}`).set({
                     coords: {
                         lat: coords[0],
@@ -2316,6 +2379,11 @@
 
                     updateMarker(mobileId, coords, isOnline);
                     updateStatus(mobileId, isOnline ? 'online' : 'offline');
+                    
+                    // Si es funcionario, calcular y mostrar distancia a los móviles
+                    if (currentUserId === 'Funcionarios' && lastKnownPosition && isOnline) {
+                        calculateAndDisplayDistance(mobileId, coords);
+                    }
                 }
             });
             
@@ -2324,6 +2392,107 @@
             if (currentUserId === 'Admin') {
                 updateMetrics();
             }
+        }
+        
+        // Calcular y mostrar distancia entre el funcionario y los móviles
+        function calculateAndDisplayDistance(mobileId, mobileCoords) {
+            if (!lastKnownPosition) return;
+            
+            // Calcular distancia en metros
+            const distance = calculateDistance(
+                lastKnownPosition[0], lastKnownPosition[1],
+                mobileCoords[0], mobileCoords[1]
+            );
+            
+            // Calcular tiempo estimado (asumiendo velocidad promedio de 30 km/h)
+            const estimatedTimeMinutes = Math.round((distance / 1000) / 30 * 60);
+            
+            // Determinar tendencia (si se está acercando o alejando)
+            const trend = calculateDistanceTrend(mobileId, mobileCoords);
+            
+            // Actualizar la UI con la información de distancia
+            updateDistanceUI(mobileId, distance, estimatedTimeMinutes, trend);
+        }
+        
+        // Calcular tendencia de distancia (si se está acercando o alejando)
+        function calculateDistanceTrend(mobileId, currentCoords) {
+            // Guardar posición actual en el historial
+            positionHistory[mobileId].push({
+                coords: currentCoords,
+                timestamp: Date.now()
+            });
+            
+            // Mantener solo las últimas 5 posiciones (para calcular tendencia)
+            if (positionHistory[mobileId].length > 5) {
+                positionHistory[mobileId].shift();
+            }
+            
+            // Si no tenemos suficientes datos, retornar tendencia estable
+            if (positionHistory[mobileId].length < 2 || !lastKnownPosition) {
+                return 'stable';
+            }
+            
+            // Calcular distancia anterior y actual
+            const previousPosition = positionHistory[mobileId][positionHistory[mobileId].length - 2];
+            const previousDistance = calculateDistance(
+                lastKnownPosition[0], lastKnownPosition[1],
+                previousPosition.coords[0], previousPosition.coords[1]
+            );
+            
+            const currentDistance = calculateDistance(
+                lastKnownPosition[0], lastKnownPosition[1],
+                currentCoords[0], currentCoords[1]
+            );
+            
+            // Determinar tendencia
+            if (currentDistance < previousDistance - 10) { // Margen de 10 metros para evitar fluctuaciones
+                return 'approaching';
+            } else if (currentDistance > previousDistance + 10) {
+                return 'moving-away';
+            } else {
+                return 'stable';
+            }
+        }
+        
+        // Actualizar la UI con la información de distancia
+        function updateDistanceUI(mobileId, distance, estimatedTimeMinutes, trend) {
+            const distanceElement = document.getElementById(`${mobileId.toLowerCase()}-distance`);
+            if (!distanceElement) return;
+            
+            const distanceIndicator = distanceElement.querySelector('.distance-indicator');
+            if (!distanceIndicator) return;
+            
+            // Formatear distancia (metros o kilómetros)
+            let formattedDistance;
+            let distanceClass;
+            
+            if (distance < 1000) {
+                formattedDistance = `${Math.round(distance)} m`;
+                distanceClass = 'distance-close';
+            } else {
+                formattedDistance = `${(distance / 1000).toFixed(1)} km`;
+                if (distance < 5000) {
+                    distanceClass = 'distance-medium';
+                } else {
+                    distanceClass = 'distance-far';
+                }
+            }
+            
+            // Determinar icono de tendencia
+            let trendIcon = '';
+            if (trend === 'approaching') {
+                trendIcon = '↓'; // Flecha hacia abajo (acercándose)
+            } else if (trend === 'moving-away') {
+                trendIcon = '↑'; // Flecha hacia arriba (alejándose)
+            }
+            
+            // Actualizar UI
+            distanceIndicator.innerHTML = `
+                ${formattedDistance} 
+                <span class="distance-trend ${trend !== 'stable' ? 'trend-' + trend : ''}">${trendIcon}</span>
+                ${estimatedTimeMinutes > 0 ? `<br><small>~${estimatedTimeMinutes} min</small>` : ''}
+            `;
+            distanceIndicator.className = `distance-indicator ${distanceClass}`;
         }
 
         function checkConnectionStatus() {
@@ -2352,6 +2521,18 @@
                                 .setIcon(icon)
                                 .setLatLng(INACTIVE_COORDS)
                                 .setPopupContent(`<b>${vehicleNames[mobileId] || mobileId}</b><br>Desconectado<br>Última actualización: ${new Date(lastUpdate).toLocaleTimeString()}`);
+                        }
+                        
+                        // Si es funcionario, limpiar información de distancia
+                        if (currentUserId === 'Funcionarios') {
+                            const distanceElement = document.getElementById(`${mobileId.toLowerCase()}-distance`);
+                            if (distanceElement) {
+                                const distanceIndicator = distanceElement.querySelector('.distance-indicator');
+                                if (distanceIndicator) {
+                                    distanceIndicator.textContent = '--';
+                                    distanceIndicator.className = 'distance-indicator';
+                                }
+                            }
                         }
                     }
                 }
@@ -2418,7 +2599,7 @@
                     iconElement.className = `user-icon ${status === 'online' ? 'online' : 'offline'}`;
                 }
             } 
-            else if (isViewer) {
+            else if (isViewer || currentUserId === 'Funcionarios') {
                 const element = document.getElementById(`${mobileId.toLowerCase()}-status`);
                 const iconElement = document.getElementById(`${mobileId.toLowerCase()}-icon`);
                 
@@ -2457,6 +2638,3 @@
     </script>
 </body>
 </html>
-
-
-
