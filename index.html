@@ -1428,7 +1428,9 @@
             const pressureElement = document.getElementById('weatherPressure');
             
             tempElement.textContent = `${weatherData.temp}°C`;
-            descElement.textContent = weatherData.description;
+           const weatherInfo = getWeatherIcon(weatherData.icon);
+           descElement.textContent = weatherInfo.desc;
+           iconElement.textContent = weatherInfo.icon;
             feelsLikeElement.textContent = `Sensación: ${weatherData.temp - 2}°C`;
             
             // Actualizar detalles adicionales
@@ -1495,25 +1497,25 @@
         }
 
         // Obtener icono según código del clima
-        function getWeatherIcon(iconCode) {
-            const iconMap = {
-                'clear-day': '☀️',
-                'clear-night': '🌙',
-                'rain': '🌧️',
-                'snow': '❄️',
-                'sleet': '🌨️',
-                'wind': '💨',
-                'fog': '🌫️',
-                'cloudy': '☁️',
-                'partly-cloudy-day': '⛅',
-                'partly-cloudy-night': '☁️',
-                'hail': '🌨️',
-                'thunderstorm': '⛈️',
-                'tornado': '🌪️'
-            };
-            
-            return iconMap[iconCode] || '🌡️';
-        }
+       function getWeatherIcon(iconCode) {
+    const iconMap = {
+        'clear-day': { icon: '☀️', desc: 'Despejado' },
+        'clear-night': { icon: '🌙', desc: 'Noche despejada' },
+        'rain': { icon: '🌧️', desc: 'Lluvia' },
+        'snow': { icon: '❄️', desc: 'Nieve' },
+        'sleet': { icon: '🌨️', desc: 'Aguanieve' },
+        'wind': { icon: '💨', desc: 'Viento' },
+        'fog': { icon: '🌫️', desc: 'Niebla' },
+        'cloudy': { icon: '☁️', desc: 'Nublado' },
+        'partly-cloudy-day': { icon: '⛅', desc: 'Parcialmente nublado' },
+        'partly-cloudy-night': { icon: '☁️', desc: 'Noche parcialmente nublada' },
+        'hail': { icon: '🌨️', desc: 'Granizo' },
+        'thunderstorm': { icon: '⛈️', desc: 'Tormenta eléctrica' },
+        'tornado': { icon: '🌪️', desc: 'Tornado' }
+    };
+    
+    return iconMap[iconCode] || { icon: '🌡️', desc: 'Condiciones variables' };
+}
 
         // Alternar visibilidad del widget del clima
         function toggleWeatherWidget() {
@@ -2638,3 +2640,4 @@
     </script>
 </body>
 </html>
+
