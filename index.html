@@ -1406,38 +1406,38 @@
 
         // Actualizar el widget del clima
         function updateWeatherWidget(weatherData) {
-            if (!weatherData) {
-                document.getElementById('weatherDesc').textContent = 'Error al cargar';
-                document.getElementById('weatherTemp').textContent = '--°C';
-                document.getElementById('weatherFeelsLike').textContent = 'Sensación: --°C';
-                document.getElementById('weatherIcon').textContent = '❓';
-                document.getElementById('weatherSources').textContent = 'Error en VisualCrossing';
-                return;
-            }
-            
-            const tempElement = document.getElementById('weatherTemp');
-            const descElement = document.getElementById('weatherDesc');
-            const feelsLikeElement = document.getElementById('weatherFeelsLike');
-            const iconElement = document.getElementById('weatherIcon');
-            const uvElement = document.getElementById('weatherUv');
-            const warningElement = document.getElementById('weatherWarning');
-            const sourcesElement = document.getElementById('weatherSources');
-            const humidityElement = document.getElementById('weatherHumidity');
-            const windElement = document.getElementById('weatherWind');
-            const cloudsElement = document.getElementById('weatherClouds');
-            const pressureElement = document.getElementById('weatherPressure');
-            
-            tempElement.textContent = `${weatherData.temp}°C`;
+    if (!weatherData) {
+        document.getElementById('weatherDesc').textContent = 'Error al cargar';
+        document.getElementById('weatherTemp').textContent = '--°C';
+        document.getElementById('weatherFeelsLike').textContent = 'Sensación: --°C';
+        document.getElementById('weatherIcon').textContent = '❓';
+        document.getElementById('weatherSources').textContent = 'Error en VisualCrossing';
+        return;
+    }
+    
+    const tempElement = document.getElementById('weatherTemp');
+    const descElement = document.getElementById('weatherDesc');
+    const feelsLikeElement = document.getElementById('weatherFeelsLike');
+    const iconElement = document.getElementById('weatherIcon');
+    const uvElement = document.getElementById('weatherUv');
+    const warningElement = document.getElementById('weatherWarning');
+    const sourcesElement = document.getElementById('weatherSources');
+    const humidityElement = document.getElementById('weatherHumidity');
+    const windElement = document.getElementById('weatherWind');
+    const cloudsElement = document.getElementById('weatherClouds');
+    const pressureElement = document.getElementById('weatherPressure');
+    
+    tempElement.textContent = `${weatherData.temp}°C`;
            const weatherInfo = getWeatherIcon(weatherData.icon);
            descElement.textContent = weatherInfo.desc;
            iconElement.textContent = weatherInfo.icon;
             feelsLikeElement.textContent = `Sensación: ${weatherData.temp - 2}°C`;
             
             // Actualizar detalles adicionales
-            humidityElement.textContent = `${Math.round(weatherData.humanity)}%`;
-            windElement.textContent = `${Math.round(weatherData.wind)} km/h`;
-            cloudsElement.textContent = `${Math.round(weatherData.cloudcover)}%`;
-            pressureElement.textContent = `${Math.round(weatherData.pressure)} hPa`;
+            humidityElement.textContent = `${Math.round(weatherData.humidity)}%`;
+           windElement.textContent = `${Math.round(weatherData.wind)} km/h`;
+          cloudsElement.textContent = `${Math.round(weatherData.cloudcover)}%`;
+          pressureElement.textContent = `${Math.round(weatherData.pressure)} hPa`;
             
             // Actualizar icono según el clima
             iconElement.textContent = getWeatherIcon(weatherData.icon);
@@ -1497,7 +1497,7 @@
         }
 
         // Obtener icono según código del clima
-       function getWeatherIcon(iconCode) {
+     function getWeatherIcon(iconCode) {
     const iconMap = {
         'clear-day': { icon: '☀️', desc: 'Despejado' },
         'clear-night': { icon: '🌙', desc: 'Noche despejada' },
@@ -2640,4 +2640,5 @@
     </script>
 </body>
 </html>
+
 
