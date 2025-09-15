@@ -1705,7 +1705,7 @@
             showNotification("Datos descargados exitosamente", 3000);
         }
         
-        function getCoordinateDataForLast7Days() {
+        function getCoordinateDataForLast10Days() {
             // Obtener datos almacenados en localStorage
             const storedData = localStorage.getItem('coordinateData');
             
@@ -1714,11 +1714,11 @@
             const allData = JSON.parse(storedData);
             
             // Filtrar datos de los últimos 7 días
-            const sevenDaysAgo = new Date();
-            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+            const tenDaysAgo = new Date();
+            tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
 
             const filteredData = allData.filter(item => {
-                return new Date(item.timestamp) >= sevenDaysAgo;
+            return new Date(item.timestamp) >= tenDaysAgo;
             });
             
             // Formatear datos para Excel
@@ -1755,12 +1755,12 @@
                 timestamp: new Date().toISOString()
             });
             
-            // Mantener solo datos de los últimos 7 días
-            const sevenDaysAgo = new Date();
-            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+            // Mantener solo datos de los últimos 10 días
+                const tenDaysAgo = new Date();
+                tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
 
-            coordinateData = coordinateData.filter(item => {
-                return new Date(item.timestamp) >= sevenDaysAgo;
+                coordinateData = coordinateData.filter(item => {
+                return new Date(item.timestamp) >= tenDaysAgo;
             });
             
             // Guardar datos actualizados
@@ -2658,6 +2658,7 @@
     </script>
 </body>
 </html>
+
 
 
 
