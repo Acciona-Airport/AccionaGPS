@@ -1679,7 +1679,7 @@
         
         function downloadExcelData() {
             
-            const coordinateData = getCoordinateDataForLast7Days();
+             const coordinateData = getCoordinateDataForLast10Days();
             
             if (coordinateData.length === 0) {
                 showNotification("No hay datos para exportar", 3000);
@@ -2658,4 +2658,5 @@
     </script>
 </body>
 </html>
+
 
