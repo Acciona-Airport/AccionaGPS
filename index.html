@@ -1299,12 +1299,12 @@
             parser: data => {
                 if (!data || !data.currentConditions) return null;
                 return {
-                    temp: Math.round((data.currentConditions.temp - 32) * 5/9), // Convertir Fahrenheit a Celsius
-                    feels_like: Math.round((data.currentConditions.feelslike - 32) * 5/9), // Convertir Fahrenheit a Celsius
+                    temp: Math.round((data.currentConditions.temp - 32) * 5/9), 
+                    feels_like: Math.round((data.currentConditions.feelslike - 32) * 5/9), 
                     description: data.currentConditions.conditions,
                     icon: data.currentConditions.icon,
                     humidity: data.currentConditions.humidity,
-                    wind: data.currentConditions.windspeed * 1.60934, // Convertir mph a km/h
+                    wind: data.currentConditions.windspeed * 1.60934, 
                     uv: data.currentConditions.uvindex,
                     pressure: data.currentConditions.pressure,
                     cloudcover: data.currentConditions.cloudcover,
@@ -2658,5 +2658,6 @@
     </script>
 </body>
 </html>
+
 
 
