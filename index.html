@@ -2358,7 +2358,7 @@
                                     const coords = [vehicle.coords.lat, vehicle.coords.lng];
                                     checkLapCompletion(mobileId, coords);
                                     
-                                    // Almacenar datos de coordenadas
+                                    
                                     const laps = lapCounters[mobileId] ? 
                                         lapCounters[mobileId].shift1 + lapCounters[mobileId].shift2 + lapCounters[mobileId].shift3 : 0;
                                     storeCoordinateData(mobileId, coords, vehicle.status, laps);
@@ -2658,3 +2658,4 @@
     </script>
 </body>
 </html>
+
