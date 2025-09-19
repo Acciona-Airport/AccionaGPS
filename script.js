@@ -16,8 +16,8 @@ document.addEventListener('DOMContentLoaded', function() {
         setupLogin();
     } else {
         initMap();
-        loadMobileNumbers(); // <--- Nueva función para cargar los datos
-        setupAdminPanel();
+        loadMobileNumbers(); // <--- Carga los nombres guardados al iniciar
+        setupAdminPanel(); // <--- Configura el botón para guardar
     }
 });
 
