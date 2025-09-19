@@ -822,6 +822,7 @@
     <div id="map"></div>
     <div class="map-touch-overlay" id="mapTouchOverlay"></div>
     
+    
     <div class="weather-widget" id="weatherWidget">
         <div class="weather-icon" id="weatherIcon">🌡️</div>
         <div class="weather-info">
@@ -915,119 +916,89 @@
         <div class="control-panel" id="controlPanel">
             <h3 style="margin-top:0;color:var(--red-dark);">🚐 Flota Acciona</h3>
             
-         <div class="admin-dashboard" id="adminDashboard">
-    <h4>📊 Dashboard Administrador</h4>
-    
-    <div class="dashboard-tabs">
-        <div class="dashboard-tab active" data-tab="laps">Vueltas</div>
-        <div class="dashboard-tab" data-tab="metrics">Data</div>
-        <div class="dashboard-tab" data-tab="performance">G</div>
-        <div class="dashboard-tab" data-tab="vehicleManagement">E</div>
-    </div>
-    
-    <div id="laps-content" class="tab-content active">
-        <div class="lap-counter" id="movil1Laps">
-            <h5>Móvil 1</h5>
-            <div class="lap-stats">
-                <div class="lap-stat shift1">
-                    <div class="lap-count" id="movil1Shift1">0</div>
-                    <div class="lap-label">06:00 - 13:00</div>
+            <div class="admin-dashboard" id="adminDashboard">
+                <h4>📊 Dashboard Administrador</h4>
+                
+                <div class="dashboard-tabs">
+                    <div class="dashboard-tab active" data-tab="laps">Vueltas</div>
+                    <div class="dashboard-tab" data-tab="metrics">Data</div>
+                    <div class="dashboard-tab" data-tab="performance">Global</div>
                 </div>
-                <div class="lap-stat shift2">
-                    <div class="lap-count" id="movil1Shift2">0</div>
-                    <div class="lap-label">13:00 - 22:00</div>
+                
+                <div class="dashboard-content active" id="lapsContent">
+                    <div class="lap-counter" id="movil1Laps">
+                        <h5>Móvil 1</h5>
+                        <div class="lap-stats">
+                            <div class="lap-stat shift1">
+                                <div class="lap-count" id="movil1Shift1">0</div>
+                                <div class="lap-label">06:00 - 13:00</div>
+                            </div>
+                            <div class="lap-stat shift2">
+                                <div class="lap-count" id="movil1Shift2">0</div>
+                                <div class="lap-label">13:00 - 22:00</div>
+                            </div>
+                            <div class="lap-stat shift3">
+                                <div class="lap-count" id="movil1Shift3">0</div>
+                                <div class="lap-label">22:00 - 06:00</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="lap-counter" id="movil2Laps">
+                        <h5>Móvil 2</h5>
+                        <div class="lap-stats">
+                            <div class="lap-stat shift1">
+                                <div class="lap-count" id="movil2Shift1">0</div>
+                                <div class="lap-label">06:00 - 13:00</div>
+                            </div>
+                            <div class="lap-stat shift2">
+                                <div class="lap-count" id="movil2Shift2">0</div>
+                                <div class="lap-label">13:00 - 22:00</div>
+                            </div>
+                            <div class="lap-stat shift3">
+                                <div class="lap-count" id="movil2Shift3">0</div>
+                                <div class="lap-label">22:00 - 06:00</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="lap-counter" id="movil3Laps">
+                        <h5>Móvil 3</h5>
+                        <div class="lap-stats">
+                            <div class="lap-stat shift1">
+                                <div class="lap-count" id="movil3Shift1">0</div>
+                                <div class="lap-label">06:00 - 13:00</div>
+                            </div>
+                            <div class="lap-stat shift2">
+                                <div class="lap-count" id="movil3Shift2">0</div>
+                                <div class="lap-label">13:00 - 22:00</div>
+                            </div>
+                            <div class="lap-stat shift3">
+                                <div class="lap-count" id="movil3Shift3">0</div>
+                                <div class="lap-label">22:00 - 06:00</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="lap-counter" id="movil4Laps">
+                        <h5>Móvil 4</h5>
+                        <div class="lap-stats">
+                            <div class="lap-stat shift1">
+                                <div class="lap-count" id="movil4Shift1">0</div>
+                                <div class="lap-label">06:00 - 13:00</div>
+                            </div>
+                            <div class="lap-stat shift2">
+                                <div class="lap-count" id="movil4Shift2">0</div>
+                                <div class="lap-label">13:00 - 22:00</div>
+                            </div>
+                            <div class="lap-stat shift3">
+                                <div class="lap-count" id="movil4Shift3">0</div>
+                                <div class="lap-label">22:00 - 06:00</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="lap-stat shift3">
-                    <div class="lap-count" id="movil1Shift3">0</div>
-                    <div class="lap-label">22:00 - 06:00</div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="lap-counter" id="movil2Laps">
-            <h5>Móvil 2</h5>
-            <div class="lap-stats">
-                <div class="lap-stat shift1">
-                    <div class="lap-count" id="movil2Shift1">0</div>
-                    <div class="lap-label">06:00 - 13:00</div>
-                </div>
-                <div class="lap-stat shift2">
-                    <div class="lap-count" id="movil2Shift2">0</div>
-                    <div class="lap-label">13:00 - 22:00</div>
-                </div>
-                <div class="lap-stat shift3">
-                    <div class="lap-count" id="movil2Shift3">0</div>
-                    <div class="lap-label">22:00 - 06:00</div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="lap-counter" id="movil3Laps">
-            <h5>Móvil 3</h5>
-            <div class="lap-stats">
-                <div class="lap-stat shift1">
-                    <div class="lap-count" id="movil3Shift1">0</div>
-                    <div class="lap-label">06:00 - 13:00</div>
-                </div>
-                <div class="lap-stat shift2">
-                    <div class="lap-count" id="movil3Shift2">0</div>
-                    <div class="lap-label">13:00 - 22:00</div>
-                </div>
-                <div class="lap-stat shift3">
-                    <div class="lap-count" id="movil3Shift3">0</div>
-                    <div class="lap-label">22:00 - 06:00</div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="lap-counter" id="movil4Laps">
-            <h5>Móvil 4</h5>
-            <div class="lap-stats">
-                <div class="lap-stat shift1">
-                    <div class="lap-count" id="movil4Shift1">0</div>
-                    <div class="lap-label">06:00 - 13:00</div>
-                </div>
-                <div class="lap-stat shift2">
-                    <div class="lap-count" id="movil4Shift2">0</div>
-                    <div class="lap-label">13:00 - 22:00</div>
-                </div>
-                <div class="lap-stat shift3">
-                    <div class="lap-count" id="movil4Shift3">0</div>
-                    <div class="lap-label">22:00 - 06:00</div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div id="metrics-content" class="tab-content">
-        <p>Contenido para Data...</p>
-    </div>
-    
-    <div id="performance-content" class="tab-content">
-        <p>Contenido para G...</p>
-    </div>
-    
-    <div id="vehicleManagement-content" class="tab-content">
-        <h4>Gestión de Números de Vehículos</h4>
-        <div class="form-group">
-            <label for="mobile1">Móvil 1:</label>
-            <input type="text" id="mobile1" class="mobile-number-input">
-        </div>
-        <div class="form-group">
-            <label for="mobile2">Móvil 2:</label>
-            <input type="text" id="mobile2" class="mobile-number-input">
-        </div>
-        <div class="form-group">
-            <label for="mobile3">Móvil 3:</label>
-            <input type="text" id="mobile3" class="mobile-number-input">
-        </div>
-        <div class="form-group">
-            <label for="mobile4">Móvil 4:</label>
-            <input type="text" id="mobile4" class="mobile-number-input">
-        </div>
-        <button class="admin-button" id="save-mobile-numbers">Guardar Cambios</button>
-    </div>
-</div>
+                
                 <div class="dashboard-content" id="metricsContent">
                     <div class="dashboard-metrics">
                         <div class="metric-card">
@@ -1047,6 +1018,7 @@
                             <div class="metric-label">Última Actualización</div>
                         </div>
                     </div>
+                    
                     
                     <button class="export-excel-btn" id="downloadExcelBtn">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
@@ -1075,36 +1047,6 @@
                             <div class="metric-value" id="operatingHours">0 h</div>
                             <div class="metric-label">Horas Operativas</div>
                         </div>
-                    </div>
-                </div>
-                
-                <div class="dashboard-content" id="vehicleManagementContent">
-                    <div class="vehicle-management-form">
-                        <h5>Gestión de Números de Vehículos</h5>
-                        
-                        <div class="vehicle-input-group">
-                            <label for="movil1Input">Móvil 1:</label>
-                            <input type="text" id="movil1Input" class="vehicle-number-input-admin" placeholder="Número de vehículo">
-                        </div>
-                        
-                        <div class="vehicle-input-group">
-                            <label for="movil2Input">Móvil 2:</label>
-                            <input type="text" id="movil2Input" class="vehicle-number-input-admin" placeholder="Número de vehículo">
-                        </div>
-                        
-                        <div class="vehicle-input-group">
-                            <label for="movil3Input">Móvil 3:</label>
-                            <input type="text" id="movil3Input" class="vehicle-number-input-admin" placeholder="Número de vehículo">
-                        </div>
-                        
-                        <div class="vehicle-input-group">
-                            <label for="movil4Input">Móvil 4:</label>
-                            <input type="text" id="movil4Input" class="vehicle-number-input-admin" placeholder="Número de vehículo">
-                        </div>
-                        
-                        <button id="saveVehicleNumbersBtn" class="save-vehicle-btn">
-                            Guardar Cambios
-                        </button>
                     </div>
                 </div>
             </div>
@@ -1270,12 +1212,14 @@
         let currentRouteLayer = null;
         let vehicleNames = {};
         
+        
         const positionHistory = {
             Movil1: [],
             Movil2: [],
             Movil3: [],
             Movil4: []
         };
+        
         
         const PUDALUEL_COORDS = [-33.3931, -70.7858];
         
@@ -1351,6 +1295,7 @@
             }
         };
 
+        
         const VISUAL_CROSSING_API = {
             name: "VisualCrossing",
             url: (lat, lon) => `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${lat}%2C${lon}?unitGroup=us&key=WHNF6WFYLLBQL3CVLTT62R34P&contentType=json`,
@@ -1477,6 +1422,7 @@
                 initMap();
                 setupUI();
                 
+                
                 startWeatherUpdates();
                 
                 if (!isViewer && !auth.vehicleNumber) {
@@ -1488,12 +1434,19 @@
             }
         });
 
+        
         function startWeatherUpdates() {
+            
             getWeatherData();
+            
+            
             weatherUpdateInterval = setInterval(getWeatherData, 600000);
+            
+            
             updateNextUpdateTime();
         }
 
+        
         function updateNextUpdateTime() {
             const now = new Date();
             const nextUpdate = new Date(now.getTime() + 600000);
@@ -1502,9 +1455,11 @@
             document.getElementById('weatherUpdating').textContent = `Próxima actualización: ${nextUpdateStr}`;
         }
 
+        
         async function getWeatherData() {
             const lat = PUDALUEL_COORDS[0];
             const lon = PUDALUEL_COORDS[1];
+            
             
             document.getElementById('weatherWidget').classList.add('loading');
             document.getElementById('weatherDesc').textContent = 'Actualizando...';
@@ -1523,6 +1478,7 @@
                 if (!weatherData) {
                     throw new Error("No se pudieron obtener datos del clima");
                 }
+                
                 
                 updateWeatherWidget(weatherData);
                 
@@ -1545,6 +1501,7 @@
                         throw new Error("No se pudieron obtener datos del clima");
                     }
                     
+                    
                     updateWeatherWidget(weatherData);
                     
                 } catch (fallbackError) {
@@ -1561,78 +1518,84 @@
             }
         }
 
+        
         function updateWeatherWidget(weatherData) {
-            if (!weatherData) {
-                document.getElementById('weatherDesc').textContent = 'Error al cargar';
-                document.getElementById('weatherTemp').textContent = '--°C';
-                document.getElementById('weatherFeelsLike').textContent = 'Sensación: --°C';
-                document.getElementById('weatherIcon').textContent = '☀️';
-                document.getElementById('weatherSources').textContent = 'Error en servicios';
-                return;
-            }
+    if (!weatherData) {
+        document.getElementById('weatherDesc').textContent = 'Error al cargar';
+        document.getElementById('weatherTemp').textContent = '--°C';
+        document.getElementById('weatherFeelsLike').textContent = 'Sensación: --°C';
+        document.getElementById('weatherIcon').textContent = '☀️';
+        document.getElementById('weatherSources').textContent = 'Error en servicios';
+        return;
+    }
+    
+    const tempElement = document.getElementById('weatherTemp');
+    const descElement = document.getElementById('weatherDesc');
+    const feelsLikeElement = document.getElementById('weatherFeelsLike');
+    const iconElement = document.getElementById('weatherIcon');
+    const uvElement = document.getElementById('weatherUv');
+    const warningElement = document.getElementById('weatherWarning');
+    const sourcesElement = document.getElementById('weatherSources');
+    const humidityElement = document.getElementById('weatherHumidity');
+    const windElement = document.getElementById('weatherWind');
+    const cloudsElement = document.getElementById('weatherClouds');
+    const pressureElement = document.getElementById('weatherPressure');
+    
+    tempElement.textContent = `${weatherData.temp}°C`;
+    descElement.textContent = weatherData.description;
+    iconElement.textContent = weatherData.icon;
+    feelsLikeElement.textContent = `Sensación: ${weatherData.feels_like}°C`;
             
-            const tempElement = document.getElementById('weatherTemp');
-            const descElement = document.getElementById('weatherDesc');
-            const feelsLikeElement = document.getElementById('weatherFeelsLike');
-            const iconElement = document.getElementById('weatherIcon');
-            const uvElement = document.getElementById('weatherUv');
-            const warningElement = document.getElementById('weatherWarning');
-            const sourcesElement = document.getElementById('weatherSources');
-            const humidityElement = document.getElementById('weatherHumidity');
-            const windElement = document.getElementById('weatherWind');
-            const cloudsElement = document.getElementById('weatherClouds');
-            const pressureElement = document.getElementById('weatherPressure');
             
-            tempElement.textContent = `${weatherData.temp}°C`;
-            descElement.textContent = weatherData.description;
-            iconElement.textContent = weatherData.icon;
-            feelsLikeElement.textContent = `Sensación: ${weatherData.feels_like}°C`;
+    if (weatherData.humidity !== undefined) {
+        humidityElement.textContent = `${Math.round(weatherData.humidity)}%`;
+    } else {
+        humidityElement.textContent = '--%';
+    }
             
-            if (weatherData.humidity !== undefined) {
-                humidityElement.textContent = `${Math.round(weatherData.humidity)}%`;
-            } else {
-                humidityElement.textContent = '--%';
-            }
+    if (weatherData.wind !== undefined) {
+        windElement.textContent = `${Math.round(weatherData.wind)} km/h`;
+    } else {
+        windElement.textContent = '-- km/h';
+    }
             
-            if (weatherData.wind !== undefined) {
-                windElement.textContent = `${Math.round(weatherData.wind)} km/h`;
-            } else {
-                windElement.textContent = '-- km/h';
-            }
+    if (weatherData.cloudcover !== undefined) {
+        cloudsElement.textContent = `${Math.round(weatherData.cloudcover)}%`;
+    } else {
+        cloudsElement.textContent = '--%';
+    }
             
-            if (weatherData.cloudcover !== undefined) {
-                cloudsElement.textContent = `${Math.round(weatherData.cloudcover)}%`;
-            } else {
-                cloudsElement.textContent = '--%';
-            }
+    if (weatherData.pressure !== undefined) {
+        pressureElement.textContent = `${Math.round(weatherData.pressure)} hPa`;
+    } else {
+        pressureElement.textContent = '-- hPa';
+    }
             
-            if (weatherData.pressure !== undefined) {
-                pressureElement.textContent = `${Math.round(weatherData.pressure)} hPa`;
-            } else {
-                pressureElement.textContent = '-- hPa';
-            }
             
-            if (weatherData.uv !== undefined && weatherData.uv > 0) {
-                const uvIndex = weatherData.uv;
-                uvElement.innerHTML = `<span>Índice UV: ${uvIndex} - ${getUvLevel(uvIndex)}</span>`;
-                uvElement.className = `weather-uv ${getUvClass(uvIndex)}`;
+    if (weatherData.uv !== undefined && weatherData.uv > 0) {
+        const uvIndex = weatherData.uv;
+        uvElement.innerHTML = `<span>Índice UV: ${uvIndex} - ${getUvLevel(uvIndex)}</span>`;
+        uvElement.className = `weather-uv ${getUvClass(uvIndex)}`;
                 
-                if (uvIndex >= 6) {
-                    const warningLines = getUvWarning(uvIndex);
-                    warningElement.style.display = 'block';
-                    warningElement.innerHTML = warningLines.join('<br>');
-                } else {
-                    warningElement.style.display = 'none';
-                }
-            } else {
-                uvElement.innerHTML = '<span>Índice UV: No disponible</span>';
-                uvElement.className = 'weather-uv';
-                warningElement.style.display = 'none';
-            }
+                
+        if (uvIndex >= 6) {
+            const warningLines = getUvWarning(uvIndex);
+            warningElement.style.display = 'block';
+            warningElement.innerHTML = warningLines.join('<br>');
+        } else {
+            warningElement.style.display = 'none';
+        }
+    } else {
+        uvElement.innerHTML = '<span>Índice UV: No disponible</span>';
+        uvElement.className = 'weather-uv';
+        warningElement.style.display = 'none';
+    }
             
-            sourcesElement.textContent = `Fuente: ${weatherData.source}`;
+            
+    sourcesElement.textContent = `Fuente: ${weatherData.source}`;
         }
 
+        
         function getUvLevel(uvIndex) {
             if (uvIndex >= 0 && uvIndex <= 2) return 'Bajo';
             if (uvIndex >= 3 && uvIndex <= 5) return 'Moderado';
@@ -1641,6 +1604,7 @@
             return 'Extremo';
         }
 
+        
         function getUvClass(uvIndex) {
             if (uvIndex >= 0 && uvIndex <= 2) return 'uv-low';
             if (uvIndex >= 3 && uvIndex <= 5) return 'uv-moderate';
@@ -1649,6 +1613,7 @@
             return 'uv-extreme';
         }
 
+        
         function getUvWarning(uvIndex) {
             if (uvIndex >= 6 && uvIndex <= 7) {
                 return ['⚠️ Protección necesaria.', 'Use ERP, gorro y protector solar.'];
@@ -1660,6 +1625,7 @@
             return [];
         }
 
+        
         function toggleWeatherWidget() {
             const widget = document.getElementById('weatherWidget');
             widget.classList.toggle('expanded');
@@ -1675,6 +1641,7 @@
             const displayName = (currentUserId === 'Funcionarios') ? 'Yo' : (vehicleNames[currentUserId] || currentUserId);
             document.getElementById('current-user-name').textContent = displayName;
             
+            
             if (currentUserId === 'Funcionarios') {
                 document.getElementById('refreshContainer').style.display = 'none';
             }
@@ -1683,11 +1650,10 @@
                 document.getElementById('adminDashboard').style.display = 'block';
                 loadLapCounters();
                 setupDashboardTabs();
-                loadVehicleNumbers();
+                
                 
                 document.getElementById('downloadExcelBtn').addEventListener('click', downloadExcelData);
-                document.getElementById('downloadExcelBtn').style.display = 'flex';
-                document.getElementById('saveVehicleNumbersBtn').addEventListener('click', saveVehicleNumbers);
+                document.getElementById('downloadExcelBtn').style.display = 'flex'; 
             }
             
             if (isViewer || currentUserId === 'Funcionarios') {
@@ -1700,44 +1666,8 @@
                 startGPSTracking(currentUserId);
             }
             
+            
             document.getElementById('weatherWidget').addEventListener('click', toggleWeatherWidget);
-        }
-        
-        function loadVehicleNumbers() {
-            const savedVehicleNumbers = localStorage.getItem('vehicleNumbers');
-            if (savedVehicleNumbers) {
-                const numbers = JSON.parse(savedVehicleNumbers);
-                document.getElementById('movil1Input').value = numbers.Movil1 || '';
-                document.getElementById('movil2Input').value = numbers.Movil2 || '';
-                document.getElementById('movil3Input').value = numbers.Movil3 || '';
-                document.getElementById('movil4Input').value = numbers.Movil4 || '';
-            }
-        }
-        
-        function saveVehicleNumbers() {
-            if (currentUserId !== 'Admin') return;
-            
-            const vehicleNumbers = {
-                Movil1: document.getElementById('movil1Input').value.trim(),
-                Movil2: document.getElementById('movil2Input').value.trim(),
-                Movil3: document.getElementById('movil3Input').value.trim(),
-                Movil4: document.getElementById('movil4Input').value.trim()
-            };
-            
-            localStorage.setItem('vehicleNumbers', JSON.stringify(vehicleNumbers));
-            
-            Object.keys(vehicleNumbers).forEach(mobileId => {
-                if (vehicleNumbers[mobileId]) {
-                    vehicleNames[mobileId] = vehicleNumbers[mobileId];
-                }
-            });
-            
-            localStorage.setItem('vehicleNames', JSON.stringify(vehicleNames));
-            
-            updateVehicleNamesInUI();
-            updateMarkersFromCache();
-            
-            showNotification("Números de vehículos actualizados", 3000);
         }
         
         function setupDashboardTabs() {
@@ -1762,9 +1692,11 @@
             if (savedLapCounters) {
                 const savedData = JSON.parse(savedLapCounters);
                 
+                
                 const today = new Date().toDateString();
                 Object.keys(savedData).forEach(vehicle => {
                     if (savedData[vehicle].lastResetDate !== today) {
+                        
                         savedData[vehicle].shift1 = 0;
                         savedData[vehicle].shift2 = 0;
                         savedData[vehicle].shift3 = 0;
@@ -1777,6 +1709,7 @@
                     updateLapCounterUI(vehicle);
                 });
             } else {
+                
                 const today = new Date().toDateString();
                 Object.keys(lapCounters).forEach(vehicle => {
                     lapCounters[vehicle].lastResetDate = today;
@@ -1803,9 +1736,11 @@
             });
             document.getElementById('totalLaps').textContent = totalLaps;
             
+            
             let activeCount = 0;
             Object.keys(vehicleCache).forEach(vehicle => {
                 if (vehicleCache[vehicle] && vehicleCache[vehicle].status === 'online') {
+                    
                     const lastUpdate = vehicleCache[vehicle].lastUpdate || 0;
                     const isOnline = (Date.now() - lastUpdate) < TEN_MINUTES;
                     if (isOnline) {
@@ -1815,9 +1750,11 @@
             });
             document.getElementById('activeVehicles').textContent = activeCount;
             
+            
             const now = new Date();
             const chileTime = new Date(now.toLocaleString("en-US", {timeZone: "America/Santiago"}));
             document.getElementById('lastUpdate').textContent = chileTime.toLocaleTimeString('es-CL');
+            
             
             let totalDistance = 0;
             Object.keys(lapCounters).forEach(vehicle => {
@@ -1831,19 +1768,27 @@
         }
         
         function downloadExcelData() {
-            const coordinateData = getCoordinateDataForLast10Days();
+            
+             const coordinateData = getCoordinateDataForLast10Days();
             
             if (coordinateData.length === 0) {
                 showNotification("No hay datos para exportar", 3000);
                 return;
             }
             
+            
             const wb = XLSX.utils.book_new();
+            
+            
             const ws = XLSX.utils.json_to_sheet(coordinateData);
+            
+            
             XLSX.utils.book_append_sheet(wb, ws, "Coordenadas");
+            
             
             const today = new Date();
             const fileName = `coordenadas_${today.getDate()}-${today.getMonth()+1}-${today.getFullYear()}.xlsx`;
+            
             
             XLSX.writeFile(wb, fileName);
             
@@ -1851,16 +1796,21 @@
         }
         
         function getCoordinateDataForLast10Days() {
+            
             const storedData = localStorage.getItem('coordinateData');
+            
             if (!storedData) return [];
             
             const allData = JSON.parse(storedData);
+            
+            
             const tenDaysAgo = new Date();
             tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
 
             const filteredData = allData.filter(item => {
-                return new Date(item.timestamp) >= tenDaysAgo;
+            return new Date(item.timestamp) >= tenDaysAgo;
             });
+            
             
             return filteredData.map(item => {
                 const date = new Date(item.timestamp);
@@ -1880,8 +1830,10 @@
         }
         
         function storeCoordinateData(vehicleId, coords, status, laps) {
+            
             const storedData = localStorage.getItem('coordinateData');
             let coordinateData = storedData ? JSON.parse(storedData) : [];
+            
             
             coordinateData.push({
                 vehicleId: vehicleId,
@@ -1893,12 +1845,14 @@
                 timestamp: new Date().toISOString()
             });
             
-            const tenDaysAgo = new Date();
-            tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
+            
+                const tenDaysAgo = new Date();
+                tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
 
-            coordinateData = coordinateData.filter(item => {
+                coordinateData = coordinateData.filter(item => {
                 return new Date(item.timestamp) >= tenDaysAgo;
             });
+            
             
             localStorage.setItem('coordinateData', JSON.stringify(coordinateData));
         }
@@ -1919,7 +1873,7 @@
         }
         
         function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371000;
+            const R = 6371000; 
             const dLat = (lat2 - lat1) * Math.PI / 180;
             const dLon = (lon2 - lon1) * Math.PI / 180;
             const a = 
@@ -1935,19 +1889,24 @@
             const hour = now.getHours();
             let shift;
             
+            
             let adjustedHour = hour;
             let currentDate = now.toDateString();
             
             if (hour >= 22) {
+                
                 shift = 'shift3';
             } else if (hour < 6) {
+                
                 shift = 'shift3';
+                
                 currentDate = new Date(now.getTime() - 6 * 60 * 60 * 1000).toDateString();
             } else if (hour >= 6 && hour < 13) {
                 shift = 'shift1';
             } else {
                 shift = 'shift2';
             }
+            
             
             if (lapCounters[vehicle].lastResetDate !== currentDate) {
                 lapCounters[vehicle].shift1 = 0;
@@ -1981,9 +1940,9 @@
                 zoomControl: false,
                 tap: false,
                 dragging: true,
-                preferCanvas: true,
-                fadeAnimation: false,
-                markerZoomAnimation: false
+                preferCanvas: true, 
+                fadeAnimation: false, 
+                markerZoomAnimation: false 
             }).setView(SCL_COORDS, ZOOM_INICIAL);
             
             L.control.zoom({
@@ -2011,9 +1970,9 @@
             currentTileLayer = L.tileLayer(provider.url, {
                 attribution: provider.attribution,
                 maxZoom: provider.maxZoom,
-                updateWhenIdle: true,
-                reuseTiles: true,
-                detectRetina: false
+                updateWhenIdle: true, 
+                reuseTiles: true, 
+                detectRetina: false 
             }).addTo(map);
             
             localStorage.setItem('mapProvider', providerKey);
@@ -2050,6 +2009,7 @@
             document.getElementById('routeSelector').addEventListener('change', function(e) {
                 showRoute(e.target.value);
             });
+            
             
             document.getElementById('forceLocationBtn').addEventListener('click', function() {
                 forceLocationUpdate();
@@ -2213,6 +2173,7 @@
                 `${coords[0].toFixed(6)}, ${coords[1].toFixed(6)}`;
             document.getElementById('accuracyValue').textContent = 
                 accuracy ? `${accuracy.toFixed(1)} metros` : 'Desconocida';
+            
             
             const now = new Date();
             const chileTime = new Date(now.toLocaleString("en-US", {timeZone: "America/Santiago"}));
@@ -2404,6 +2365,7 @@
                 document.getElementById('accuracyValue').textContent = `${accuracy.toFixed(1)} metros`;
             }
             
+            
             const now = new Date();
             const chileTime = new Date(now.toLocaleString("en-US", {timeZone: "America/Santiago"}));
             document.getElementById('lastUpdateValue').textContent = chileTime.toLocaleTimeString('es-CL');
@@ -2486,6 +2448,7 @@
                                     const coords = [vehicle.coords.lat, vehicle.coords.lng];
                                     checkLapCompletion(mobileId, coords);
                                     
+                                    
                                     const laps = lapCounters[mobileId] ? 
                                         lapCounters[mobileId].shift1 + lapCounters[mobileId].shift2 + lapCounters[mobileId].shift3 : 0;
                                     storeCoordinateData(mobileId, coords, vehicle.status, laps);
@@ -2527,6 +2490,7 @@
                     updateMarker(mobileId, coords, isOnline);
                     updateStatus(mobileId, isOnline ? 'online' : 'offline');
                     
+                    
                     if (currentUserId === 'Funcionarios' && lastKnownPosition && isOnline) {
                         calculateAndDisplayDistance(mobileId, coords);
                     }
@@ -2540,34 +2504,44 @@
             }
         }
         
+        
         function calculateAndDisplayDistance(mobileId, mobileCoords) {
             if (!lastKnownPosition) return;
+            
             
             const distance = calculateDistance(
                 lastKnownPosition[0], lastKnownPosition[1],
                 mobileCoords[0], mobileCoords[1]
             );
             
+            
             const estimatedTimeMinutes = Math.round((distance / 1000) / 30 * 60);
             
+            
             const trend = calculateDistanceTrend(mobileId, mobileCoords);
+            
             
             updateDistanceUI(mobileId, distance, estimatedTimeMinutes, trend);
         }
         
+        
         function calculateDistanceTrend(mobileId, currentCoords) {
+            
             positionHistory[mobileId].push({
                 coords: currentCoords,
                 timestamp: Date.now()
             });
             
+            
             if (positionHistory[mobileId].length > 5) {
                 positionHistory[mobileId].shift();
             }
             
+            
             if (positionHistory[mobileId].length < 2 || !lastKnownPosition) {
                 return 'stable';
             }
+            
             
             const previousPosition = positionHistory[mobileId][positionHistory[mobileId].length - 2];
             const previousDistance = calculateDistance(
@@ -2774,9 +2748,3 @@
     </script>
 </body>
 </html>
-
-               
-
-
-
-
