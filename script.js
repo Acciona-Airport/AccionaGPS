@@ -12,10 +12,12 @@ const markers = {}; // Almacena los marcadores
 
 // Inicialización
 document.addEventListener('DOMContentLoaded', function() {
-    if (isLoginPage()) setupLogin();
-    else {
+    if (isLoginPage()) {
+        setupLogin();
+    } else {
         initMap();
-        setupAdminPanel(); // Se llama a la nueva función aquí
+        loadMobileNumbers(); // <--- Nueva función para cargar los datos
+        setupAdminPanel();
     }
 });
 
@@ -78,6 +80,17 @@ function setupAdminPanel() {
             localStorage.setItem('mobileNumbers', JSON.stringify(mobileNumbers));
             alert('Números de móvil guardados con éxito.');
         });
+    }
+}
+
+// Nueva función para cargar los números de móvil desde localStorage
+function loadMobileNumbers() {
+    const mobileNumbers = JSON.parse(localStorage.getItem('mobileNumbers'));
+    if (mobileNumbers) {
+        document.getElementById('mobile1').value = mobileNumbers.mobile1 || '';
+        document.getElementById('mobile2').value = mobileNumbers.mobile2 || '';
+        document.getElementById('mobile3').value = mobileNumbers.mobile3 || '';
+        document.getElementById('mobile4').value = mobileNumbers.mobile4 || '';
     }
 }
 
