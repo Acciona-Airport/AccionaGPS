@@ -59,6 +59,22 @@ function initMap() {
     // Actualizar posiciones cada 5 segundos
     setInterval(updateMobilePositions, 5000);
 }
+function setupAdminPanel() {
+    const saveButton = document.getElementById('save-mobile-numbers');
+    if (saveButton) {
+        saveButton.addEventListener('click', function() {
+            const mobileNumbers = {
+                mobile1: document.getElementById('mobile1').value.trim(),
+                mobile2: document.getElementById('mobile2').value.trim(),
+                mobile3: document.getElementById('mobile3').value.trim(),
+                mobile4: document.getElementById('mobile4').value.trim()
+            };
+            
+            localStorage.setItem('mobileNumbers', JSON.stringify(mobileNumbers));
+            alert('Números de móvil guardados con éxito.');
+        });
+    }
+}
 
 // Actualizar posiciones (simula recepción de datos GPS)
 function updateMobilePositions() {
@@ -127,3 +143,4 @@ function startTracking(mobile) {
 function isLoginPage() {
     return window.location.pathname.includes('login.html');
 }
+
