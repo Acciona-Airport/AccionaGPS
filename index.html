@@ -816,6 +816,9 @@
     </style>
 </head>
 <body>
+   </style>
+</head>
+<body>
     <div id="map"></div>
     <div class="map-touch-overlay" id="mapTouchOverlay"></div>
     
@@ -1313,6 +1316,94 @@
             }
         };
 
+        const OPEN_METEO_API = {
+            name: "Open-Meteo",
+            url: (lat, lon) => `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,rain,precipitation_probability,snowfall,snow_depth,showers,precipitation,relative_humidity_2m,visibility,wind_speed_10m,wind_speed_80m,temperature_80m,temperature_120m,shortwave_radiation&current=temperature_2m,precipitation,rain,showers,snowfall,weather_code,apparent_temperature,wind_speed_10m`,
+            parser: data => {
+                if (!data || !data.current) return null;
+                return {
+                    temp: Math.round(data.current.temperature_2m),
+                    feels_like: Math.round(data.current.apparent_temperature),
+                    description: getWeatherCodeDescription(data.current.weather_code),
+                    icon: getWeatherCodeIcon(data.current.weather_code),
+                    humidity: data.current.relative_humidity_2m,
+                    wind: data.current.wind_speed_10m,
+                    uv: 0,
+                    pressure: 0,
+                    cloudcover: 0,
+                    source: "Open-Meteo"
+                };
+            }
+        };
+
+        function getWeatherCodeDescription(code) {
+            const weatherCodes = {
+                0: "Despejado",
+                1: "Principalmente despejado",
+                2: "Parcialmente nublado",
+                3: "Nublado",
+                45: "Niebla",
+                48: "Niebla escarchada",
+                51: "Llovizna ligera",
+                53: "Llovizna moderada",
+                55: "Llovizna densa",
+                56: "Llovizna helada ligera",
+                57: "Llovizna helada densa",
+                61: "Lluvia ligera",
+                63: "Lluvia moderada",
+                65: "Lluvia intensa",
+                66: "Lluvia helada ligera",
+                67: "Lluvia helada intensa",
+                71: "Nieve ligera",
+                73: "Nieve moderada",
+                75: "Nieve intensa",
+                77: "Granos de nieve",
+                80: "Chubascos ligeros",
+                81: "Chubascos moderados",
+                82: "Chubascos violentos",
+                85: "Nevadas ligeras",
+                86: "Nevadas intensas",
+                95: "Tormenta eléctrica",
+                96: "Tormenta eléctrica con granizo ligero",
+                99: "Tormenta eléctrica con granizo intenso"
+            };
+            return weatherCodes[code] || "Condiciones variables";
+        }
+
+        function getWeatherCodeIcon(code) {
+            const iconMap = {
+                0: "☀️",
+                1: "🌤️",
+                2: "⛅",
+                3: "☁️",
+                45: "🌫️",
+                48: "🌫️",
+                51: "🌧️",
+                53: "🌧️",
+                55: "🌧️",
+                56: "🌧️",
+                57: "🌧️",
+                61: "🌧️",
+                63: "🌧️",
+                65: "🌧️",
+                66: "🌧️",
+                67: "🌧️",
+                71: "❄️",
+                73: "❄️",
+                75: "❄️",
+                77: "❄️",
+                80: "🌦️",
+                81: "🌦️",
+                82: "🌦️",
+                85: "❄️",
+                86: "❄️",
+                95: "⛈️",
+                96: "⛈️",
+                99: "⛈️"
+            };
+            return iconMap[code] || "🌡️";
+        }
+
         firebase.auth().onAuthStateChanged((user) => {
             if (!user) {
                 window.location.href = 'login.html';
@@ -1392,12 +1483,35 @@
                 updateWeatherWidget(weatherData);
                 
             } catch (error) {
-                console.error('Error obteniendo datos del clima:', error);
-                document.getElementById('weatherDesc').textContent = 'Info clima, intermitente.';
-                document.getElementById('weatherTemp').textContent = '--°C';
-                document.getElementById('weatherFeelsLike').textContent = 'Sensación: --°C';
-                document.getElementById('weatherIcon').textContent = '🌎';
-                document.getElementById('weatherSources').textContent = 'Error al consultar VisualCrossing';
+                console.error('Error obteniendo datos del clima de VisualCrossing:', error);
+                
+                try {
+                    document.getElementById('weatherSources').textContent = 'Consultando Open-Meteo...';
+                    
+                    const response = await fetch(OPEN_METEO_API.url(lat, lon));
+                    
+                    if (!response.ok) {
+                        throw new Error(`Error en Open-Meteo: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    const weatherData = OPEN_METEO_API.parser(data);
+                    
+                    if (!weatherData) {
+                        throw new Error("No se pudieron obtener datos del clima");
+                    }
+                    
+                    
+                    updateWeatherWidget(weatherData);
+                    
+                } catch (fallbackError) {
+                    console.error('Error obteniendo datos del clima de Open-Meteo:', fallbackError);
+                    document.getElementById('weatherDesc').textContent = 'Info clima, intermitente.';
+                    document.getElementById('weatherTemp').textContent = '--°C';
+                    document.getElementById('weatherFeelsLike').textContent = 'Sensación: --°C';
+                    document.getElementById('weatherIcon').textContent = '☀️';
+                    document.getElementById('weatherSources').textContent = 'Error al consultar servicios';
+                }
             } finally {
                 document.getElementById('weatherWidget').classList.remove('loading');
                 updateNextUpdateTime();
@@ -1410,8 +1524,8 @@
         document.getElementById('weatherDesc').textContent = 'Error al cargar';
         document.getElementById('weatherTemp').textContent = '--°C';
         document.getElementById('weatherFeelsLike').textContent = 'Sensación: --°C';
-        document.getElementById('weatherIcon').textContent = '🌎';
-        document.getElementById('weatherSources').textContent = 'Error en VisualCrossing';
+        document.getElementById('weatherIcon').textContent = '☀️';
+        document.getElementById('weatherSources').textContent = 'Error en servicios';
         return;
     }
     
@@ -1428,42 +1542,57 @@
     const pressureElement = document.getElementById('weatherPressure');
     
     tempElement.textContent = `${weatherData.temp}°C`;
-           const weatherInfo = getWeatherIcon(weatherData.icon);
-           descElement.textContent = getWeatherDescription(weatherData.icon);
-           iconElement.textContent = getWeatherIcon(weatherData.icon);
-            feelsLikeElement.textContent = `Sensación: ${weatherData.temp - 2}°C`;
+    descElement.textContent = weatherData.description;
+    iconElement.textContent = weatherData.icon;
+    feelsLikeElement.textContent = `Sensación: ${weatherData.feels_like}°C`;
             
             
-            humidityElement.textContent = `${Math.round(weatherData.humidity)}%`;
-           windElement.textContent = `${Math.round(weatherData.wind)} km/h`;
-          cloudsElement.textContent = `${Math.round(weatherData.cloudcover)}%`;
-          pressureElement.textContent = `${Math.round(weatherData.pressure)} hPa`;
+    if (weatherData.humidity !== undefined) {
+        humidityElement.textContent = `${Math.round(weatherData.humidity)}%`;
+    } else {
+        humidityElement.textContent = '--%';
+    }
+            
+    if (weatherData.wind !== undefined) {
+        windElement.textContent = `${Math.round(weatherData.wind)} km/h`;
+    } else {
+        windElement.textContent = '-- km/h';
+    }
+            
+    if (weatherData.cloudcover !== undefined) {
+        cloudsElement.textContent = `${Math.round(weatherData.cloudcover)}%`;
+    } else {
+        cloudsElement.textContent = '--%';
+    }
+            
+    if (weatherData.pressure !== undefined) {
+        pressureElement.textContent = `${Math.round(weatherData.pressure)} hPa`;
+    } else {
+        pressureElement.textContent = '-- hPa';
+    }
             
             
-            iconElement.textContent = getWeatherIcon(weatherData.icon);
-            
-            
-            if (weatherData.uv !== undefined) {
-                const uvIndex = weatherData.uv;
-                uvElement.innerHTML = `<span>Índice UV: ${uvIndex} - ${getUvLevel(uvIndex)}</span>`;
-                uvElement.className = `weather-uv ${getUvClass(uvIndex)}`;
+    if (weatherData.uv !== undefined && weatherData.uv > 0) {
+        const uvIndex = weatherData.uv;
+        uvElement.innerHTML = `<span>Índice UV: ${uvIndex} - ${getUvLevel(uvIndex)}</span>`;
+        uvElement.className = `weather-uv ${getUvClass(uvIndex)}`;
                 
                 
-                if (uvIndex >= 6) {
-                    const warningLines = getUvWarning(uvIndex);
-                    warningElement.style.display = 'block';
-                    warningElement.innerHTML = warningLines.join('<br>');
-                } else {
-                    warningElement.style.display = 'none';
-                }
-            } else {
-                uvElement.innerHTML = '<span>Índice UV: No disponible</span>';
-                uvElement.className = 'weather-uv';
-                warningElement.style.display = 'none';
-            }
+        if (uvIndex >= 6) {
+            const warningLines = getUvWarning(uvIndex);
+            warningElement.style.display = 'block';
+            warningElement.innerHTML = warningLines.join('<br>');
+        } else {
+            warningElement.style.display = 'none';
+        }
+    } else {
+        uvElement.innerHTML = '<span>Índice UV: No disponible</span>';
+        uvElement.className = 'weather-uv';
+        warningElement.style.display = 'none';
+    }
             
             
-            sourcesElement.textContent = `Fuente: ${weatherData.source}`;
+    sourcesElement.textContent = `Fuente: ${weatherData.source}`;
         }
 
         
@@ -1496,45 +1625,6 @@
             return [];
         }
 
-        
-     function getWeatherIcon(iconCode) {
-    const iconMap = {
-        'clear-day': '☀️',
-        'clear-night': '🌙',
-        'rain': '🌧️',
-        'snow': '❄️',
-        'sleet': '🌨️',
-        'wind': '💨',
-        'fog': '🌫️',
-        'cloudy': '☁️',
-        'partly-cloudy-day': '⛅',
-        'partly-cloudy-night': '☁️',
-        'hail': '🌨️',
-        'thunderstorm': '⛈️',
-        'tornado': '🌪️'
-    };
-    
-    return iconMap[iconCode] || '🌡️';
-}
-        function getWeatherDescription(iconCode) {
-    const descMap = {
-        'clear-day': 'Despejado',
-        'clear-night': 'Noche despejada',
-        'rain': 'Lluvia',
-        'snow': 'Nieve',
-        'sleet': 'Aguanieve',
-        'wind': 'Viento',
-        'fog': 'Niebla',
-        'cloudy': 'Nublado',
-        'partly-cloudy-day': 'Parcialmente nublado',
-        'partly-cloudy-night': 'Noche parcialmente nublada',
-        'hail': 'Granizo',
-        'thunderstorm': 'Tormenta eléctrica',
-        'tornado': 'Tornado'
-    };
-    
-    return descMap[iconCode] || 'Condiciones variables';
-}
         
         function toggleWeatherWidget() {
             const widget = document.getElementById('weatherWidget');
@@ -2590,77 +2680,71 @@
                 const container = L.divIcon({
                     className: 'vehicle-marker-container',
                     html: `
-                        <div class="vehicle-marker ${isOnline ? 'online' : 'offline'}"></div>
-                        <div class="vehicle-label">${displayName}</div>
-                    `,
-                    iconSize: [32, 42],
-                    iconAnchor: [16, 16],
-                    popupAnchor: [0, 16]
-                });
-                
-                markers[mobileId]
-                    .setLatLng(coords)
-                    .setIcon(container)
-                    .setPopupContent(`<b>${displayName}</b><br>${isOnline ? 'En ruta' : 'Desconectado'}<br>Última actualización: ${new Date().toLocaleTimeString()}`);
+                                            <div class="vehicle-marker ${isOnline ? 'online' : 'offline'}"></div>
+                    <div class="vehicle-label">${displayName}</div>
+                `,
+                iconSize: [32, 42],
+                iconAnchor: [16, 16],
+                popupAnchor: [0, 16]
+            });
+            
+            markers[mobileId]
+                .setLatLng(coords)
+                .setIcon(container)
+                .setPopupContent(`<b>${displayName}</b><br>${isOnline ? 'En ruta' : 'Desconectado'}<br>Última actualización: ${new Date().toLocaleTimeString()}`);
+        }
+    }
+    
+    function updateStatus(mobileId, status) {
+        if (mobileId === currentUserId) {
+            const element = document.getElementById('current-user-status');
+            const iconElement = document.getElementById('current-user-icon');
+            
+            if (element) {
+                element.textContent = status === 'online' ? 'En ruta' : 'Desconectado';
+                element.className = status === 'online' ? 'online' : 'offline';
             }
+            
+            if (iconElement) {
+                iconElement.className = `user-icon ${status === 'online' ? 'online' : 'offline'}`;
+            }
+        } 
+        else if (isViewer || currentUserId === 'Funcionarios') {
+            const element = document.getElementById(`${mobileId.toLowerCase()}-status`);
+            const iconElement = document.getElementById(`${mobileId.toLowerCase()}-icon`);
+            
+            if (element) {
+                element.textContent = status === 'online' ? 'En ruta' : 'Desconectado';
+                element.className = status === 'online' ? 'online' : 'offline';
+            }
+            
+            if (iconElement) {
+                iconElement.className = `vehicle-icon ${status === 'online' ? 'online' : 'offline'}`;
+            }
+        }
+    }
+    
+    function logout() {
+        if (gpsInterval) clearInterval(gpsInterval);
+        if (locationUpdateInterval) clearInterval(locationUpdateInterval);
+        if (viewerUpdateInterval) clearInterval(viewerUpdateInterval);
+        
+        if (backgroundGeolocationWatchId !== null) {
+            navigator.geolocation.clearWatch(backgroundGeolocationWatchId);
         }
         
-        function updateStatus(mobileId, status) {
-            if (mobileId === currentUserId) {
-                const element = document.getElementById('current-user-status');
-                const iconElement = document.getElementById('current-user-icon');
-                
-                if (element) {
-                    element.textContent = status === 'online' ? 'En ruta' : 'Desconectado';
-                    element.className = status === 'online' ? 'online' : 'offline';
-                }
-                
-                if (iconElement) {
-                    iconElement.className = `user-icon ${status === 'online' ? 'online' : 'offline'}`;
-                }
-            } 
-            else if (isViewer || currentUserId === 'Funcionarios') {
-                const element = document.getElementById(`${mobileId.toLowerCase()}-status`);
-                const iconElement = document.getElementById(`${mobileId.toLowerCase()}-icon`);
-                
-                if (element) {
-                    element.textContent = status === 'online' ? 'En ruta' : 'Desconectado';
-                    element.className = status === 'online' ? 'online' : 'offline';
-                }
-                
-                if (iconElement) {
-                    iconElement.className = `vehicle-icon ${status === 'online' ? 'online' : 'offline'}`;
-                }
-            }
+        if (wakeLock !== null) {
+            wakeLock.release().then(() => {
+                wakeLock = null;
+            });
         }
         
-        function logout() {
-            if (gpsInterval) clearInterval(gpsInterval);
-            if (locationUpdateInterval) clearInterval(locationUpdateInterval);
-            if (viewerUpdateInterval) clearInterval(viewerUpdateInterval);
-            
-            if (backgroundGeolocationWatchId !== null) {
-                navigator.geolocation.clearWatch(backgroundGeolocationWatchId);
-            }
-            
-            if (wakeLock !== null) {
-                wakeLock.release().then(() => {
-                    wakeLock = null;
-                });
-            }
-            
-            database.ref('vehicles').off();
-            firebase.auth().signOut();
-            localStorage.removeItem('gpsAuth');
-            localStorage.removeItem('panelState');
-            window.location.href = 'login.html';
-        }
+        database.ref('vehicles').off();
+        firebase.auth().signOut();
+        localStorage.removeItem('gpsAuth');
+        localStorage.removeItem('panelState');
+        window.location.href = 'login.html';
+    }
     </script>
 </body>
 </html>
-
-
-
-
-
-
