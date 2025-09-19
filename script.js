@@ -13,7 +13,10 @@ const markers = {}; // Almacena los marcadores
 // Inicialización
 document.addEventListener('DOMContentLoaded', function() {
     if (isLoginPage()) setupLogin();
-    else initMap();
+    else {
+        initMap();
+        setupAdminPanel();
+    }
 });
 
 // Configurar login
@@ -143,4 +146,5 @@ function startTracking(mobile) {
 function isLoginPage() {
     return window.location.pathname.includes('login.html');
 }
+
 
