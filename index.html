@@ -915,26 +915,45 @@
         <div class="control-panel" id="controlPanel">
             <h3 style="margin-top:0;color:var(--red-dark);">🚐 Flota Acciona</h3>
             
-           <div class="admin-dashboard" id="adminDashboard">
-    <h4>Administración de Móviles</h4>
-    <p>Guarda los nombres de los móviles para que aparezcan en el panel de control.</p>
-    <div class="form-group">
-        <label for="mobile1">Nombre Móvil 1</label>
-        <input type="text" id="mobile1" class="mobile-number-input" placeholder="Ej: Vehículo 101">
+          <div class="admin-dashboard" id="adminDashboard">
+    <h4>📊 Dashboard Administrador</h4>
+    
+    <div class="dashboard-tabs">
+        <div class="dashboard-tab active" data-tab="laps">Vueltas</div>
+        <div class="dashboard-tab" data-tab="metrics">Data</div>
+        <div class="dashboard-tab" data-tab="performance">G</div>
+        <div class="dashboard-tab" data-tab="vehicleManagement">E</div>
     </div>
-    <div class="form-group">
-        <label for="mobile2">Nombre Móvil 2</label>
-        <input type="text" id="mobile2" class="mobile-number-input" placeholder="Ej: Camión 204">
+    
+    <div id="laps-content" class="tab-content active">
+        <p>Contenido para Vueltas...</p>
     </div>
-    <div class="form-group">
-        <label for="mobile3">Nombre Móvil 3</label>
-        <input type="text" id="mobile3" class="mobile-number-input" placeholder="Ej: Camioneta 300">
+    <div id="metrics-content" class="tab-content">
+        <p>Contenido para Data...</p>
     </div>
-    <div class="form-group">
-        <label for="mobile4">Nombre Móvil 4</label>
-        <input type="text" id="mobile4" class="mobile-number-input" placeholder="Ej: Minibus 402">
+    <div id="performance-content" class="tab-content">
+        <p>Contenido para G...</p>
     </div>
-    <button id="save-mobile-numbers" class="save-btn">Guardar Nombres</button>
+    <div id="vehicleManagement-content" class="tab-content">
+        <h4>Gestión de Números de Vehículos</h4>
+        <div class="form-group">
+            <label for="mobile1">Móvil 1:</label>
+            <input type="text" id="mobile1" class="mobile-number-input">
+        </div>
+        <div class="form-group">
+            <label for="mobile2">Móvil 2:</label>
+            <input type="text" id="mobile2" class="mobile-number-input">
+        </div>
+        <div class="form-group">
+            <label for="mobile3">Móvil 3:</label>
+            <input type="text" id="mobile3" class="mobile-number-input">
+        </div>
+        <div class="form-group">
+            <label for="mobile4">Móvil 4:</label>
+            <input type="text" id="mobile4" class="mobile-number-input">
+        </div>
+        <button class="admin-button" id="save-mobile-numbers">Guardar Cambios</button>
+    </div>
 </div>
                 
                 <div class="dashboard-content active" id="lapsContent">
@@ -2759,5 +2778,6 @@
 </html>
 
                
+
 
 
