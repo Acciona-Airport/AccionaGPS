@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (isLoginPage()) setupLogin();
     else {
         initMap();
-        setupAdminPanel();
+        setupAdminPanel(); // Se llama a la nueva función aquí
     }
 });
 
@@ -62,6 +62,8 @@ function initMap() {
     // Actualizar posiciones cada 5 segundos
     setInterval(updateMobilePositions, 5000);
 }
+
+// Nueva función para el panel de administración
 function setupAdminPanel() {
     const saveButton = document.getElementById('save-mobile-numbers');
     if (saveButton) {
@@ -146,5 +148,3 @@ function startTracking(mobile) {
 function isLoginPage() {
     return window.location.pathname.includes('login.html');
 }
-
-
