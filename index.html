@@ -2776,24 +2776,34 @@
         }
     }
 
-    function saveVehicleNumbers() {
-        const vehicleNumbers = {
-            Movil1: document.getElementById('editMovil1').value.trim(),
-            Movil2: document.getElementById('editMovil2').value.trim(),
-            Movil3: document.getElementById('editMovil3').value.trim(),
-            Movil4: document.getElementById('editMovil4').value.trim()
-        };
-        
-        localStorage.setItem('vehicleNames', JSON.stringify(vehicleNumbers));
-        
-        updateVehicleNamesInFirebase(vehicleNumbers);
-        
-        updateVehicleNamesInUI();
-        updateMarkersWithNewNames();
-        
-        showNotification('Números de vehículos actualizados correctamente', 3000);
-    }
-
+   function saveVehicleNumbers() {
+    const vehicleNumbers = {
+        Movil1: document.getElementById('editMovil1').value.trim(),
+        Movil2: document.getElementById('editMovil2').value.trim(),
+        Movil3: document.getElementById('editMovil3').value.trim(),
+        Movil4: document.getElementById('editMovil4').value.trim()
+    };
+    
+    // Guardar en localStorage
+    localStorage.setItem('vehicleNames', JSON.stringify(vehicleNumbers));
+    
+    // Actualizar Firebase para sincronizar con otros usuarios
+    updateVehicleNamesInFirebase(vehicleNumbers);
+    
+    // ACTUALIZAR TAMBIÉN LOS VEHÍCULOS EXISTENTES
+    Object.keys(vehicleNumbers).forEach(mobileId => {
+        if (vehicleNumbers[mobileId]) {
+            database.ref(`vehicles/${mobileId}/displayName`).set(vehicleNumbers[mobileId])
+                .catch(error => console.error("Error updating vehicle displayName:", error));
+        }
+    });
+    
+    // Actualizar la UI
+    updateVehicleNamesInUI();
+    updateMarkersWithNewNames();
+    
+    showNotification('Números de vehículos actualizados correctamente', 3000);
+}
     function updateVehicleNamesInFirebase(vehicleNames) {
         if (currentUserId === 'Admin') {
             database.ref('vehicleNames').set(vehicleNames)
@@ -2807,19 +2817,30 @@
     }
 
     function listenForVehicleNameChanges() {
-        database.ref('vehicleNames').on('value', (snapshot) => {
-            const vehicleNames = snapshot.val();
-            if (vehicleNames) {
-                localStorage.setItem('vehicleNames', JSON.stringify(vehicleNames));
-                updateVehicleNamesInUI();
-                updateMarkersWithNewNames();
-            }
-        });
-    }
+    database.ref('vehicleNames').on('value', (snapshot) => {
+        const vehicleNames = snapshot.val();
+        if (vehicleNames) {
+            localStorage.setItem('vehicleNames', JSON.stringify(vehicleNames));
+            updateVehicleNamesInUI();
+            updateMarkersWithNewNames();
+            
+            // ACTUALIZAR LOS DISPLAYNAMES EN VEHICLES TAMBIÉN
+            Object.keys(vehicleNames).forEach(mobileId => {
+                database.ref(`vehicles/${mobileId}/displayName`).set(vehicleNames[mobileId])
+                    .catch(error => console.error("Error syncing displayName:", error));
+            });
+        }
+    });
+}
 
-    function updateMarkersWithNewNames() {
+   function updateMarkersWithNewNames() {
+    // Primero obtener los nombres actualizados de vehicleNames
+    database.ref('vehicleNames').once('value').then(snapshot => {
+        const currentVehicleNames = snapshot.exists() ? snapshot.val() : {};
+        
         Object.keys(markers).forEach(mobile => {
-            const displayName = vehicleNames[mobile] || mobile;
+            const displayName = currentVehicleNames[mobile] || vehicleNames[mobile] || mobile;
+            
             if (markers[mobile]) {
                 markers[mobile].setPopupContent(`<b>${displayName}</b>`);
                 
@@ -2837,7 +2858,8 @@
                 markers[mobile].setIcon(newIcon);
             }
         });
-    }
+    });
+}
     
     function logout() {
         if (gpsInterval) clearInterval(gpsInterval);
@@ -2863,4 +2885,5 @@
   </script>
 </body>
 </html>
+
 
