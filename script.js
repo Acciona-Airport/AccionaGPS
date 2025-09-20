@@ -19,11 +19,11 @@ document.addEventListener('DOMContentLoaded', function() {
         setupLogin();
     } else {
         initMap();
-        loadMobileNumbers(); // Carga los nombres guardados al iniciar
+        loadVehicleNames(); // Carga los nombres de vehículos
         setupAdminPanel(); // Configura el botón para guardar
         setupDashboardTabs(); // Configura las pestañas del dashboard
-        loadVehicleNames(); // Carga los nombres de vehículos
         updateVehicleNamesInUI(); // Actualiza la UI con los nombres
+        checkAdminAccess(); // Verifica acceso de administrador
     }
 });
 
@@ -92,7 +92,7 @@ function setupDashboardTabs() {
     });
 }
 
-// Nueva función para el panel de administración
+// Configurar panel de administración
 function setupAdminPanel() {
     const saveButton = document.getElementById('saveVehicleNumbersBtn');
     if (saveButton) {
@@ -104,39 +104,54 @@ function setupAdminPanel() {
                 Movil4: document.getElementById('movil4Input').value.trim()
             };
             
+            // Guardar en localStorage
             localStorage.setItem('vehicleNumbers', JSON.stringify(vehicleNumbers));
             
-            // Actualizar los nombres de vehículos
+            // Actualizar los nombres de vehículos en memoria
             Object.keys(vehicleNumbers).forEach(mobileId => {
                 if (vehicleNumbers[mobileId]) {
                     vehicleNames[mobileId] = vehicleNumbers[mobileId];
                 }
             });
             
+            // Guardar también en vehicleNames para consistencia
             localStorage.setItem('vehicleNames', JSON.stringify(vehicleNames));
+            
+            // Actualizar la UI y los marcadores
             updateVehicleNamesInUI();
+            updateMarkersWithNewNames();
             
             alert('Números de vehículos guardados con éxito.');
         });
     }
 }
 
-// Cargar números de móvil desde localStorage
-function loadMobileNumbers() {
-    const mobileNumbers = JSON.parse(localStorage.getItem('mobileNumbers'));
-    if (mobileNumbers) {
-        document.getElementById('mobile1').value = mobileNumbers.mobile1 || '';
-        document.getElementById('mobile2').value = mobileNumbers.mobile2 || '';
-        document.getElementById('mobile3').value = mobileNumbers.mobile3 || '';
-        document.getElementById('mobile4').value = mobileNumbers.mobile4 || '';
-    }
-}
-
 // Cargar nombres de vehículos desde localStorage
 function loadVehicleNames() {
+    // Primero intenta cargar de vehicleNames
     const savedVehicleNames = localStorage.getItem('vehicleNames');
     if (savedVehicleNames) {
         vehicleNames = JSON.parse(savedVehicleNames);
+    } else {
+        // Si no existe, intenta cargar de vehicleNumbers (para compatibilidad)
+        const savedVehicleNumbers = localStorage.getItem('vehicleNumbers');
+        if (savedVehicleNumbers) {
+            const numbers = JSON.parse(savedVehicleNumbers);
+            Object.keys(numbers).forEach(mobileId => {
+                if (numbers[mobileId]) {
+                    vehicleNames[mobileId] = numbers[mobileId];
+                }
+            });
+            localStorage.setItem('vehicleNames', JSON.stringify(vehicleNames));
+        }
+    }
+    
+    // Llenar los inputs del formulario
+    if (document.getElementById('movil1Input')) {
+        document.getElementById('movil1Input').value = vehicleNames.Movil1 || '';
+        document.getElementById('movil2Input').value = vehicleNames.Movil2 || '';
+        document.getElementById('movil3Input').value = vehicleNames.Movil3 || '';
+        document.getElementById('movil4Input').value = vehicleNames.Movil4 || '';
     }
 }
 
@@ -145,16 +160,21 @@ function updateVehicleNamesInUI() {
     for (let i = 1; i <= 4; i++) {
         const mobileId = 'Movil' + i;
         const nameElement = document.getElementById(`${mobileId.toLowerCase()}-name`);
-        const inputElement = document.getElementById(`movil${i}Input`);
         
         if (nameElement && vehicleNames[mobileId]) {
             nameElement.textContent = vehicleNames[mobileId];
         }
-        
-        if (inputElement && vehicleNames[mobileId]) {
-            inputElement.value = vehicleNames[mobileId];
-        }
     }
+}
+
+// Actualizar marcadores con nuevos nombres
+function updateMarkersWithNewNames() {
+    Object.keys(markers).forEach(mobile => {
+        const displayName = vehicleNames[mobile] || mobile;
+        if (markers[mobile]) {
+            markers[mobile].setPopupContent(`<b>${displayName}</b>`);
+        }
+    });
 }
 
 // Actualizar posiciones (simula recepción de datos GPS)
@@ -218,11 +238,6 @@ function startTracking(mobile) {
     }
 }
 
-// Helper para páginas
-function isLoginPage() {
-    return window.location.pathname.includes('login.html');
-}
-
 // Mostrar/ocultar panel de administración según el usuario
 function checkAdminAccess() {
     const currentUser = localStorage.getItem('currentUser');
@@ -238,9 +253,39 @@ function checkAdminAccess() {
     }
 }
 
-// Inicializar verificación de acceso admin al cargar
+// Helper para páginas
+function isLoginPage() {
+    return window.location.pathname.includes('login.html');
+}
+
+// Función para descargar datos en Excel
+function downloadExcelData() {
+    // Simulación de datos para exportar
+    const data = [
+        ['Vehículo', 'Última Actualización', 'Estado'],
+        ['Móvil 1', new Date().toLocaleString(), 'Activo'],
+        ['Móvil 2', new Date().toLocaleString(), 'Inactivo'],
+        ['Móvil 3', new Date().toLocaleString(), 'Activo'],
+        ['Móvil 4', new Date().toLocaleString(), 'Activo']
+    ];
+    
+    // Crear workbook y worksheet
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Datos Vehículos");
+    
+    // Descargar archivo
+    const today = new Date();
+    const fileName = `datos_vehiculos_${today.getDate()}-${today.getMonth()+1}-${today.getFullYear()}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+    
+    alert('Datos descargados exitosamente');
+}
+
+// Asignar evento al botón de descarga
 document.addEventListener('DOMContentLoaded', function() {
-    if (!isLoginPage()) {
-        checkAdminAccess();
+    const downloadBtn = document.getElementById('downloadExcelBtn');
+    if (downloadBtn) {
+        downloadBtn.addEventListener('click', downloadExcelData);
     }
 });
