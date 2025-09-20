@@ -921,8 +921,8 @@
                 <div class="dashboard-tabs">
                     <div class="dashboard-tab active" data-tab="laps">Vueltas</div>
                     <div class="dashboard-tab" data-tab="metrics">Data</div>
-                    <div class="dashboard-tab" data-tab="performance">G</div>
-                    <div class="dashboard-tab" data-tab="vehicleManagement">E</div>
+                    <div class="dashboard-tab" data-tab="performance">Global</div>
+                    <div class="dashboard-tab" data-tab="vehicleManagement">Gestión</div>
                 </div>
                 
                 <div class="dashboard-content active" id="lapsContent">
@@ -2551,8 +2551,7 @@
                 currentCoords[0], currentCoords[1]
             );
             
-            
-            if (currentDistance < previousDistance - 10) { 
+            if (currentDistance < previousDistance - 10) {
                 return 'approaching';
             } else if (currentDistance > previousDistance + 10) {
                 return 'moving-away';
@@ -2561,14 +2560,12 @@
             }
         }
         
-        
         function updateDistanceUI(mobileId, distance, estimatedTimeMinutes, trend) {
             const distanceElement = document.getElementById(`${mobileId.toLowerCase()}-distance`);
             if (!distanceElement) return;
             
             const distanceIndicator = distanceElement.querySelector('.distance-indicator');
             if (!distanceIndicator) return;
-            
             
             let formattedDistance;
             let distanceClass;
@@ -2585,14 +2582,12 @@
                 }
             }
             
-            
             let trendIcon = '';
             if (trend === 'approaching') {
-                trendIcon = '↓'; 
+                trendIcon = '↓';
             } else if (trend === 'moving-away') {
-                trendIcon = '↑'; 
+                trendIcon = '↑';
             }
-            
             
             distanceIndicator.innerHTML = `
                 ${formattedDistance} 
@@ -2629,7 +2624,6 @@
                                 .setLatLng(INACTIVE_COORDS)
                                 .setPopupContent(`<b>${vehicleNames[mobileId] || mobileId}</b><br>Desconectado<br>Última actualización: ${new Date(lastUpdate).toLocaleTimeString()}`);
                         }
-                        
                         
                         if (currentUserId === 'Funcionarios') {
                             const distanceElement = document.getElementById(`${mobileId.toLowerCase()}-distance`);
@@ -2668,7 +2662,7 @@
             .bindPopup(`<b>${displayName}</b><br>${isOnline ? 'En ruta' : 'Desconectado'}`);
         }
         
-         function updateMarker(mobileId, coords, isOnline) {
+        function updateMarker(mobileId, coords, isOnline) {
             const displayName = vehicleNames[mobileId] || mobileId;
             
             if (!markers[mobileId]) {
@@ -2677,71 +2671,71 @@
                 const container = L.divIcon({
                     className: 'vehicle-marker-container',
                     html: `
-                                            <div class="vehicle-marker ${isOnline ? 'online' : 'offline'}"></div>
-                    <div class="vehicle-label">${displayName}</div>
-                `,
-                iconSize: [32, 42],
-                iconAnchor: [16, 16],
-                popupAnchor: [0, 16]
-            });
-            
-            markers[mobileId]
-                .setLatLng(coords)
-                .setIcon(container)
-                .setPopupContent(`<b>${displayName}</b><br>${isOnline ? 'En ruta' : 'Desconectado'}<br>Última actualización: ${new Date().toLocaleTimeString()}`);
-        }
-    }
-    
-    function updateStatus(mobileId, status) {
-        if (mobileId === currentUserId) {
-            const element = document.getElementById('current-user-status');
-            const iconElement = document.getElementById('current-user-icon');
-            
-            if (element) {
-                element.textContent = status === 'online' ? 'En ruta' : 'Desconectado';
-                element.className = status === 'online' ? 'online' : 'offline';
+                        <div class="vehicle-marker ${isOnline ? 'online' : 'offline'}"></div>
+                        <div class="vehicle-label">${displayName}</div>
+                    `,
+                    iconSize: [32, 42],
+                    iconAnchor: [16, 16],
+                    popupAnchor: [0, 16]
+                });
+                
+                markers[mobileId]
+                    .setLatLng(coords)
+                    .setIcon(container)
+                    .setPopupContent(`<b>${displayName}</b><br>${isOnline ? 'En ruta' : 'Desconectado'}<br>Última actualización: ${new Date().toLocaleTimeString()}`);
             }
-            
-            if (iconElement) {
-                iconElement.className = `user-icon ${status === 'online' ? 'online' : 'offline'}`;
-            }
-        } 
-        else if (isViewer || currentUserId === 'Funcionarios') {
-            const element = document.getElementById(`${mobileId.toLowerCase()}-status`);
-            const iconElement = document.getElementById(`${mobileId.toLowerCase()}-icon`);
-            
-            if (element) {
-                element.textContent = status === 'online' ? 'En ruta' : 'Desconectado';
-                element.className = status === 'online' ? 'online' : 'offline';
-            }
-            
-            if (iconElement) {
-                iconElement.className = `vehicle-icon ${status === 'online' ? 'online' : 'offline'}`;
-            }
-        }
-    }
-    
-    function logout() {
-        if (gpsInterval) clearInterval(gpsInterval);
-        if (locationUpdateInterval) clearInterval(locationUpdateInterval);
-        if (viewerUpdateInterval) clearInterval(viewerUpdateInterval);
-        
-        if (backgroundGeolocationWatchId !== null) {
-            navigator.geolocation.clearWatch(backgroundGeolocationWatchId);
         }
         
-        if (wakeLock !== null) {
-            wakeLock.release().then(() => {
-                wakeLock = null;
-            });
+        function updateStatus(mobileId, status) {
+            if (mobileId === currentUserId) {
+                const element = document.getElementById('current-user-status');
+                const iconElement = document.getElementById('current-user-icon');
+                
+                if (element) {
+                    element.textContent = status === 'online' ? 'En ruta' : 'Desconectado';
+                    element.className = status === 'online' ? 'online' : 'offline';
+                }
+                
+                if (iconElement) {
+                    iconElement.className = `user-icon ${status === 'online' ? 'online' : 'offline'}`;
+                }
+            } 
+            else if (isViewer || currentUserId === 'Funcionarios') {
+                const element = document.getElementById(`${mobileId.toLowerCase()}-status`);
+                const iconElement = document.getElementById(`${mobileId.toLowerCase()}-icon`);
+                
+                if (element) {
+                    element.textContent = status === 'online' ? 'En ruta' : 'Desconectado';
+                    element.className = status === 'online' ? 'online' : 'offline';
+                }
+                
+                if (iconElement) {
+                    iconElement.className = `vehicle-icon ${status === 'online' ? 'online' : 'offline'}`;
+                }
+            }
         }
         
-        database.ref('vehicles').off();
-        firebase.auth().signOut();
-        localStorage.removeItem('gpsAuth');
-        localStorage.removeItem('panelState');
-        window.location.href = 'login.html';
-    }
+        function logout() {
+            if (gpsInterval) clearInterval(gpsInterval);
+            if (locationUpdateInterval) clearInterval(locationUpdateInterval);
+            if (viewerUpdateInterval) clearInterval(viewerUpdateInterval);
+            
+            if (backgroundGeolocationWatchId !== null) {
+                navigator.geolocation.clearWatch(backgroundGeolocationWatchId);
+            }
+            
+            if (wakeLock !== null) {
+                wakeLock.release().then(() => {
+                    wakeLock = null;
+                });
+            }
+            
+            database.ref('vehicles').off();
+            firebase.auth().signOut();
+            localStorage.removeItem('gpsAuth');
+            localStorage.removeItem('panelState');
+            window.location.href = 'login.html';
+        }
     </script>
 </body>
 </html>
