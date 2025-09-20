@@ -1335,7 +1335,25 @@
                 };
             }
         };
-
+function mapVisualCrossingIconToEmoji(iconName) {
+    const iconMap = {
+        'clear-day': '☀️',
+        'clear-night': '🌙',
+        'partly-cloudy-day': '🌤️',
+        'partly-cloudy-night': '🌙☁️',
+        'cloudy': '☁️',
+        'rain': '🌧️',
+        'snow': '❄️',
+        'sleet': '🌨️',
+        'wind': '💨',
+        'fog': '🌫️',
+        'thunderstorm': '⛈️',
+        'hail': '🌨️',
+        'tornado': '🌪️'
+    };
+    
+    return iconMap[iconName] || '🌡️'; // Default si no se encuentra
+}
         function getWeatherCodeDescription(code) {
             const weatherCodes = {
                 0: "Despejado",
@@ -1543,7 +1561,7 @@
     
     tempElement.textContent = `${weatherData.temp}°C`;
     descElement.textContent = weatherData.description;
-    iconElement.textContent = weatherData.icon;
+   iconElement.textContent = mapVisualCrossingIconToEmoji(weatherData.icon);
     feelsLikeElement.textContent = `Sensación: ${weatherData.feels_like}°C`;
             
             
@@ -2748,3 +2766,4 @@
     </script>
 </body>
 </html>
+
