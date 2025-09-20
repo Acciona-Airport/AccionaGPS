@@ -2479,45 +2479,52 @@
     }
     
     function savePosition(mobileId, coords, accuracy) {
-        const now = Date.now();
-        lastKnownPosition = coords;
-        
-        updateUserPositionMarker(coords, accuracy);
-        
-       if (!isViewer && mobileId !== 'Funcionarios') {
-    // Primero verificar si hay un nombre personalizado en vehicleNames
-    database.ref(`vehicleNames/${mobileId}`).once('value').then(snapshot => {
-        const customName = snapshot.exists() ? snapshot.val() : (vehicleNames[mobileId] || mobileId);
-        
-        database.ref(`vehicles/${mobileId}`).set({
-            coords: {
-                lat: coords[0],
-                lng: coords[1]
-            },
-            status: 'online',
-            lastUpdate: now,
-            accuracy: accuracy,
-            displayName: customName  // Usar el nombre desde vehicleNames
-        });
-    });
-}
-        
-        lastUpdateTimes[mobileId] = now;
-        updateMarker(mobileId, coords, true);
-        updateStatus(mobileId, 'online');
-        
-        if (currentUserId === 'Admin') {
-            checkLapCompletion(mobileId, coords);
+    const now = Date.now();
+    lastKnownPosition = coords;
+    
+    updateUserPositionMarker(coords, accuracy);
+    
+    if (!isViewer && mobileId !== 'Funcionarios') {
+        // PRIMERO verificar si el usuario tiene permiso para escribir en este móvil
+        database.ref(`vehicleNames/${mobileId}`).once('value').then(snapshot => {
+            const allowedToWrite = !snapshot.exists() || snapshot.val() === vehicleNames[mobileId];
             
-            const laps = lapCounters[mobileId] ? 
-                lapCounters[mobileId].shift1 + lapCounters[mobileId].shift2 + lapCounters[mobileId].shift3 : 0;
-            storeCoordinateData(mobileId, coords, 'online', laps);
-        }
-        
-        if (mobileId === currentUserId) {
-            map.setView(coords, Math.max(map.getZoom(), 16));
-        }
+            if (allowedToWrite) {
+                // SOLO guardar si tiene permiso
+                database.ref(`vehicles/${mobileId}`).set({
+                    coords: {
+                        lat: coords[0],
+                        lng: coords[1]
+                    },
+                    status: 'online',
+                    lastUpdate: now,
+                    accuracy: accuracy,
+                    displayName: vehicleNames[mobileId] || mobileId,
+                    userId: currentUserId // ← AGREGAR ESTE CAMPO NUEVO
+                });
+            } else {
+                console.warn(`⚠️ Usuario ${currentUserId} no tiene permisos para escribir en ${mobileId}`);
+                updateStatus(mobileId, 'offline');
+            }
+        });
     }
+    
+    lastUpdateTimes[mobileId] = now;
+    updateMarker(mobileId, coords, true);
+    updateStatus(mobileId, 'online');
+    
+    if (currentUserId === 'Admin') {
+        checkLapCompletion(mobileId, coords);
+        
+        const laps = lapCounters[mobileId] ? 
+            lapCounters[mobileId].shift1 + lapCounters[mobileId].shift2 + lapCounters[mobileId].shift3 : 0;
+        storeCoordinateData(mobileId, coords, 'online', laps);
+    }
+    
+    if (mobileId === currentUserId) {
+        map.setView(coords, Math.max(map.getZoom(), 16));
+    }
+}
     
     function startMonitoring() {
         fetchVehicleData();
@@ -2919,6 +2926,7 @@
   </script>
 </body>
 </html>
+
 
 
 
