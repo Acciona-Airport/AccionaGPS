@@ -1173,7 +1173,7 @@
     
     <script>
         const firebaseConfig = {
-          apiKey: "AIzaSyDT85qotm1EpAJzJzCFeoNwGyo-VKhM6dk",
+            apiKey: "AIzaSyDT85qotm1EpAJzJzCFeoNwGyo-VKhM6dk",
             authDomain: "gpsaccionascl2025.firebaseapp.com",
             databaseURL: "https://gpsaccionascl2025-default-rtdb.firebaseio.com",
             projectId: "gpsaccionascl2025",
@@ -1185,9 +1185,113 @@
         const app = firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // ... (resto de tu código de configuración)
+        const SCL_COORDS = [-33.3931, -70.7858];
+        const INACTIVE_COORDS = [-33.409995, -70.788647];
+        const START_POINT = [-33.409455, -70.789421];
+        const DETECTION_RADIUS = 100;
+        const ZOOM_INICIAL = 14;
+        let map;
+        let currentTileLayer;
+        const markers = {};
+        const lastUpdateTimes = {};
+        const vehicleCache = {};
+        let gpsInterval;
+        let wakeLock = null;
+        let backgroundGeolocationWatchId = null;
+        const TEN_MINUTES = 10 * 60 * 1000;
+        const UPDATE_INTERVAL = 30000;
+        let currentUserId = null;
+        let isViewer = false;
+        let userPositionMarker = null;
+        let userAccuracyCircle = null;
+        let lastKnownPosition = null;
+        let locationUpdateInterval = null;
+        let viewerUpdateInterval = null;
+        let currentRouteLayer = null;
+        let vehicleNames = {};
+        
+        const positionHistory = {
+            Movil1: [],
+            Movil2: [],
+            Movil3: [],
+            Movil4: []
+        };
+        
+        const PUDALUEL_COORDS = [-33.3931, -70.7858];
+        
+        let weatherUpdateInterval = null;
+        
+        let lapCounters = {
+            Movil1: { shift1: 0, shift2: 0, shift3: 0, lastLapTime: null, isNearStart: false, lastResetDate: null },
+            Movil2: { shift1: 0, shift2: 0, shift3: 0, lastLapTime: null, isNearStart: false, lastResetDate: null },
+            Movil3: { shift1: 0, shift2: 0, shift3: 0, lastLapTime: null, isNearStart: false, lastResetDate: null },
+            Movil4: { shift1: 0, shift2: 0, shift3: 0, lastLapTime: null, isNearStart: false, lastResetDate: null }
+        };
+        let startPointMarker = null;
+        
+        const route1Coordinates = [
+            [-33.4095444, -70.7893019],
+            [-33.4092635, -70.7895518],
+            [-33.404626, -70.7897795],
+            [-33.4045659, -70.7889574],
+            [-33.3965734, -70.7893183],
+            [-33.3966737, -70.7910012],
+            [-33.3970831, -70.790958],
+            [-33.3971273, -70.7919677],
+            [-33.4013289, -70.7917774],
+            [-33.401446, -70.795415],
+            [-33.399824, -70.7955015],
+            [-33.3998119, -70.7961745],
+            [-33.3963198, -70.796343],
+            [-33.3960964, -70.7894296],
+            [-33.3966985, -70.7893961],
+            [-33.3967748, -70.7909972],
+            [-33.3971721, -70.7909347],
+            [-33.3972203, -70.792002],
+            [-33.4045345, -70.7915771],
+            [-33.4044984, -70.7897934],
+            [-33.40931, -70.7895175],
+            [-33.4096593, -70.7891232]
+        ];
+        const route2Coordinates = [
+            [-33.4096489, -70.7892732],
+            [-33.4093416, -70.7895579],
+            [-33.4046013, -70.7898303],
+            [-33.4045362, -70.7889762],
+            [-33.3966243, -70.7893156],
+            [-33.396535, -70.7894658],
+            [-33.3960629, -70.7895151],
+            [-33.3963403, -70.7977141],
+            [-33.3964389, -70.7977093],
+            [-33.3961615, -70.7895498],
+            [-33.3966124, -70.7895158],
+            [-33.3966597, -70.7909835],
+            [-33.3970632, -70.7911581],
+            [-33.3970881, -70.7919946],
+            [-33.4044896, -70.7915298],
+            [-33.4044823, -70.789894],
+            [-33.4092579, -70.7896023],
+            [-33.4096104, -70.7892531]
+        ];
+        const mapProviders = {
+            esri: {
+                url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+                maxZoom: 19
+            },
+            carto: {
+                url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/attributions">CARTO</a>',
+                maxZoom: 20
+            },
+            osm: {
+                url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                maxZoom: 19
+            }
+        };
 
-        // Funciones para mapear condiciones climáticas a español - CORREGIDAS
+        // Funciones para mapear condiciones climáticas a español
         function mapVisualCrossingIconToEmoji(iconName) {
             const iconMap = {
                 'clear-day': '☀️',
@@ -1202,8 +1306,7 @@
                 'fog': '🌫️',
                 'thunderstorm': '⛈️',
                 'hail': '🌨️',
-                'tornado': '🌪️',
-                'Partly cloudy': '⛅' // Añadido para el formato que realmente devuelve VisualCrossing
+                'tornado': '🌪️'
             };
             return iconMap[iconName] || '🌡️';
         }
@@ -1212,78 +1315,40 @@
             if (!condition) return 'Condiciones variables';
             
             const translationMap = {
-                'Partly cloudy': 'Parcialmente nublado',
                 'partly cloudy': 'Parcialmente nublado',
                 'partly-cloudy': 'Parcialmente nublado',
                 'partly-cloudy-day': 'Parcialmente nublado',
                 'partly-cloudy-night': 'Parcialmente nublado',
-                'Clear': 'Despejado',
                 'clear': 'Despejado',
                 'clear day': 'Despejado',
                 'clear-night': 'Despejado',
-                'Sunny': 'Soleado',
                 'sunny': 'Soleado',
-                'Mostly sunny': 'Mayormente soleado',
-                'Cloudy': 'Nublado',
+                'mostly sunny': 'Mayormente soleado',
                 'cloudy': 'Nublado',
-                'Overcast': 'Cubierto',
                 'overcast': 'Cubierto',
-                'Rain': 'Lluvia',
                 'rain': 'Lluvia',
-                'Light rain': 'Lluvia ligera',
                 'light rain': 'Lluvia ligera',
-                'Heavy rain': 'Lluvia intensa',
                 'heavy rain': 'Lluvia intensa',
-                'Showers': 'Chubascos',
                 'showers': 'Chubascos',
-                'Drizzle': 'Llovizna',
                 'drizzle': 'Llovizna',
-                'Snow': 'Nieve',
                 'snow': 'Nieve',
-                'Light snow': 'Nieve ligera',
                 'light snow': 'Nieve ligera',
-                'Heavy snow': 'Nieve intensa',
                 'heavy snow': 'Nieve intensa',
-                'Sleet': 'Aguanieve',
                 'sleet': 'Aguanieve',
-                'Wind': 'Ventoso',
                 'wind': 'Ventoso',
-                'Windy': 'Ventoso',
                 'windy': 'Ventoso',
-                'Fog': 'Niebla',
                 'fog': 'Niebla',
-                'Foggy': 'Neblinoso',
                 'foggy': 'Neblinoso',
-                'Mist': 'Neblina',
                 'mist': 'Neblina',
-                'Haze': 'Bruma',
                 'haze': 'Bruma',
-                'Thunderstorm': 'Tormenta eléctrica',
                 'thunderstorm': 'Tormenta eléctrica',
-                'Thunder': 'Truenos',
                 'thunder': 'Truenos',
-                'Hail': 'Granizo',
                 'hail': 'Granizo',
-                'Tornado': 'Tornado',
                 'tornado': 'Tornado'
             };
             
-            // Buscar coincidencia exacta primero
-            if (translationMap[condition]) {
-                return translationMap[condition];
-            }
-            
-            // Buscar en minúsculas sin guiones
             const normalizedCondition = condition.toLowerCase().replace(/-/g, ' ').trim();
-            
-            // Buscar en el mapa
-            for (const [key, value] of Object.entries(translationMap)) {
-                if (key.toLowerCase() === normalizedCondition) {
-                    return value;
-                }
-            }
-            
-            return condition; // Devolver original si no se encuentra
+            return translationMap[normalizedCondition] || condition;
         }
 
         const VISUAL_CROSSING_API = {
@@ -1298,7 +1363,7 @@
                     icon: data.currentConditions.icon,
                     humidity: data.currentConditions.humidity,
                     wind: data.currentConditions.windspeed * 1.60934,
-                    uv: data.currentConditions.uvindex || 0, // Asegurar que siempre tenga valor
+                    uv: data.currentConditions.uvindex,
                     pressure: data.currentConditions.pressure,
                     cloudcover: data.currentConditions.cloudcover,
                     source: "VisualCrossing"
@@ -1308,7 +1373,7 @@
 
         const OPEN_METEO_API = {
             name: "Open-Meteo",
-            url: (lat, lon) => `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature,precipitation,rain,showers,snowfall,weather_code,wind_speed_10m,relative_humidity_2m,uv_index&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m&timezone=auto`,
+            url: (lat, lon) => `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature,precipitation,rain,showers,snowfall,weather_code,wind_speed_10m,relative_humidity_2m&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m&timezone=auto`,
             parser: data => {
                 if (!data || !data.current) return null;
                 return {
@@ -1318,93 +1383,271 @@
                     icon: getWeatherCodeIcon(data.current.weather_code),
                     humidity: data.current.relative_humidity_2m,
                     wind: data.current.wind_speed_10m,
-                    uv: data.current.uv_index || 0, // Añadido UV para Open-Meteo
-                    pressure: data.current.surface_pressure || 0,
-                    cloudcover: data.current.cloud_cover || 0,
+                    uv: 0,
+                    pressure: 0,
+                    cloudcover: 0,
                     source: "Open-Meteo"
                 };
             }
         };
 
-        // ... (resto de las funciones getWeatherCodeDescription y getWeatherCodeIcon)
+        function getWeatherCodeDescription(code) {
+            const weatherCodes = {
+                0: "Despejado",
+                1: "Principalmente despejado",
+                2: "Parcialmente nublado",
+                3: "Nublado",
+                45: "Niebla",
+                48: "Niebla escarchada",
+                51: "Llovizna ligera",
+                53: "Llovizna moderada",
+                55: "Llovizna densa",
+                56: "Llovizna helada ligera",
+                57: "Llovizna helada densa",
+                61: "Lluvia ligera",
+                63: "Lluvia moderada",
+                65: "Lluvia intensa",
+                66: "Lluvia helada ligera",
+                67: "Lluvia helada intensa",
+                71: "Nieve ligera",
+                73: "Nieve moderada",
+                75: "Nieve intensa",
+                77: "Granos de nieve",
+                80: "Chubascos ligeros",
+                81: "Chubascos moderados",
+                82: "Chubascos violentos",
+                85: "Nevadas ligeras",
+                86: "Nevadas intensas",
+                95: "Tormenta eléctrica",
+                96: "Tormenta eléctrica con granizo ligero",
+                99: "Tormenta eléctrica con granizo intenso"
+            };
+            return weatherCodes[code] || "Condiciones variables";
+        }
 
-        // En la función updateWeatherWidget, asegúrate de que el UV se maneje correctamente:
-        function updateWeatherWidget(weatherData) {
-            if (!weatherData) {
-                document.getElementById('weatherDesc').textContent = 'Error al cargar';
-                document.getElementById('weatherTemp').textContent = '--°C';
-                document.getElementById('weatherFeelsLike').textContent = 'Sensación: --°C';
-                document.getElementById('weatherIcon').textContent = '☀️';
-                document.getElementById('weatherSources').textContent = 'Error en servicios';
-                return;
-            }
-            
-            const tempElement = document.getElementById('weatherTemp');
-            const descElement = document.getElementById('weatherDesc');
-            const feelsLikeElement = document.getElementById('weatherFeelsLike');
-            const iconElement = document.getElementById('weatherIcon');
-            const uvElement = document.getElementById('weatherUv');
-            const warningElement = document.getElementById('weatherWarning');
-            const sourcesElement = document.getElementById('weatherSources');
-            const humidityElement = document.getElementById('weatherHumidity');
-            const windElement = document.getElementById('weatherWind');
-            const cloudsElement = document.getElementById('weatherClouds');
-            const pressureElement = document.getElementById('weatherPressure');
-            
-            tempElement.textContent = `${weatherData.temp}°C`;
-            
-            // TRADUCCIÓN CORREGIDA - usar la función de traducción
-            descElement.textContent = translateWeatherCondition(weatherData.description);
-            
-            // EMOJI CORREGIDO - usar la función de mapeo
-            iconElement.textContent = mapVisualCrossingIconToEmoji(weatherData.icon);
-            
-            feelsLikeElement.textContent = `Sensación: ${weatherData.feels_like}°C`;
-                    
-            if (weatherData.humidity !== undefined) {
-                humidityElement.textContent = `${Math.round(weatherData.humidity)}%`;
+        function getWeatherCodeIcon(code) {
+            const iconMap = {
+                0: "☀️",     // Clear sky
+                1: "🌤️",     // Mainly clear
+                2: "⛅",     // Partly cloudy
+                3: "☁️",     // Overcast
+                45: "🌫️",    // Fog
+                48: "🌫️",    // Depositing rime fog
+                51: "🌧️",    // Light drizzle
+                53: "🌧️",    // Moderate drizzle
+                55: "🌧️",    // Dense drizzle
+                56: "🌧️",    // Light freezing drizzle
+                57: "🌧️",    // Dense freezing drizzle
+                61: "🌧️",    // Slight rain
+                63: "🌧️",    // Moderate rain
+                65: "🌧️",    // Heavy rain
+                66: "🌧️",    // Light freezing rain
+                67: "🌧️",    // Heavy freezing rain
+                71: "❄️",     // Slight snow fall
+                73: "❄️",     // Moderate snow fall
+                75: "❄️",     // Heavy snow fall
+                77: "❄️",     // Snow grains
+                80: "🌦️",     // Slight rain showers
+                81: "🌦️",     // Moderate rain showers
+                82: "🌦️",     // Violent rain showers
+                85: "❄️",     // Slight snow showers
+                86: "❄️",     // Heavy snow showers
+                95: "⛈️",     // Thunderstorm
+                96: "⛈️",     // Thunderstorm with slight hail
+                99: "⛈️"      // Thunderstorm with heavy hail
+            };
+             return iconMap[code] || "🌡️";
+        }
+
+        firebase.auth().onAuthStateChanged((user) => {
+            if (!user) {
+                window.location.href = 'login.html';
             } else {
-                humidityElement.textContent = '--%';
-            }
-                    
-            if (weatherData.wind !== undefined) {
-                windElement.textContent = `${Math.round(weatherData.wind)} km/h`;
-            } else {
-                windElement.textContent = '-- km/h';
-            }
-                    
-            if (weatherData.cloudcover !== undefined) {
-                cloudsElement.textContent = `${Math.round(weatherData.cloudcover)}%`;
-            } else {
-                cloudsElement.textContent = '--%';
-            }
-                    
-            if (weatherData.pressure !== undefined && weatherData.pressure > 0) {
-                pressureElement.textContent = `${Math.round(weatherData.pressure)} hPa`;
-            } else {
-                pressureElement.textContent = '-- hPa';
-            }
-                    
-            // MANEJO DEL UV CORREGIDO
-            if (weatherData.uv !== undefined && weatherData.uv >= 0) {
-                const uvIndex = Math.round(weatherData.uv);
-                uvElement.innerHTML = `<span>Índice UV: ${uvIndex} - ${getUvLevel(uvIndex)}</span>`;
-                uvElement.className = `weather-uv ${getUvClass(uvIndex)}`;
-                        
-                if (uvIndex >= 6) {
-                    const warningLines = getUvWarning(uvIndex);
-                    warningElement.style.display = 'block';
-                    warningElement.innerHTML = warningLines.join('<br>');
-                } else {
-                    warningElement.style.display = 'none';
+                const auth = JSON.parse(localStorage.getItem('gpsAuth'));
+                if (!auth) window.location.href = 'login.html';
+                
+                currentUserId = auth.username;
+                isViewer = auth.isViewer;
+                
+                const savedVehicleNames = localStorage.getItem('vehicleNames');
+                if (savedVehicleNames) {
+                    vehicleNames = JSON.parse(savedVehicleNames);
                 }
-            } else {
-                uvElement.innerHTML = '<span>Índice UV: No disponible</span>';
-                uvElement.className = 'weather-uv';
-                warningElement.style.display = 'none';
+                
+                initMap();
+                setupUI();
+                
+                
+                startWeatherUpdates();
+                
+                if (!isViewer && !auth.vehicleNumber) {
+                    document.getElementById('vehicleNumberModal').style.display = 'flex';
+                } else {
+                    document.getElementById('vehicleNumberModal').style.display = 'none';
+                    setupAfterVehicleNumber();
+                }
             }
+        });
+
+        
+        function startWeatherUpdates() {
+            
+            getWeatherData();
+            
+            
+            weatherUpdateInterval = setInterval(getWeatherData, 600000);
+            
+            
+            updateNextUpdateTime();
+        }
+
+        
+        function updateNextUpdateTime() {
+            const now = new Date();
+            const nextUpdate = new Date(now.getTime() + 600000);
+            const nextUpdateStr = nextUpdate.toLocaleTimeString('es-CL', {hour: '2-digit', minute:'2-digit'});
+            
+            document.getElementById('weatherUpdating').textContent = `Próxima actualización: ${nextUpdateStr}`;
+        }
+
+        
+        async function getWeatherData() {
+            const lat = PUDALUEL_COORDS[0];
+            const lon = PUDALUEL_COORDS[1];
+            
+            
+            document.getElementById('weatherWidget').classList.add('loading');
+            document.getElementById('weatherDesc').textContent = 'Actualizando...';
+            document.getElementById('weatherSources').textContent = 'Consultando VisualCrossing...';
+            
+            try {
+                const response = await fetch(VISUAL_CROSSING_API.url(lat, lon));
+                
+                if (!response.ok) {
+                    throw new Error(`Error en VisualCrossing: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                const weatherData = VISUAL_CROSSING_API.parser(data);
+                
+                if (!weatherData) {
+                    throw new Error("No se pudieron obtener datos del clima");
+                }
+                
+                
+                updateWeatherWidget(weatherData);
+                
+            } catch (error) {
+                console.error('Error obteniendo datos del clima de VisualCrossing:', error);
+                
+                try {
+                    document.getElementById('weatherSources').textContent = 'Consultando Open-Meteo...';
                     
-            sourcesElement.textContent = `Fuente: ${weatherData.source}`;
+                    const response = await fetch(OPEN_METEO_API.url(lat, lon));
+                    
+                    if (!response.ok) {
+                        throw new Error(`Error en Open-Meteo: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    const weatherData = OPEN_METEO_API.parser(data);
+                    
+                    if (!weatherData) {
+                        throw new Error("No se pudieron obtener datos del clima");
+                    }
+                    
+                    
+                    updateWeatherWidget(weatherData);
+                    
+                } catch (fallbackError) {
+                    console.error('Error obteniendo datos del clima de Open-Meteo:', fallbackError);
+                    document.getElementById('weatherDesc').textContent = 'Info clima, intermitente.';
+                    document.getElementById('weatherTemp').textContent = '--°C';
+                    document.getElementById('weatherFeelsLike').textContent = 'Sensación: --°C';
+                    document.getElementById('weatherIcon').textContent = '☀️';
+                    document.getElementById('weatherSources').textContent = 'Error al consultar servicios';
+                }
+            } finally {
+                document.getElementById('weatherWidget').classList.remove('loading');
+                updateNextUpdateTime();
+            }
+        }
+
+        
+        function updateWeatherWidget(weatherData) {
+    if (!weatherData) {
+        document.getElementById('weatherDesc').textContent = 'Error al cargar';
+        document.getElementById('weatherTemp').textContent = '--°C';
+        document.getElementById('weatherFeelsLike').textContent = 'Sensación: --°C';
+        document.getElementById('weatherIcon').textContent = '☀️';
+        document.getElementById('weatherSources').textContent = 'Error en servicios';
+        return;
+    }
+    
+    const tempElement = document.getElementById('weatherTemp');
+    const descElement = document.getElementById('weatherDesc');
+    const feelsLikeElement = document.getElementById('weatherFeelsLike');
+    const iconElement = document.getElementById('weatherIcon');
+    const uvElement = document.getElementById('weatherUv');
+    const warningElement = document.getElementById('weatherWarning');
+    const sourcesElement = document.getElementById('weatherSources');
+    const humidityElement = document.getElementById('weatherHumidity');
+    const windElement = document.getElementById('weatherWind');
+    const cloudsElement = document.getElementById('weatherClouds');
+    const pressureElement = document.getElementById('weatherPressure');
+    
+    tempElement.textContent = `${weatherData.temp}°C`;
+    descElement.textContent = weatherData.description;
+   iconElement.textContent = mapVisualCrossingIconToEmoji(weatherData.icon);
+    feelsLikeElement.textContent = `Sensación: ${weatherData.feels_like}°C`;
+            
+            
+    if (weatherData.humidity !== undefined) {
+        humidityElement.textContent = `${Math.round(weatherData.humidity)}%`;
+    } else {
+        humidityElement.textContent = '--%';
+    }
+            
+    if (weatherData.wind !== undefined) {
+        windElement.textContent = `${Math.round(weatherData.wind)} km/h`;
+    } else {
+        windElement.textContent = '-- km/h';
+    }
+            
+    if (weatherData.cloudcover !== undefined) {
+        cloudsElement.textContent = `${Math.round(weatherData.cloudcover)}%`;
+    } else {
+        cloudsElement.textContent = '--%';
+    }
+            
+    if (weatherData.pressure !== undefined) {
+        pressureElement.textContent = `${Math.round(weatherData.pressure)} hPa`;
+    } else {
+        pressureElement.textContent = '-- hPa';
+    }
+            
+            
+    if (weatherData.uv !== undefined && weatherData.uv > 0) {
+        const uvIndex = weatherData.uv;
+        uvElement.innerHTML = `<span>Índice UV: ${uvIndex} - ${getUvLevel(uvIndex)}</span>`;
+        uvElement.className = `weather-uv ${getUvClass(uvIndex)}`;
+                
+                
+        if (uvIndex >= 6) {
+            const warningLines = getUvWarning(uvIndex);
+            warningElement.style.display = 'block';
+            warningElement.innerHTML = warningLines.join('<br>');
+        } else {
+            warningElement.style.display = 'none';
+        }
+    } else {
+        uvElement.innerHTML = '<span>Índice UV: No disponible</span>';
+        uvElement.className = 'weather-uv';
+        warningElement.style.display = 'none';
+    }
+            
+            
+    sourcesElement.textContent = `Fuente: ${weatherData.source}`;
         }
 
         
@@ -2560,7 +2803,5 @@
     </script>
 </body>
 </html>
-
-
 
 
