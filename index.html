@@ -1502,34 +1502,68 @@
         return iconMap[code] || '🌡️';
     }
 
-    firebase.auth().onAuthStateChanged((user) => {
-        if (!user) {
-            window.location.href = 'login.html';
-        } else {
-            const auth = JSON.parse(localStorage.getItem('gpsAuth'));
-            if (!auth) window.location.href = 'login.html';
-            
-            currentUserId = auth.username;
-            isViewer = auth.isViewer;
-            
-            const savedVehicleNames = localStorage.getItem('vehicleNames');
-            if (savedVehicleNames) {
-                vehicleNames = JSON.parse(savedVehicleNames);
-            }
-            
-            initMap();
-            setupUI();
-            
-            startWeatherUpdates();
-            
-            if (!isViewer && !auth.vehicleNumber) {
-                document.getElementById('vehicleNumberModal').style.display = 'flex';
-            } else {
-                document.getElementById('vehicleNumberModal').style.display = 'none';
-                setupAfterVehicleNumber();
-            }
+ firebase.auth().onAuthStateChanged((user) => {
+    if (!user) {
+        window.location.href = 'login.html';
+    } else {
+        const auth = JSON.parse(localStorage.getItem('gpsAuth'));
+        if (!auth) window.location.href = 'login.html';
+        
+        currentUserId = auth.username;
+        isViewer = auth.isViewer;
+        
+        const savedVehicleNames = localStorage.getItem('vehicleNames');
+        if (savedVehicleNames) {
+            vehicleNames = JSON.parse(savedVehicleNames);
         }
-    });
+        
+        // ===== FUNCIÓN DE SINCRONIZACIÓN AGREGADA AQUÍ ===== //
+        function syncVehicleNames() {
+            console.log("🔁 Sincronizando nombres de vehículos...");
+            
+            // Sincronizar vehicleNames con los displayName existentes en vehicles
+            database.ref('vehicles').once('value').then(snapshot => {
+                const vehicles = snapshot.val();
+                const updates = {};
+                
+                if (vehicles) {
+                    Object.keys(vehicles).forEach(mobileId => {
+                        if (vehicles[mobileId].displayName && vehicles[mobileId].displayName !== mobileId) {
+                            updates[mobileId] = vehicles[mobileId].displayName;
+                            console.log(`📋 Sincronizando ${mobileId}: ${vehicles[mobileId].displayName}`);
+                        }
+                    });
+                    
+                    if (Object.keys(updates).length > 0) {
+                        database.ref('vehicleNames').update(updates)
+                            .then(() => console.log("✅ Nombres sincronizados correctamente"))
+                            .catch(error => console.error("❌ Error sincronizando nombres:", error));
+                    } else {
+                        console.log("✅ No hay nombres que sincronizar");
+                    }
+                }
+            }).catch(error => {
+                console.error("❌ Error accediendo a vehicles:", error);
+            });
+        }
+        
+        // Llamar a la función de sincronización
+        syncVehicleNames();
+        // ===== FIN DE LA FUNCIÓN DE SINCRONIZACIÓN ===== //
+        
+        initMap();
+        setupUI();
+        
+        startWeatherUpdates();
+        
+        if (!isViewer && !auth.vehicleNumber) {
+            document.getElementById('vehicleNumberModal').style.display = 'flex';
+        } else {
+            document.getElementById('vehicleNumberModal').style.display = 'none';
+            setupAfterVehicleNumber();
+        }
+    }
+});
 
     function startWeatherUpdates() {
         getWeatherData();
@@ -2885,5 +2919,6 @@
   </script>
 </body>
 </html>
+
 
 
