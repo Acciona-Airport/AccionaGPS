@@ -373,18 +373,18 @@
                                     if (isOnline) {
                                         statusIndicator.className = 'user-status-indicator status-online';
                                         statusText.className = 'status-text online-text';
-                                        statusText.textContent = '⚠️ Este usuario está EN RUTA actualmente';
+                                        statusText.textContent = '⚠️ Este usuario está en uso.';
                                         lastUpdateText.textContent = `Conectado: ${timeAgo}`;
                                     } else {
                                         statusIndicator.className = 'user-status-indicator status-offline';
                                         statusText.className = 'status-text offline-text';
-                                        statusText.textContent = '✅ Usuario DISPONIBLE';
+                                        statusText.textContent = '✅ Usuario Disponible.';
                                         lastUpdateText.textContent = `Desconectado: ${timeAgo}`;
                                     }
                                 } else {
                                     statusIndicator.className = 'user-status-indicator status-offline';
                                     statusText.className = 'status-text offline-text';
-                                    statusText.textContent = '✅ Usuario DISPONIBLE';
+                                    statusText.textContent = '✅ Usuario Disponible.';
                                     lastUpdateText.textContent = 'Nunca se ha conectado';
                                 }
 
@@ -495,5 +495,6 @@
     </script>
 </body>
 </html>
+
 
 
