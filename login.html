@@ -11,6 +11,9 @@
             --red-primary: #f44336;
             --red-dark: #d32f2f;
             --gray-light: #f5f5f5;
+            --online-color: #27ae60;
+            --offline-color: #e74c3c;
+            --checking-color: #f39c12;
         }
         * {
             box-sizing: border-box;
@@ -81,10 +84,8 @@
             animation-delay: 0.5s;
         }
         @keyframes pulse {
-            0% { transform: translateX(-50%) scale(1);
-            opacity: 1; }
-            100% { transform: translateX(-50%) scale(1.5);
-            opacity: 0; }
+            0% { transform: translateX(-50%) scale(1); opacity: 1; }
+            100% { transform: translateX(-50%) scale(1.5); opacity: 0; }
         }
         h1 {
             color: var(--red-dark);
@@ -206,6 +207,40 @@
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(211, 47, 47, 0.3);
         }
+        .user-status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-left: 8px;
+            border: 2px solid white;
+        }
+        .status-online {
+            background-color: var(--online-color);
+            box-shadow: 0 0 5px rgba(39, 174, 96, 0.5);
+        }
+        .status-offline {
+            background-color: var(--offline-color);
+            opacity: 0.6;
+        }
+        .status-checking {
+            background-color: var(--checking-color);
+            animation: pulse 1.5s infinite;
+        }
+        .user-option {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 0;
+        }
+        .user-option-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        select option {
+            padding: 10px;
+        }
     </style>
 </head>
 <body>
@@ -222,10 +257,30 @@
                 <select id="username" required>
                     <option value="">Seleccione usuario...</option>
                     <option value="Funcionarios">Funcionarios</option>
-                    <option value="Movil1">Móvil 1</option>
-                    <option value="Movil2">Móvil 2</option>
-                    <option value="Movil3">Móvil 3</option>
-                    <option value="Movil4">Móvil 4</option>
+                    <option value="Movil1">
+                        <div class="user-option">
+                            <span>Móvil 1</span>
+                            <span class="user-status-indicator status-checking" id="status-movil1" title="Verificando estado..."></span>
+                        </div>
+                    </option>
+                    <option value="Movil2">
+                        <div class="user-option">
+                            <span>Móvil 2</span>
+                            <span class="user-status-indicator status-checking" id="status-movil2" title="Verificando estado..."></span>
+                        </div>
+                    </option>
+                    <option value="Movil3">
+                        <div class="user-option">
+                            <span>Móvil 3</span>
+                            <span class="user-status-indicator status-checking" id="status-movil3" title="Verificando estado..."></span>
+                        </div>
+                    </option>
+                    <option value="Movil4">
+                        <div class="user-option">
+                            <span>Móvil 4</span>
+                            <span class="user-status-indicator status-checking" id="status-movil4" title="Verificando estado..."></span>
+                        </div>
+                    </option>
                     <option value="Admin">Admin</option>
                 </select>
             </div>
@@ -279,6 +334,38 @@
             "Funcionarios": "funcionarios@gpsacciona.com",
             "Admin": "admin@acciona.com"
         };
+
+        function checkMobileUsersStatus() {
+            const mobileUsers = ['Movil1', 'Movil2', 'Movil3', 'Movil4'];
+            
+            mobileUsers.forEach(user => {
+                const statusElement = document.getElementById(`status-${user.toLowerCase()}`);
+                if (statusElement) {
+                    statusElement.className = 'user-status-indicator status-checking';
+                    statusElement.title = 'Verificando estado...';
+                }
+                
+                firebase.database().ref(`activeUsers/${user}`).on('value', (snapshot) => {
+                    const userData = snapshot.val();
+                    const statusElement = document.getElementById(`status-${user.toLowerCase()}`);
+                    
+                    if (statusElement) {
+                        if (userData && userData.isActive) {
+                            statusElement.className = 'user-status-indicator status-online';
+                            statusElement.title = `En uso por: ${userData.vehicleNumber || 'Usuario'}`;
+                        } else {
+                            statusElement.className = 'user-status-indicator status-offline';
+                            statusElement.title = 'Disponible';
+                        }
+                    }
+                });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            checkMobileUsersStatus();
+        });
+
         document.getElementById('username').addEventListener('change', function() {
             const username = this.value;
             const autoLoginNotice = document.getElementById('autoLoginNotice');
@@ -296,6 +383,7 @@
                 passwordInput.classList.remove('password-disabled');
             }
         });
+
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -314,6 +402,15 @@
             firebase.auth().signInWithEmailAndPassword(email, password)
                 .then((userCredential) => {
                     currentUsername = username;
+                    
+                    if (username.startsWith('Movil')) {
+                        firebase.database().ref(`activeUsers/${username}`).set({
+                            isActive: true,
+                            loginTime: new Date().toISOString(),
+                            uid: userCredential.user.uid
+                        });
+                    }
+                    
                     if (username === 'Funcionarios' || username === 'Admin') {
                         localStorage.setItem('gpsAuth', JSON.stringify({
                             username,
@@ -350,6 +447,10 @@
                 isViewer: false,
                 uid: firebase.auth().currentUser.uid
             }));
+            
+            firebase.database().ref(`activeUsers/${currentUsername}`).update({
+                vehicleNumber: vehicleNumber
+            });
             
             window.location.href = 'index.html';
         });
