@@ -207,11 +207,16 @@
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(211, 47, 47, 0.3);
         }
-        .user-status-container {
+        .selected-user-status {
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 5px;
+            margin-top: 8px;
+            padding: 8px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            font-size: 14px;
+            display: none;
         }
         .user-status-indicator {
             width: 12px;
@@ -225,23 +230,22 @@
         }
         .status-offline {
             background-color: var(--offline-color);
-            opacity: 0.6;
         }
         .status-checking {
             background-color: var(--checking-color);
             animation: pulse 1.5s infinite;
         }
-        .mobile-user-label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        .status-text {
             font-weight: 500;
         }
-        .status-info {
-            font-size: 11px;
-            color: #666;
-            margin-left: 20px;
-            font-style: italic;
+        .online-text {
+            color: var(--online-color);
+        }
+        .offline-text {
+            color: var(--offline-color);
+        }
+        .checking-text {
+            color: var(--checking-color);
         }
     </style>
 </head>
@@ -256,24 +260,6 @@
         <form id="loginForm">
             <div class="form-group">
                 <label for="username">Usuario</label>
-                
-                <div class="user-status-container">
-                    <div class="user-status-indicator status-checking" id="status-movil1"></div>
-                    <div class="mobile-user-label">Móvil 1</div>
-                </div>
-                <div class="user-status-container">
-                    <div class="user-status-indicator status-checking" id="status-movil2"></div>
-                    <div class="mobile-user-label">Móvil 2</div>
-                </div>
-                <div class="user-status-container">
-                    <div class="user-status-indicator status-checking" id="status-movil3"></div>
-                    <div class="mobile-user-label">Móvil 3</div>
-                </div>
-                <div class="user-status-container">
-                    <div class="user-status-indicator status-checking" id="status-movil4"></div>
-                    <div class="mobile-user-label">Móvil 4</div>
-                </div>
-                
                 <select id="username" required>
                     <option value="">Seleccione usuario...</option>
                     <option value="Funcionarios">Funcionarios</option>
@@ -283,7 +269,11 @@
                     <option value="Movil4">Móvil 4</option>
                     <option value="Admin">Admin</option>
                 </select>
-                <div class="status-info" id="statusInfo">Verificando estado de los usuarios...</div>
+                
+                <div class="selected-user-status" id="selectedUserStatus">
+                    <div class="user-status-indicator status-checking" id="userStatusIndicator"></div>
+                    <span class="status-text checking-text" id="userStatusText">Verificando estado...</span>
+                </div>
             </div>
             
             <div class="form-group">
@@ -336,55 +326,41 @@
             "Admin": "admin@acciona.com"
         };
 
-        function checkMobileUsersStatus() {
-            const mobileUsers = ['Movil1', 'Movil2', 'Movil3', 'Movil4'];
-            let onlineCount = 0;
+        function checkUserStatus(username) {
+            const statusContainer = document.getElementById('selectedUserStatus');
+            const statusIndicator = document.getElementById('userStatusIndicator');
+            const statusText = document.getElementById('userStatusText');
             
-            mobileUsers.forEach(user => {
-                const statusElement = document.getElementById(`status-${user.toLowerCase()}`);
-                if (statusElement) {
-                    statusElement.className = 'user-status-indicator status-checking';
-                }
+            if (username.startsWith('Movil')) {
+                statusContainer.style.display = 'flex';
+                statusIndicator.className = 'user-status-indicator status-checking';
+                statusText.className = 'status-text checking-text';
+                statusText.textContent = 'Verificando estado...';
                 
-                firebase.database().ref(`activeUsers/${user}`).on('value', (snapshot) => {
-                    const userData = snapshot.val();
-                    const statusElement = document.getElementById(`status-${user.toLowerCase()}`);
-                    
-                    if (statusElement) {
+                firebase.database().ref(`activeUsers/${username}`).once('value')
+                    .then((snapshot) => {
+                        const userData = snapshot.val();
+                        
                         if (userData && userData.isActive) {
-                            statusElement.className = 'user-status-indicator status-online';
-                            statusElement.title = `En uso por: ${userData.vehicleNumber || 'Usuario'}`;
-                            onlineCount++;
+                            statusIndicator.className = 'user-status-indicator status-online';
+                            statusText.className = 'status-text online-text';
+                            statusText.textContent = `⚠️ Este usuario está en uso por: ${userData.vehicleNumber || 'otro dispositivo'}`;
                         } else {
-                            statusElement.className = 'user-status-indicator status-offline';
-                            statusElement.title = 'Disponible';
+                            statusIndicator.className = 'user-status-indicator status-offline';
+                            statusText.className = 'status-text offline-text';
+                            statusText.textContent = '✅ Usuario disponible';
                         }
-                    }
-                    
-                    updateStatusInfo(onlineCount);
-                });
-            });
-        }
-
-        function updateStatusInfo(onlineCount) {
-            const statusInfo = document.getElementById('statusInfo');
-            if (statusInfo) {
-                if (onlineCount === 0) {
-                    statusInfo.textContent = 'Todos los móviles están disponibles';
-                    statusInfo.style.color = '#27ae60';
-                } else if (onlineCount === 4) {
-                    statusInfo.textContent = 'Todos los móviles están en uso';
-                    statusInfo.style.color = '#e74c3c';
-                } else {
-                    statusInfo.textContent = `${onlineCount} móvil(es) en uso, ${4-onlineCount} disponible(s)`;
-                    statusInfo.style.color = '#f39c12';
-                }
+                    })
+                    .catch((error) => {
+                        console.error('Error al verificar estado:', error);
+                        statusIndicator.className = 'user-status-indicator status-offline';
+                        statusText.className = 'status-text offline-text';
+                        statusText.textContent = '✅ Usuario disponible';
+                    });
+            } else {
+                statusContainer.style.display = 'none';
             }
         }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            checkMobileUsersStatus();
-        });
 
         document.getElementById('username').addEventListener('change', function() {
             const username = this.value;
@@ -402,6 +378,8 @@
                 passwordInput.removeAttribute('readonly');
                 passwordInput.classList.remove('password-disabled');
             }
+            
+            checkUserStatus(username);
         });
 
         document.getElementById('loginForm').addEventListener('submit', function(e) {
