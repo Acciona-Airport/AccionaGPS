@@ -138,6 +138,9 @@
             margin-top: 15px;
             font-size: 14px;
             display: none;
+            padding: 10px;
+            background-color: #ffebee;
+            border-radius: 6px;
         }
         .auto-login-notice {
             background-color: var(--red-light);
@@ -251,6 +254,18 @@
             color: #666;
             margin-top: 4px;
         }
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -281,17 +296,24 @@
                     </div>
                 </div>
             </div>
+            
             <div class="form-group">
                 <label for="password">Contraseña</label>
                 <input type="password" id="password" required>
             </div>
+            
             <div class="auto-login-notice" id="autoLoginNotice">
                 Acceso automático para Funcionarios.
             </div>
-            <button type="submit">Ingresar al Sistema</button>
+            
+            <button type="submit" id="loginButton">
+                <span class="loading-spinner" id="loginSpinner" style="display: none;"></span>
+                Ingresar al Sistema
+            </button>
             <div class="error-message" id="errorMessage"></div>
         </form>
     </div>
+
     <div class="vehicle-number-modal" id="vehicleNumberModal">
         <div class="vehicle-number-form">
             <h2>Ingrese número de vehículo</h2>
@@ -299,10 +321,13 @@
             <button class="vehicle-number-submit" id="vehicleNumberSubmit">Continuar</button>
         </div>
     </div>
+
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    
     <script>
+        // Configuración de Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyDT85qotm1EpAJzJzCFeoNwGyo-VKhM6dk",
             authDomain: "gpsaccionascl2025.firebaseapp.com",
@@ -312,21 +337,33 @@
             messagingSenderId: "742246618721",
             appId: "1:742246618721:web:72d0046987416800f07c20"
         };
+        
+        // Inicializar Firebase
         firebase.initializeApp(firebaseConfig);
-
+        
+        // Constantes y variables globales
         const FUNCIONARIOS_PASSWORD = "123456";
+        const ADMIN_PASSWORD = "Admin234452";
+        const TEN_MINUTES = 10 * 60 * 1000;
+        const CACHE_DURATION = 2 * 60 * 1000; // 2 minutos de caché
+        
         let currentUsername = "";
+        let ghostAuthUser = null;
+        let userStatusCache = {
+            data: {},
+            timestamp: 0
+        };
+        
         const userEmails = {
             "Movil1": "movil1@gpsacciona.com",
-            "Movil2": "movil2@gpsacciona.com",
+            "Movil2": "movil2@gpsacciona.com", 
             "Movil3": "movil3@gpsacciona.com",
             "Movil4": "movil4@gpsacciona.com",
             "Funcionarios": "funcionarios@gpsacciona.com",
             "Admin": "admin@acciona.com"
         };
 
-        const TEN_MINUTES = 10 * 60 * 1000;
-
+        // Función para verificar si un vehículo está en línea
         function isVehicleOnline(vehicleData) {
             if (!vehicleData || !vehicleData.lastUpdate) return false;
             const now = Date.now();
@@ -334,73 +371,131 @@
             return timeDiff < TEN_MINUTES;
         }
 
+        // Función para formatear el tiempo transcurrido
+        function formatTimeAgo(timestamp) {
+            if (!timestamp) return 'Nunca';
+            
+            const now = Date.now();
+            const timeDiff = now - timestamp;
+            const minutesDiff = Math.floor(timeDiff / (60 * 1000));
+            const hoursDiff = Math.floor(timeDiff / (60 * 60 * 1000));
+            const daysDiff = Math.floor(timeDiff / (24 * 60 * 60 * 1000));
+            
+            if (minutesDiff < 1) {
+                return 'Hace unos segundos';
+            } else if (minutesDiff < 60) {
+                return `Hace ${minutesDiff} minuto${minutesDiff > 1 ? 's' : ''}`;
+            } else if (hoursDiff < 24) {
+                return `Hace ${hoursDiff} hora${hoursDiff > 1 ? 's' : ''}`;
+            } else {
+                return `Hace ${daysDiff} día${daysDiff > 1 ? 's' : ''}`;
+            }
+        }
+
+        // Función para realizar autenticación fantasma
+        function performGhostAuthentication() {
+            return new Promise((resolve, reject) => {
+                // Si ya hay una autenticación fantasma activa, la reutilizamos
+                if (ghostAuthUser) {
+                    resolve(ghostAuthUser);
+                    return;
+                }
+                
+                // Realizar autenticación fantasma
+                firebase.auth().signInWithEmailAndPassword(
+                    userEmails["Funcionarios"], 
+                    FUNCIONARIOS_PASSWORD
+                ).then((userCredential) => {
+                    ghostAuthUser = userCredential.user;
+                    resolve(ghostAuthUser);
+                }).catch((error) => {
+                    console.error('Error en autenticación fantasma:', error);
+                    reject(error);
+                });
+            });
+        }
+
+        // Función para verificar el estado de un usuario móvil específico
         function checkUserStatus(username) {
             const statusContainer = document.getElementById('selectedUserStatus');
             const statusIndicator = document.getElementById('userStatusIndicator');
             const statusText = document.getElementById('userStatusText');
             const lastUpdateText = document.getElementById('lastUpdateText');
-
+            
             if (username.startsWith('Movil')) {
                 statusContainer.style.display = 'flex';
                 statusIndicator.className = 'user-status-indicator status-checking';
                 statusText.className = 'status-text checking-text';
                 statusText.textContent = 'Verificando estado...';
                 lastUpdateText.textContent = '';
-
-                firebase.auth().signInWithEmailAndPassword(userEmails["Funcionarios"], FUNCIONARIOS_PASSWORD)
-                    .then(() => {
-                        firebase.database().ref(`vehicles/${username}`).once('value')
-                            .then((snapshot) => {
-                                const vehicleData = snapshot.val();
-                                const now = Date.now();
-
-                                if (vehicleData) {
-                                    const isOnline = isVehicleOnline(vehicleData);
-                                    const lastUpdate = vehicleData.lastUpdate || now;
-                                    const timeDiff = now - lastUpdate;
-                                    const minutesDiff = Math.floor(timeDiff / (60 * 1000));
-                                    const hoursDiff = Math.floor(timeDiff / (60 * 60 * 1000));
-
-                                    let timeAgo = '';
-                                    if (minutesDiff < 1) {
-                                        timeAgo = 'Hace unos segundos';
-                                    } else if (minutesDiff < 60) {
-                                        timeAgo = `Hace ${minutesDiff} minuto${minutesDiff > 1 ? 's' : ''}`;
-                                    } else {
-                                        timeAgo = `Hace ${hoursDiff} hora${hoursDiff > 1 ? 's' : ''}`;
-                                    }
-
-                                    if (isOnline) {
-                                        statusIndicator.className = 'user-status-indicator status-online';
-                                        statusText.className = 'status-text offline-text';
-                                        statusText.style.color = 'red'; // 🔴 Rojo para "en uso"
-                                        statusText.textContent = '⚠️ Este usuario está en uso.';
-                                        lastUpdateText.textContent = `Conectado: ${timeAgo}`;
-                                    } else {
-                                        statusIndicator.className = 'user-status-indicator status-offline';
-                                        statusText.className = 'status-text online-text';
-                                        statusText.style.color = 'green'; // 🟢 Verde para "disponible"
-                                        statusText.textContent = '✅ Usuario Disponible.';
-                                        lastUpdateText.textContent = `Desconectado: ${timeAgo}`;
-                                    }
-                                } else {
-                                    statusIndicator.className = 'user-status-indicator status-offline';
-                                    statusText.className = 'status-text offline-text';
-                                    statusText.textContent = '✅ Usuario Disponible.';
-                                    lastUpdateText.textContent = 'Nunca se ha conectado';
-                                }
-
-                                firebase.auth().signOut();
-                            });
-                    })
-                    .catch((error) => {
-                        statusContainer.style.display = 'none';
-                    });
+                
+                // Usar datos en caché si están disponibles y son recientes
+                if (userStatusCache.data[username] && 
+                    (Date.now() - userStatusCache.timestamp) < CACHE_DURATION) {
+                    updateUserStatusFromCache(username, statusIndicator, statusText, lastUpdateText);
+                    return;
+                }
+                
+                // Si no hay caché válido, obtener datos nuevos
+                performGhostAuthentication().then(() => {
+                    return firebase.database().ref(`vehicles/${username}`).once('value');
+                }).then((snapshot) => {
+                    const vehicleData = snapshot.val();
+                    updateUserStatusDisplay(username, vehicleData, statusIndicator, statusText, lastUpdateText);
+                    
+                    // Actualizar caché
+                    userStatusCache.data[username] = vehicleData;
+                    userStatusCache.timestamp = Date.now();
+                }).catch((error) => {
+                    console.error('Error al verificar estado:', error);
+                    statusIndicator.className = 'user-status-indicator status-offline';
+                    statusText.className = 'status-text';
+                    statusText.style.color = 'green';
+                    statusText.textContent = '✅ Usuario Disponible.';
+                    lastUpdateText.textContent = 'Estado no disponible';
+                });
             } else {
                 statusContainer.style.display = 'none';
             }
         }
 
+        // Función para actualizar el estado del usuario desde la caché
+        function updateUserStatusFromCache(username, statusIndicator, statusText, lastUpdateText) {
+            const vehicleData = userStatusCache.data[username];
+            updateUserStatusDisplay(username, vehicleData, statusIndicator, statusText, lastUpdateText);
+        }
+
+        // Función para actualizar la visualización del estado del usuario
+        function updateUserStatusDisplay(username, vehicleData, statusIndicator, statusText, lastUpdateText) {
+            const now = Date.now();
+            
+            if (vehicleData) {
+                const isOnline = isVehicleOnline(vehicleData);
+                const lastUpdate = vehicleData.lastUpdate || now;
+                
+                if (isOnline) {
+                    statusIndicator.className = 'user-status-indicator status-online';
+                    statusText.className = 'status-text';
+                    statusText.style.color = 'red';
+                    statusText.textContent = '⚠️ Este usuario está en uso.';
+                    lastUpdateText.textContent = `Conectado: ${formatTimeAgo(lastUpdate)}`;
+                } else {
+                    statusIndicator.className = 'user-status-indicator status-offline';
+                    statusText.className = 'status-text';
+                    statusText.style.color = 'green';
+                    statusText.textContent = '✅ Usuario Disponible.';
+                    lastUpdateText.textContent = `Desconectado: ${formatTimeAgo(lastUpdate)}`;
+                }
+            } else {
+                statusIndicator.className = 'user-status-indicator status-offline';
+                statusText.className = 'status-text';
+                statusText.style.color = 'green';
+                statusText.textContent = '✅ Usuario Disponible.';
+                lastUpdateText.textContent = 'Nunca se ha conectado';
+            }
+        }
+
+        // Event Listeners
         document.getElementById('username').addEventListener('change', function() {
             const username = this.value;
             const autoLoginNotice = document.getElementById('autoLoginNotice');
@@ -412,22 +507,30 @@
                 passwordInput.value = FUNCIONARIOS_PASSWORD;
                 passwordInput.setAttribute('readonly', 'true');
                 passwordInput.classList.add('password-disabled');
+            } else if (username.startsWith('Movil')) {
+                autoLoginNotice.style.display = 'none';
+                passwordInput.value = '';
+                passwordInput.removeAttribute('readonly');
+                passwordInput.classList.remove('password-disabled');
+                
+                // Verificar estado del usuario
+                checkUserStatus(username);
             } else {
                 autoLoginNotice.style.display = 'none';
                 passwordInput.value = '';
                 passwordInput.removeAttribute('readonly');
                 passwordInput.classList.remove('password-disabled');
             }
-
-            checkUserStatus(username);
         });
 
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
-
+            
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             const errorElement = document.getElementById('errorMessage');
+            const loginButton = document.getElementById('loginButton');
+            const loginSpinner = document.getElementById('loginSpinner');
 
             if (!username) {
                 errorElement.textContent = 'Seleccione un usuario válido';
@@ -435,12 +538,32 @@
                 return;
             }
 
+            // Mostrar indicador de carga
+            loginButton.disabled = true;
+            loginSpinner.style.display = 'inline-block';
+            
             const email = userEmails[username];
-
+            
+            // Para Funcionarios, intentar reutilizar la autenticación fantasma si existe
+            if (username === 'Funcionarios' && ghostAuthUser) {
+                // Usar la autenticación fantasma existente
+                currentUsername = username;
+                
+                localStorage.setItem('gpsAuth', JSON.stringify({
+                    username,
+                    isViewer: true,
+                    uid: ghostAuthUser.uid
+                }));
+                
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Para otros usuarios, realizar autenticación normal
             firebase.auth().signInWithEmailAndPassword(email, password)
                 .then((userCredential) => {
                     currentUsername = username;
-
+                    
                     if (username === 'Funcionarios' || username === 'Admin') {
                         localStorage.setItem('gpsAuth', JSON.stringify({
                             username,
@@ -453,8 +576,14 @@
                     }
                 })
                 .catch((error) => {
+                    console.error("Error de autenticación:", error);
                     errorElement.textContent = 'Usuario o contraseña incorrectos';
                     errorElement.style.display = 'block';
+                    
+                    // Ocultar indicador de carga
+                    loginButton.disabled = false;
+                    loginSpinner.style.display = 'none';
+                    
                     setTimeout(() => {
                         errorElement.style.display = 'none';
                     }, 3000);
@@ -463,19 +592,19 @@
 
         document.getElementById('vehicleNumberSubmit').addEventListener('click', function() {
             const vehicleNumber = document.getElementById('vehicleNumberInput').value.trim();
-
+            
             if (!vehicleNumber) {
                 alert('Por favor ingrese un número de vehículo');
                 return;
             }
-
+            
             localStorage.setItem('gpsAuth', JSON.stringify({
                 username: currentUsername,
                 vehicleNumber: vehicleNumber,
                 isViewer: false,
                 uid: firebase.auth().currentUser.uid
             }));
-
+            
             window.location.href = 'index.html';
         });
 
@@ -485,6 +614,7 @@
             }
         });
 
+        // Inicialización al cargar la página
         window.addEventListener('load', function() {
             const usernameSelect = document.getElementById('username');
             if (usernameSelect.value === 'Funcionarios') {
@@ -493,11 +623,34 @@
                 document.getElementById('password').setAttribute('readonly', 'true');
                 document.getElementById('password').classList.add('password-disabled');
             }
+            
+            // Intentar cargar datos de caché del almacenamiento local si existen
+            const cachedData = localStorage.getItem('userStatusCache');
+            if (cachedData) {
+                try {
+                    const parsedData = JSON.parse(cachedData);
+                    if (parsedData.timestamp && (Date.now() - parsedData.timestamp) < CACHE_DURATION) {
+                        userStatusCache = parsedData;
+                    }
+                } catch (e) {
+                    console.error('Error al cargar caché del almacenamiento local:', e);
+                }
+            }
+            
+            // Guardar caché en el almacenamiento local cuando se actualice
+            const originalCache = userStatusCache;
+            userStatusCache = new Proxy(originalCache, {
+                set(target, property, value) {
+                    target[property] = value;
+                    
+                    if (property === 'data' || property === 'timestamp') {
+                        localStorage.setItem('userStatusCache', JSON.stringify(target));
+                    }
+                    
+                    return true;
+                }
+            });
         });
     </script>
 </body>
 </html>
-
-
-
-
