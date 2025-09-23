@@ -95,6 +95,7 @@
         .form-group {
             margin-bottom: 20px;
             text-align: left;
+            position: relative;
         }
         label {
             display: block;
@@ -207,50 +208,27 @@
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(211, 47, 47, 0.3);
         }
-        .selected-user-status {
+        .user-option-container {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-top: 8px;
-            padding: 8px;
-            background-color: #f8f9fa;
-            border-radius: 6px;
-            font-size: 14px;
-            display: none;
+            justify-content: space-between;
+            margin-bottom: 15px;
         }
-        .user-status-indicator {
-            width: 12px;
-            height: 12px;
+        .user-option-container label {
+            margin-bottom: 0;
+        }
+        .user-status-btn {
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
-            border: 2px solid white;
-            box-shadow: 0 0 3px rgba(0,0,0,0.3);
-        }
-        .status-online {
-            background-color: var(--online-color);
-        }
-        .status-offline {
             background-color: var(--offline-color);
+            cursor: pointer;
+            transition: background-color 0.3s;
+            border: 2px solid white;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
         }
-        .status-checking {
-            background-color: var(--checking-color);
-            animation: pulse 1.5s infinite;
-        }
-        .status-text {
-            font-weight: 500;
-        }
-        .online-text {
-            color: var(--online-color);
-        }
-        .offline-text {
-            color: var(--offline-color);
-        }
-        .checking-text {
-            color: var(--checking-color);
-        }
-        .last-update {
-            font-size: 12px;
-            color: #666;
-            margin-top: 4px;
+        .user-status-btn.online {
+            background-color: var(--online-color);
         }
     </style>
 </head>
@@ -267,22 +245,17 @@
                 <label for="username">Usuario</label>
                 <select id="username" required>
                     <option value="">Seleccione usuario...</option>
-                    <option value="Funcionarios">Funcionarios</option>
                     <option value="Movil1">Móvil 1</option>
                     <option value="Movil2">Móvil 2</option>
                     <option value="Movil3">Móvil 3</option>
                     <option value="Movil4">Móvil 4</option>
+                    <option value="Funcionarios">Funcionarios</option>
                     <option value="Admin">Admin</option>
                 </select>
-                
-                <div class="selected-user-status" id="selectedUserStatus">
-                    <div class="user-status-indicator status-checking" id="userStatusIndicator"></div>
-                    <div>
-                        <span class="status-text checking-text" id="userStatusText">Verificando estado...</span>
-                        <div class="last-update" id="lastUpdateText"></div>
-                    </div>
-                </div>
             </div>
+            
+            <div class="form-group" id="mobileStatusContainer">
+                </div>
             
             <div class="form-group">
                 <label for="password">Contraseña</label>
@@ -334,97 +307,67 @@
             "Admin": "admin@acciona.com"
         };
 
-        function checkUserStatus(username) {
-            const statusContainer = document.getElementById('selectedUserStatus');
-            const statusIndicator = document.getElementById('userStatusIndicator');
-            const statusText = document.getElementById('userStatusText');
-            const lastUpdateText = document.getElementById('lastUpdateText');
-            
-            if (username.startsWith('Movil')) {
-                statusContainer.style.display = 'flex';
-                statusIndicator.className = 'user-status-indicator status-checking';
-                statusText.className = 'status-text checking-text';
-                statusText.textContent = 'Verificando estado...';
-                lastUpdateText.textContent = '';
-                
-                // Verificar en vehicles para ver si está activo
-                firebase.database().ref(`vehicles/${username}`).once('value')
-                    .then((snapshot) => {
-                        const vehicleData = snapshot.val();
-                        const now = Date.now();
-                        
-                        if (vehicleData && vehicleData.lastUpdate) {
-                            const lastUpdate = vehicleData.lastUpdate;
-                            const timeDiff = now - lastUpdate;
-                            const minutesDiff = Math.floor(timeDiff / (60 * 1000));
-                            const hoursDiff = Math.floor(timeDiff / (60 * 60 * 1000));
-                            
-                            // Considerar activo si se actualizó en los últimos 2 minutos
-                            const isActive = timeDiff < (2 * 60 * 1000);
-                            
-                            // Formatear la última actualización
-                            let timeAgo = '';
-                            if (minutesDiff < 1) {
-                                timeAgo = 'Hace unos segundos';
-                            } else if (minutesDiff < 60) {
-                                timeAgo = `Hace ${minutesDiff} minuto${minutesDiff > 1 ? 's' : ''}`;
-                            } else {
-                                timeAgo = `Hace ${hoursDiff} hora${hoursDiff > 1 ? 's' : ''}`;
-                            }
-                            
-                            if (isActive) {
-                                statusIndicator.className = 'user-status-indicator status-online';
-                                statusText.className = 'status-text online-text';
-                                statusText.textContent = '⚠️ Este usuario está EN USO actualmente';
-                                lastUpdateText.textContent = `Última actualización: ${timeAgo}`;
-                            } else {
-                                statusIndicator.className = 'user-status-indicator status-offline';
-                                statusText.className = 'status-text offline-text';
-                                statusText.textContent = '✅ Usuario disponible';
-                                lastUpdateText.textContent = `Última conexión: ${timeAgo}`;
-                            }
-                        } else {
-                            statusIndicator.className = 'user-status-indicator status-offline';
-                            statusText.className = 'status-text offline-text';
-                            statusText.textContent = '✅ Usuario disponible';
-                            lastUpdateText.textContent = 'Nunca se ha conectado';
-                        }
-                    })
-                    .catch((error) => {
-                        console.error('Error al verificar estado:', error);
-                        statusIndicator.className = 'user-status-indicator status-offline';
-                        statusText.className = 'status-text offline-text';
-                        statusText.textContent = '✅ Usuario disponible';
-                        lastUpdateText.textContent = 'Error al verificar';
-                    });
-            } else {
-                statusContainer.style.display = 'none';
+        const mobileUsers = ["Movil1", "Movil2", "Movil3", "Movil4"];
+
+        function createStatusButtons() {
+            const container = document.getElementById('mobileStatusContainer');
+            container.innerHTML = '';
+            mobileUsers.forEach(user => {
+                const div = document.createElement('div');
+                div.className = 'user-option-container';
+                div.innerHTML = `
+                    <label>${user}</label>
+                    <span id="${user}-status" class="user-status-btn"></span>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function updateStatusDisplay(mobileId, isActive) {
+            const statusBtn = document.getElementById(`${mobileId}-status`);
+            if (statusBtn) {
+                if (isActive) {
+                    statusBtn.classList.add('online');
+                } else {
+                    statusBtn.classList.remove('online');
+                }
             }
         }
 
-        document.getElementById('username').addEventListener('change', function() {
-            const username = this.value;
-            const autoLoginNotice = document.getElementById('autoLoginNotice');
+        document.addEventListener('DOMContentLoaded', function() {
+            createStatusButtons();
+
+            // Escuchar cambios en la base de datos de Firebase
+            firebase.database().ref('activeUsers').on('value', (snapshot) => {
+                const activeUsers = snapshot.val();
+                mobileUsers.forEach(user => {
+                    const isActive = activeUsers && activeUsers[user] && activeUsers[user].isActive;
+                    updateStatusDisplay(user, isActive);
+                });
+            });
+
+            const usernameSelect = document.getElementById('username');
             const passwordInput = document.getElementById('password');
-            
-            if (username === 'Funcionarios') {
-                autoLoginNotice.style.display = 'block';
-                passwordInput.value = FUNCIONARIOS_PASSWORD;
-                passwordInput.setAttribute('readonly', 'true');
-                passwordInput.classList.add('password-disabled');
-            } else {
-                autoLoginNotice.style.display = 'none';
-                passwordInput.value = '';
-                passwordInput.removeAttribute('readonly');
-                passwordInput.classList.remove('password-disabled');
-            }
-            
-            checkUserStatus(username);
+            const autoLoginNotice = document.getElementById('autoLoginNotice');
+
+            usernameSelect.addEventListener('change', function() {
+                const username = this.value;
+                if (username === 'Funcionarios' || username === 'Admin') {
+                    autoLoginNotice.style.display = 'block';
+                    passwordInput.setAttribute('readonly', 'true');
+                    passwordInput.classList.add('password-disabled');
+                    passwordInput.value = (username === 'Funcionarios' ? FUNCIONARIOS_PASSWORD : ADMIN_PASSWORD);
+                } else {
+                    autoLoginNotice.style.display = 'none';
+                    passwordInput.removeAttribute('readonly');
+                    passwordInput.classList.remove('password-disabled');
+                    passwordInput.value = '';
+                }
+            });
         });
 
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             const errorElement = document.getElementById('errorMessage');
@@ -478,22 +421,18 @@
                 uid: firebase.auth().currentUser.uid
             }));
             
-            window.location.href = 'index.html';
+            // Actualizar estado en Firebase al iniciar sesión
+            firebase.database().ref(`activeUsers/${currentUsername}`).set({
+                isActive: true,
+                loginTime: new Date().toISOString()
+            }).then(() => {
+                window.location.href = 'index.html';
+            });
         });
 
         document.getElementById('vehicleNumberInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 document.getElementById('vehicleNumberSubmit').click();
-            }
-        });
-
-        window.addEventListener('load', function() {
-            const usernameSelect = document.getElementById('username');
-            if (usernameSelect.value === 'Funcionarios') {
-                document.getElementById('autoLoginNotice').style.display = 'block';
-                document.getElementById('password').value = FUNCIONARIOS_PASSWORD;
-                document.getElementById('password').setAttribute('readonly', 'true');
-                document.getElementById('password').classList.add('password-disabled');
             }
         });
     </script>
