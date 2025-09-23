@@ -208,7 +208,7 @@
             box-shadow: 0 5px 15px rgba(211, 47, 47, 0.3);
         }
         .selected-user-status {
-            display: none;
+            display: flex;
             align-items: center;
             gap: 10px;
             margin-top: 8px;
@@ -216,6 +216,7 @@
             background-color: #f8f9fa;
             border-radius: 6px;
             font-size: 14px;
+            display: none;
         }
         .user-status-indicator {
             width: 12px;
@@ -273,6 +274,7 @@
                     <option value="Movil4">Móvil 4</option>
                     <option value="Admin">Admin</option>
                 </select>
+                
                 <div class="selected-user-status" id="selectedUserStatus">
                     <div class="user-status-indicator status-checking" id="userStatusIndicator"></div>
                     <div>
@@ -281,17 +283,21 @@
                     </div>
                 </div>
             </div>
+            
             <div class="form-group">
                 <label for="password">Contraseña</label>
                 <input type="password" id="password" required>
             </div>
+            
             <div class="auto-login-notice" id="autoLoginNotice">
                 Acceso automático para Funcionarios.
             </div>
+            
             <button type="submit">Ingresar al Sistema</button>
             <div class="error-message" id="errorMessage"></div>
         </form>
     </div>
+
     <div class="vehicle-number-modal" id="vehicleNumberModal">
         <div class="vehicle-number-form">
             <h2>Ingrese número de vehículo</h2>
@@ -299,9 +305,11 @@
             <button class="vehicle-number-submit" id="vehicleNumberSubmit">Continuar</button>
         </div>
     </div>
+
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyDT85qotm1EpAJzJzCFeoNwGyo-VKhM6dk",
@@ -315,10 +323,11 @@
         firebase.initializeApp(firebaseConfig);
 
         const FUNCIONARIOS_PASSWORD = "123456";
+        const ADMIN_PASSWORD = "Admin234452";
         let currentUsername = "";
         const userEmails = {
             "Movil1": "movil1@gpsacciona.com",
-            "Movil2": "movil2@gpsacciona.com",
+            "Movil2": "movil2@gpsacciona.com", 
             "Movil3": "movil3@gpsacciona.com",
             "Movil4": "movil4@gpsacciona.com",
             "Funcionarios": "funcionarios@gpsacciona.com",
@@ -339,68 +348,65 @@
             const statusIndicator = document.getElementById('userStatusIndicator');
             const statusText = document.getElementById('userStatusText');
             const lastUpdateText = document.getElementById('lastUpdateText');
-
+            
             if (username.startsWith('Movil')) {
                 statusContainer.style.display = 'flex';
                 statusIndicator.className = 'user-status-indicator status-checking';
                 statusText.className = 'status-text checking-text';
                 statusText.textContent = 'Verificando estado...';
                 lastUpdateText.textContent = '';
-
-                firebase.auth().signInWithEmailAndPassword(userEmails["Funcionarios"], FUNCIONARIOS_PASSWORD)
-                    .then(() => {
-                        firebase.database().ref(`vehicles/${username}`).once('value')
-                            .then((snapshot) => {
-                                const vehicleData = snapshot.val();
-                                const now = Date.now();
-
-                                if (vehicleData) {
-                                    const isOnline = isVehicleOnline(vehicleData);
-                                    const lastUpdate = vehicleData.lastUpdate || now;
-                                    const timeDiff = now - lastUpdate;
-                                    const minutesDiff = Math.floor(timeDiff / (60 * 1000));
-                                    const hoursDiff = Math.floor(timeDiff / (60 * 60 * 1000));
-
-                                    let timeAgo = '';
-                                    if (minutesDiff < 1) {
-                                        timeAgo = 'Hace unos segundos';
-                                    } else if (minutesDiff < 60) {
-                                        timeAgo = `Hace ${minutesDiff} minuto${minutesDiff > 1 ? 's' : ''}`;
-                                    } else {
-                                        timeAgo = `Hace ${hoursDiff} hora${hoursDiff > 1 ? 's' : ''}`;
-                                    }
-
-                                    if (isOnline) {
-                                        statusIndicator.className = 'user-status-indicator status-online';
-                                        statusText.className = 'status-text offline-text';
-                                        statusText.style.color = 'red'; // 🔴 Rojo para "en uso"
-                                        statusText.textContent = '⚠️ Este usuario está en uso.';
-                                        lastUpdateText.textContent = `Conectado: ${timeAgo}`;
-                                    } else {
-                                        statusIndicator.className = 'user-status-indicator status-offline';
-                                        statusText.className = 'status-text online-text';
-                                        statusText.style.color = 'green'; // 🟢 Verde para "disponible"
-                                        statusText.textContent = '✅ Usuario Disponible.';
-                                        lastUpdateText.textContent = `Desconectado: ${timeAgo}`;
-                                    }
-                                } else {
-                                    statusIndicator.className = 'user-status-indicator status-offline';
-                                    statusText.className = 'status-text offline-text';
-                                    statusText.textContent = '✅ Usuario Disponible.';
-                                    lastUpdateText.textContent = 'Nunca se ha conectado';
-                                }
-
-                                firebase.auth().signOut();
-                            });
+                
+                firebase.database().ref(`vehicles/${username}`).once('value')
+                    .then((snapshot) => {
+                        const vehicleData = snapshot.val();
+                        const now = Date.now();
+                        
+                        if (vehicleData) {
+                            const isOnline = isVehicleOnline(vehicleData);
+                            const lastUpdate = vehicleData.lastUpdate || now;
+                            const timeDiff = now - lastUpdate;
+                            const minutesDiff = Math.floor(timeDiff / (60 * 1000));
+                            const hoursDiff = Math.floor(timeDiff / (60 * 60 * 1000));
+                            
+                            let timeAgo = '';
+                            if (minutesDiff < 1) {
+                                timeAgo = 'Hace unos segundos';
+                            } else if (minutesDiff < 60) {
+                                timeAgo = `Hace ${minutesDiff} minuto${minutesDiff > 1 ? 's' : ''}`;
+                            } else {
+                                timeAgo = `Hace ${hoursDiff} hora${hoursDiff > 1 ? 's' : ''}`;
+                            }
+                            
+                            if (isOnline) {
+                                statusIndicator.className = 'user-status-indicator status-online';
+                                statusText.className = 'status-text online-text';
+                                statusText.textContent = '⚠️ Este usuario está EN RUTA actualmente';
+                                lastUpdateText.textContent = `Conectado: ${timeAgo}`;
+                            } else {
+                                statusIndicator.className = 'user-status-indicator status-offline';
+                                statusText.className = 'status-text offline-text';
+                                statusText.textContent = '✅ Usuario DISPONIBLE';
+                                lastUpdateText.textContent = `Desconectado: ${timeAgo}`;
+                            }
+                        } else {
+                            statusIndicator.className = 'user-status-indicator status-offline';
+                            statusText.className = 'status-text offline-text';
+                            statusText.textContent = '✅ Usuario DISPONIBLE';
+                            lastUpdateText.textContent = 'Nunca se ha conectado';
+                        }
                     })
                     .catch((error) => {
-                        statusContainer.style.display = 'none';
+                        console.error('Error al verificar estado:', error);
+                        statusIndicator.className = 'user-status-indicator status-offline';
+                        statusText.className = 'status-text offline-text';
+                        statusText.textContent = '✅ Usuario DISPONIBLE';
+                        lastUpdateText.textContent = 'Estado no disponible';
                     });
             } else {
                 statusContainer.style.display = 'none';
             }
         }
-
+        
         document.getElementById('username').addEventListener('change', function() {
             const username = this.value;
             const autoLoginNotice = document.getElementById('autoLoginNotice');
@@ -412,19 +418,37 @@
                 passwordInput.value = FUNCIONARIOS_PASSWORD;
                 passwordInput.setAttribute('readonly', 'true');
                 passwordInput.classList.add('password-disabled');
+
+                // Autenticación fantasma para Funcionarios
+                firebase.auth().signInWithEmailAndPassword(userEmails[username], FUNCIONARIOS_PASSWORD)
+                    .then(() => {
+                        checkUserStatus('Movil1'); // Puedes verificar el estado de cualquier móvil
+                    })
+                    .catch((error) => {
+                        console.error('Error de autenticación fantasma:', error);
+                        // Mostrar mensaje de error si la autenticación fantasma falla
+                        errorMessage.textContent = 'No se pudo verificar el estado de los vehículos. Intente nuevamente más tarde.';
+                        errorMessage.style.display = 'block';
+                    });
             } else {
                 autoLoginNotice.style.display = 'none';
                 passwordInput.value = '';
                 passwordInput.removeAttribute('readonly');
                 passwordInput.classList.remove('password-disabled');
+                
+                // Si el usuario cambia, es importante desloguear al usuario fantasma
+                firebase.auth().signOut().then(() => {
+                    checkUserStatus(username);
+                }).catch((error) => {
+                    console.error('Error al desloguear usuario fantasma:', error);
+                    checkUserStatus(username);
+                });
             }
-
-            checkUserStatus(username);
         });
 
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
-
+            
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             const errorElement = document.getElementById('errorMessage');
@@ -440,7 +464,7 @@
             firebase.auth().signInWithEmailAndPassword(email, password)
                 .then((userCredential) => {
                     currentUsername = username;
-
+                    
                     if (username === 'Funcionarios' || username === 'Admin') {
                         localStorage.setItem('gpsAuth', JSON.stringify({
                             username,
@@ -453,8 +477,10 @@
                     }
                 })
                 .catch((error) => {
+                    console.error("Error de autenticación:", error);
                     errorElement.textContent = 'Usuario o contraseña incorrectos';
                     errorElement.style.display = 'block';
+                    
                     setTimeout(() => {
                         errorElement.style.display = 'none';
                     }, 3000);
@@ -463,19 +489,19 @@
 
         document.getElementById('vehicleNumberSubmit').addEventListener('click', function() {
             const vehicleNumber = document.getElementById('vehicleNumberInput').value.trim();
-
+            
             if (!vehicleNumber) {
                 alert('Por favor ingrese un número de vehículo');
                 return;
             }
-
+            
             localStorage.setItem('gpsAuth', JSON.stringify({
                 username: currentUsername,
                 vehicleNumber: vehicleNumber,
                 isViewer: false,
                 uid: firebase.auth().currentUser.uid
             }));
-
+            
             window.location.href = 'index.html';
         });
 
@@ -497,7 +523,3 @@
     </script>
 </body>
 </html>
-
-
-
-
