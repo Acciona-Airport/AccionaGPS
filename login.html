@@ -14,8 +14,6 @@
             --online-color: #27ae60;
             --offline-color: #95a5a6;
             --checking-color: #f39c12;
-            --warning-color: #e74c3c;
-            --info-color: #3498db;
         }
         * {
             box-sizing: border-box;
@@ -34,7 +32,7 @@
         .login-container {
             background: var(--white);
             width: 100%;
-            max-width: 450px;
+            max-width: 400px;
             padding: 40px 30px;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(244, 67, 54, 0.1);
@@ -140,9 +138,6 @@
             margin-top: 15px;
             font-size: 14px;
             display: none;
-            padding: 10px;
-            background-color: #ffebee;
-            border-radius: 6px;
         }
         .auto-login-notice {
             background-color: var(--red-light);
@@ -256,91 +251,6 @@
             color: #666;
             margin-top: 4px;
         }
-        .fleet-status-container {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            display: none;
-        }
-        .fleet-status-title {
-            font-weight: 600;
-            color: var(--red-dark);
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .fleet-status-list {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-        .vehicle-status-item {
-            display: flex;
-            flex-direction: column;
-            padding: 8px;
-            background-color: white;
-            border-radius: 6px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        .vehicle-name {
-            font-weight: 500;
-            font-size: 14px;
-        }
-        .vehicle-status {
-            font-size: 12px;
-            padding: 3px 6px;
-            border-radius: 4px;
-            font-weight: 600;
-            margin-top: 4px;
-            text-align: center;
-        }
-        .status-en-ruta {
-            background-color: #e8f5e9;
-            color: var(--online-color);
-        }
-        .status-desconectado {
-            background-color: #f5f5f5;
-            color: var(--offline-color);
-        }
-        .status-checking-vehicle {
-            background-color: #fff3e0;
-            color: var(--checking-color);
-        }
-        .cache-info {
-            font-size: 11px;
-            color: #666;
-            margin-top: 10px;
-            text-align: center;
-            font-style: italic;
-        }
-        .refresh-button {
-            background-color: var(--info-color);
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            font-size: 12px;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: all 0.3s;
-        }
-        .refresh-button:hover {
-            background-color: #2980b9;
-        }
-        .loading-spinner {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
     </style>
 </head>
 <body>
@@ -371,40 +281,17 @@
                     </div>
                 </div>
             </div>
-            
-            <div class="fleet-status-container" id="fleetStatusContainer">
-                <div class="fleet-status-title">
-                    <span>🚐 Estado de la Flota</span>
-                </div>
-                <div class="fleet-status-list" id="fleetStatusList">
-                    <!-- Los estados de los vehículos se cargarán aquí -->
-                </div>
-                <div class="cache-info" id="cacheInfo">
-                    Información actualizada hace unos segundos
-                </div>
-                <button type="button" class="refresh-button" id="refreshFleetStatus">
-                    <span class="loading-spinner" id="refreshSpinner" style="display: none;"></span>
-                    Actualizar Estado
-                </button>
-            </div>
-            
             <div class="form-group">
                 <label for="password">Contraseña</label>
                 <input type="password" id="password" required>
             </div>
-            
             <div class="auto-login-notice" id="autoLoginNotice">
                 Acceso automático para Funcionarios.
             </div>
-            
-            <button type="submit" id="loginButton">
-                <span class="loading-spinner" id="loginSpinner" style="display: none;"></span>
-                Ingresar al Sistema
-            </button>
+            <button type="submit">Ingresar al Sistema</button>
             <div class="error-message" id="errorMessage"></div>
         </form>
     </div>
-
     <div class="vehicle-number-modal" id="vehicleNumberModal">
         <div class="vehicle-number-form">
             <h2>Ingrese número de vehículo</h2>
@@ -412,13 +299,10 @@
             <button class="vehicle-number-submit" id="vehicleNumberSubmit">Continuar</button>
         </div>
     </div>
-
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
-    
     <script>
-        // Configuración de Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyDT85qotm1EpAJzJzCFeoNwGyo-VKhM6dk",
             authDomain: "gpsaccionascl2025.firebaseapp.com",
@@ -428,41 +312,21 @@
             messagingSenderId: "742246618721",
             appId: "1:742246618721:web:72d0046987416800f07c20"
         };
-        
-        // Inicializar Firebase
         firebase.initializeApp(firebaseConfig);
-        
-        // Constantes y variables globales
+
         const FUNCIONARIOS_PASSWORD = "123456";
-        const ADMIN_PASSWORD = "Admin234452";
-        const TEN_MINUTES = 10 * 60 * 1000;
-        const CACHE_DURATION = 2 * 60 * 1000; // 2 minutos de caché
-        
         let currentUsername = "";
-        let ghostAuthUser = null;
-        let fleetStatusCache = {
-            data: null,
-            timestamp: 0
-        };
-        
         const userEmails = {
             "Movil1": "movil1@gpsacciona.com",
-            "Movil2": "movil2@gpsacciona.com", 
+            "Movil2": "movil2@gpsacciona.com",
             "Movil3": "movil3@gpsacciona.com",
             "Movil4": "movil4@gpsacciona.com",
             "Funcionarios": "funcionarios@gpsacciona.com",
             "Admin": "admin@acciona.com"
         };
-        
-        // Lista de vehículos a monitorear
-        const vehiclesToMonitor = [
-            { name: "6143", key: "6143" },
-            { name: "6142", key: "6142" },
-            { name: "ENTRANSITO", key: "ENTRANSITO" },
-            { name: "Redvan", key: "Redvan" }
-        ];
 
-        // Función para verificar si un vehículo está en línea
+        const TEN_MINUTES = 10 * 60 * 1000;
+
         function isVehicleOnline(vehicleData) {
             if (!vehicleData || !vehicleData.lastUpdate) return false;
             const now = Date.now();
@@ -470,281 +334,100 @@
             return timeDiff < TEN_MINUTES;
         }
 
-        // Función para formatear el tiempo transcurrido
-        function formatTimeAgo(timestamp) {
-            if (!timestamp) return 'Nunca';
-            
-            const now = Date.now();
-            const timeDiff = now - timestamp;
-            const minutesDiff = Math.floor(timeDiff / (60 * 1000));
-            const hoursDiff = Math.floor(timeDiff / (60 * 60 * 1000));
-            
-            if (minutesDiff < 1) {
-                return 'Hace unos segundos';
-            } else if (minutesDiff < 60) {
-                return `Hace ${minutesDiff} minuto${minutesDiff > 1 ? 's' : ''}`;
-            } else {
-                return `Hace ${hoursDiff} hora${hoursDiff > 1 ? 's' : ''}`;
-            }
-        }
-
-        // Función para realizar autenticación fantasma
-        function performGhostAuthentication() {
-            return new Promise((resolve, reject) => {
-                // Si ya hay una autenticación fantasma activa, la reutilizamos
-                if (ghostAuthUser) {
-                    resolve(ghostAuthUser);
-                    return;
-                }
-                
-                // Realizar autenticación fantasma
-                firebase.auth().signInWithEmailAndPassword(
-                    userEmails["Funcionarios"], 
-                    FUNCIONARIOS_PASSWORD
-                ).then((userCredential) => {
-                    ghostAuthUser = userCredential.user;
-                    resolve(ghostAuthUser);
-                }).catch((error) => {
-                    console.error('Error en autenticación fantasma:', error);
-                    reject(error);
-                });
-            });
-        }
-
-        // Función para verificar el estado de un usuario móvil específico
         function checkUserStatus(username) {
             const statusContainer = document.getElementById('selectedUserStatus');
             const statusIndicator = document.getElementById('userStatusIndicator');
             const statusText = document.getElementById('userStatusText');
             const lastUpdateText = document.getElementById('lastUpdateText');
-            
+
             if (username.startsWith('Movil')) {
                 statusContainer.style.display = 'flex';
                 statusIndicator.className = 'user-status-indicator status-checking';
                 statusText.className = 'status-text checking-text';
                 statusText.textContent = 'Verificando estado...';
                 lastUpdateText.textContent = '';
-                
-                // Usar datos en caché si están disponibles y son recientes
-                if (fleetStatusCache.data && 
-                    (Date.now() - fleetStatusCache.timestamp) < CACHE_DURATION) {
-                    updateUserStatusFromCache(username, statusIndicator, statusText, lastUpdateText);
-                    return;
-                }
-                
-                // Si no hay caché válido, obtener datos nuevos
-                performGhostAuthentication().then(() => {
-                    return firebase.database().ref(`vehicles/${username}`).once('value');
-                }).then((snapshot) => {
-                    const vehicleData = snapshot.val();
-                    updateUserStatusDisplay(username, vehicleData, statusIndicator, statusText, lastUpdateText);
-                }).catch((error) => {
-                    console.error('Error al verificar estado:', error);
-                    statusIndicator.className = 'user-status-indicator status-offline';
-                    statusText.className = 'status-text offline-text';
-                    statusText.textContent = '✅ Usuario Disponible.';
-                    lastUpdateText.textContent = 'Estado no disponible';
-                });
+
+                firebase.auth().signInWithEmailAndPassword(userEmails["Funcionarios"], FUNCIONARIOS_PASSWORD)
+                    .then(() => {
+                        firebase.database().ref(`vehicles/${username}`).once('value')
+                            .then((snapshot) => {
+                                const vehicleData = snapshot.val();
+                                const now = Date.now();
+
+                                if (vehicleData) {
+                                    const isOnline = isVehicleOnline(vehicleData);
+                                    const lastUpdate = vehicleData.lastUpdate || now;
+                                    const timeDiff = now - lastUpdate;
+                                    const minutesDiff = Math.floor(timeDiff / (60 * 1000));
+                                    const hoursDiff = Math.floor(timeDiff / (60 * 60 * 1000));
+
+                                    let timeAgo = '';
+                                    if (minutesDiff < 1) {
+                                        timeAgo = 'Hace unos segundos';
+                                    } else if (minutesDiff < 60) {
+                                        timeAgo = `Hace ${minutesDiff} minuto${minutesDiff > 1 ? 's' : ''}`;
+                                    } else {
+                                        timeAgo = `Hace ${hoursDiff} hora${hoursDiff > 1 ? 's' : ''}`;
+                                    }
+
+                                    if (isOnline) {
+                                        statusIndicator.className = 'user-status-indicator status-online';
+                                        statusText.className = 'status-text offline-text';
+                                        statusText.style.color = 'red'; // 🔴 Rojo para "en uso"
+                                        statusText.textContent = '⚠️ Este usuario está en uso.';
+                                        lastUpdateText.textContent = `Conectado: ${timeAgo}`;
+                                    } else {
+                                        statusIndicator.className = 'user-status-indicator status-offline';
+                                        statusText.className = 'status-text online-text';
+                                        statusText.style.color = 'green'; // 🟢 Verde para "disponible"
+                                        statusText.textContent = '✅ Usuario Disponible.';
+                                        lastUpdateText.textContent = `Desconectado: ${timeAgo}`;
+                                    }
+                                } else {
+                                    statusIndicator.className = 'user-status-indicator status-offline';
+                                    statusText.className = 'status-text offline-text';
+                                    statusText.textContent = '✅ Usuario Disponible.';
+                                    lastUpdateText.textContent = 'Nunca se ha conectado';
+                                }
+
+                                firebase.auth().signOut();
+                            });
+                    })
+                    .catch((error) => {
+                        statusContainer.style.display = 'none';
+                    });
             } else {
                 statusContainer.style.display = 'none';
             }
         }
 
-        // Función para actualizar el estado del usuario desde la caché
-        function updateUserStatusFromCache(username, statusIndicator, statusText, lastUpdateText) {
-            const vehicleData = fleetStatusCache.data[username];
-            updateUserStatusDisplay(username, vehicleData, statusIndicator, statusText, lastUpdateText);
-            
-            // Actualizar información de caché
-            const cacheInfo = document.getElementById('cacheInfo');
-            if (cacheInfo) {
-                cacheInfo.textContent = `Información actualizada ${formatTimeAgo(fleetStatusCache.timestamp)}`;
-            }
-        }
-
-        // Función para actualizar la visualización del estado del usuario
-        function updateUserStatusDisplay(username, vehicleData, statusIndicator, statusText, lastUpdateText) {
-            const now = Date.now();
-            
-            if (vehicleData) {
-                const isOnline = isVehicleOnline(vehicleData);
-                const lastUpdate = vehicleData.lastUpdate || now;
-                
-                if (isOnline) {
-                    statusIndicator.className = 'user-status-indicator status-online';
-                    statusText.className = 'status-text';
-                    statusText.style.color = 'red';
-                    statusText.textContent = '⚠️ Este usuario está en uso.';
-                    lastUpdateText.textContent = `Conectado: ${formatTimeAgo(lastUpdate)}`;
-                } else {
-                    statusIndicator.className = 'user-status-indicator status-offline';
-                    statusText.className = 'status-text';
-                    statusText.style.color = 'green';
-                    statusText.textContent = '✅ Usuario Disponible.';
-                    lastUpdateText.textContent = `Desconectado: ${formatTimeAgo(lastUpdate)}`;
-                }
-            } else {
-                statusIndicator.className = 'user-status-indicator status-offline';
-                statusText.className = 'status-text';
-                statusText.style.color = 'green';
-                statusText.textContent = '✅ Usuario Disponible.';
-                lastUpdateText.textContent = 'Nunca se ha conectado';
-            }
-        }
-
-        // Función para verificar el estado de toda la flota
-        function checkFleetStatus(forceRefresh = false) {
-            const fleetStatusContainer = document.getElementById('fleetStatusContainer');
-            const fleetStatusList = document.getElementById('fleetStatusList');
-            const refreshButton = document.getElementById('refreshFleetStatus');
-            const refreshSpinner = document.getElementById('refreshSpinner');
-            
-            // Mostrar contenedor de estado de flota
-            fleetStatusContainer.style.display = 'block';
-            
-            // Verificar si podemos usar la caché
-            const canUseCache = fleetStatusCache.data && 
-                               (Date.now() - fleetStatusCache.timestamp) < CACHE_DURATION &&
-                               !forceRefresh;
-            
-            if (canUseCache) {
-                updateFleetStatusFromCache();
-                return;
-            }
-            
-            // Mostrar indicador de carga
-            fleetStatusList.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 20px;">Cargando estado de la flota...</div>';
-            refreshSpinner.style.display = 'inline-block';
-            refreshButton.disabled = true;
-            
-            // Obtener datos nuevos
-            performGhostAuthentication().then(() => {
-                const promises = vehiclesToMonitor.map(vehicle => {
-                    return firebase.database().ref(`vehicles/${vehicle.key}`).once('value')
-                        .then(snapshot => ({
-                            key: vehicle.key,
-                            name: vehicle.name,
-                            data: snapshot.val()
-                        }));
-                });
-                
-                return Promise.all(promises);
-            }).then(vehicleData => {
-                // Actualizar caché
-                const cacheData = {};
-                vehicleData.forEach(item => {
-                    cacheData[item.key] = item.data;
-                });
-                
-                fleetStatusCache = {
-                    data: cacheData,
-                    timestamp: Date.now()
-                };
-                
-                // Actualizar visualización
-                updateFleetStatusDisplay(vehicleData);
-                
-                // Ocultar indicador de carga
-                refreshSpinner.style.display = 'none';
-                refreshButton.disabled = false;
-            }).catch(error => {
-                console.error('Error al verificar estado de la flota:', error);
-                fleetStatusList.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 20px; color: #e74c3c;">Error al cargar el estado de la flota</div>';
-                refreshSpinner.style.display = 'none';
-                refreshButton.disabled = false;
-            });
-        }
-
-        // Función para actualizar la visualización del estado de la flota desde la caché
-        function updateFleetStatusFromCache() {
-            const vehicleData = vehiclesToMonitor.map(vehicle => ({
-                key: vehicle.key,
-                name: vehicle.name,
-                data: fleetStatusCache.data[vehicle.key] || null
-            }));
-            
-            updateFleetStatusDisplay(vehicleData);
-            
-            // Actualizar información de caché
-            const cacheInfo = document.getElementById('cacheInfo');
-            if (cacheInfo) {
-                cacheInfo.textContent = `Información actualizada ${formatTimeAgo(fleetStatusCache.timestamp)}`;
-            }
-        }
-
-        // Función para actualizar la visualización del estado de la flota
-        function updateFleetStatusDisplay(vehicleData) {
-            const fleetStatusList = document.getElementById('fleetStatusList');
-            const cacheInfo = document.getElementById('cacheInfo');
-            
-            fleetStatusList.innerHTML = '';
-            
-            vehicleData.forEach(vehicle => {
-                const vehicleItem = document.createElement('div');
-                vehicleItem.className = 'vehicle-status-item';
-                
-                const isOnline = isVehicleOnline(vehicle.data);
-                const statusClass = isOnline ? 'status-en-ruta' : 'status-desconectado';
-                const statusText = isOnline ? 'En ruta' : 'Desconectado';
-                
-                vehicleItem.innerHTML = `
-                    <div class="vehicle-name">${vehicle.name}</div>
-                    <div class="vehicle-status ${statusClass}">${statusText}</div>
-                `;
-                
-                fleetStatusList.appendChild(vehicleItem);
-            });
-            
-            // Actualizar información de caché
-            if (cacheInfo) {
-                cacheInfo.textContent = `Información actualizada ${formatTimeAgo(fleetStatusCache.timestamp)}`;
-            }
-        }
-
-        // Event Listeners
         document.getElementById('username').addEventListener('change', function() {
             const username = this.value;
             const autoLoginNotice = document.getElementById('autoLoginNotice');
             const passwordInput = document.getElementById('password');
             const errorMessage = document.getElementById('errorMessage');
-            const fleetStatusContainer = document.getElementById('fleetStatusContainer');
 
             if (username === 'Funcionarios') {
                 autoLoginNotice.style.display = 'block';
                 passwordInput.value = FUNCIONARIOS_PASSWORD;
                 passwordInput.setAttribute('readonly', 'true');
                 passwordInput.classList.add('password-disabled');
-                fleetStatusContainer.style.display = 'block';
-                
-                // Verificar estado de la flota
-                checkFleetStatus();
-            } else if (username.startsWith('Movil')) {
-                autoLoginNotice.style.display = 'none';
-                passwordInput.value = '';
-                passwordInput.removeAttribute('readonly');
-                passwordInput.classList.remove('password-disabled');
-                fleetStatusContainer.style.display = 'block';
-                
-                // Verificar estado del usuario y de la flota
-                checkUserStatus(username);
-                checkFleetStatus();
             } else {
                 autoLoginNotice.style.display = 'none';
                 passwordInput.value = '';
                 passwordInput.removeAttribute('readonly');
                 passwordInput.classList.remove('password-disabled');
-                fleetStatusContainer.style.display = 'none';
             }
+
+            checkUserStatus(username);
         });
 
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            
+
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             const errorElement = document.getElementById('errorMessage');
-            const loginButton = document.getElementById('loginButton');
-            const loginSpinner = document.getElementById('loginSpinner');
 
             if (!username) {
                 errorElement.textContent = 'Seleccione un usuario válido';
@@ -752,32 +435,12 @@
                 return;
             }
 
-            // Mostrar indicador de carga
-            loginButton.disabled = true;
-            loginSpinner.style.display = 'inline-block';
-            
             const email = userEmails[username];
-            
-            // Para Funcionarios, intentar reutilizar la autenticación fantasma si existe
-            if (username === 'Funcionarios' && ghostAuthUser) {
-                // Usar la autenticación fantasma existente
-                currentUsername = username;
-                
-                localStorage.setItem('gpsAuth', JSON.stringify({
-                    username,
-                    isViewer: true,
-                    uid: ghostAuthUser.uid
-                }));
-                
-                window.location.href = 'index.html';
-                return;
-            }
-            
-            // Para otros usuarios, realizar autenticación normal
+
             firebase.auth().signInWithEmailAndPassword(email, password)
                 .then((userCredential) => {
                     currentUsername = username;
-                    
+
                     if (username === 'Funcionarios' || username === 'Admin') {
                         localStorage.setItem('gpsAuth', JSON.stringify({
                             username,
@@ -790,14 +453,8 @@
                     }
                 })
                 .catch((error) => {
-                    console.error("Error de autenticación:", error);
                     errorElement.textContent = 'Usuario o contraseña incorrectos';
                     errorElement.style.display = 'block';
-                    
-                    // Ocultar indicador de carga
-                    loginButton.disabled = false;
-                    loginSpinner.style.display = 'none';
-                    
                     setTimeout(() => {
                         errorElement.style.display = 'none';
                     }, 3000);
@@ -806,19 +463,19 @@
 
         document.getElementById('vehicleNumberSubmit').addEventListener('click', function() {
             const vehicleNumber = document.getElementById('vehicleNumberInput').value.trim();
-            
+
             if (!vehicleNumber) {
                 alert('Por favor ingrese un número de vehículo');
                 return;
             }
-            
+
             localStorage.setItem('gpsAuth', JSON.stringify({
                 username: currentUsername,
                 vehicleNumber: vehicleNumber,
                 isViewer: false,
                 uid: firebase.auth().currentUser.uid
             }));
-            
+
             window.location.href = 'index.html';
         });
 
@@ -828,11 +485,6 @@
             }
         });
 
-        document.getElementById('refreshFleetStatus').addEventListener('click', function() {
-            checkFleetStatus(true); // Forzar actualización
-        });
-
-        // Inicialización al cargar la página
         window.addEventListener('load', function() {
             const usernameSelect = document.getElementById('username');
             if (usernameSelect.value === 'Funcionarios') {
@@ -841,34 +493,11 @@
                 document.getElementById('password').setAttribute('readonly', 'true');
                 document.getElementById('password').classList.add('password-disabled');
             }
-            
-            // Intentar cargar datos de caché del almacenamiento local si existen
-            const cachedData = localStorage.getItem('fleetStatusCache');
-            if (cachedData) {
-                try {
-                    const parsedData = JSON.parse(cachedData);
-                    if (parsedData.timestamp && (Date.now() - parsedData.timestamp) < CACHE_DURATION) {
-                        fleetStatusCache = parsedData;
-                    }
-                } catch (e) {
-                    console.error('Error al cargar caché del almacenamiento local:', e);
-                }
-            }
-            
-            // Guardar caché en el almacenamiento local cuando se actualice
-            const originalCache = fleetStatusCache;
-            fleetStatusCache = new Proxy(originalCache, {
-                set(target, property, value) {
-                    target[property] = value;
-                    
-                    if (property === 'data' || property === 'timestamp') {
-                        localStorage.setItem('fleetStatusCache', JSON.stringify(target));
-                    }
-                    
-                    return true;
-                }
-            });
         });
     </script>
 </body>
 </html>
+
+
+
+
