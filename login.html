@@ -372,12 +372,14 @@
 
                                     if (isOnline) {
                                         statusIndicator.className = 'user-status-indicator status-online';
-                                        statusText.className = 'status-text online-text';
+                                        statusText.className = 'status-text offline-text';
+                                        statusText.style.color = 'red'; // 🔴 Rojo para "en uso"
                                         statusText.textContent = '⚠️ Este usuario está en uso.';
                                         lastUpdateText.textContent = `Conectado: ${timeAgo}`;
                                     } else {
                                         statusIndicator.className = 'user-status-indicator status-offline';
-                                        statusText.className = 'status-text offline-text';
+                                        statusText.className = 'status-text online-text';
+                                        statusText.style.color = 'green'; // 🟢 Verde para "disponible"
                                         statusText.textContent = '✅ Usuario Disponible.';
                                         lastUpdateText.textContent = `Desconectado: ${timeAgo}`;
                                     }
@@ -495,6 +497,7 @@
     </script>
 </body>
 </html>
+
 
 
 
