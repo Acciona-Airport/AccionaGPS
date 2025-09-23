@@ -247,6 +247,11 @@
         .checking-text {
             color: var(--checking-color);
         }
+        .last-update {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
     </style>
 </head>
 <body>
@@ -272,7 +277,10 @@
                 
                 <div class="selected-user-status" id="selectedUserStatus">
                     <div class="user-status-indicator status-checking" id="userStatusIndicator"></div>
-                    <span class="status-text checking-text" id="userStatusText">Verificando estado...</span>
+                    <div>
+                        <span class="status-text checking-text" id="userStatusText">Verificando estado...</span>
+                        <div class="last-update" id="lastUpdateText"></div>
+                    </div>
                 </div>
             </div>
             
@@ -330,12 +338,14 @@
             const statusContainer = document.getElementById('selectedUserStatus');
             const statusIndicator = document.getElementById('userStatusIndicator');
             const statusText = document.getElementById('userStatusText');
+            const lastUpdateText = document.getElementById('lastUpdateText');
             
             if (username.startsWith('Movil')) {
                 statusContainer.style.display = 'flex';
                 statusIndicator.className = 'user-status-indicator status-checking';
                 statusText.className = 'status-text checking-text';
                 statusText.textContent = 'Verificando estado...';
+                lastUpdateText.textContent = '';
                 
                 // Verificar en vehicles para ver si está activo
                 firebase.database().ref(`vehicles/${username}`).once('value')
@@ -344,22 +354,40 @@
                         const now = Date.now();
                         
                         if (vehicleData && vehicleData.lastUpdate) {
-                            // Considerar activo si se actualizó en los últimos 10 minutos
-                            const isActive = (now - vehicleData.lastUpdate) < (10 * 60 * 1000);
+                            const lastUpdate = vehicleData.lastUpdate;
+                            const timeDiff = now - lastUpdate;
+                            const minutesDiff = Math.floor(timeDiff / (60 * 1000));
+                            const hoursDiff = Math.floor(timeDiff / (60 * 60 * 1000));
+                            
+                            // Considerar activo si se actualizó en los últimos 2 minutos
+                            const isActive = timeDiff < (2 * 60 * 1000);
+                            
+                            // Formatear la última actualización
+                            let timeAgo = '';
+                            if (minutesDiff < 1) {
+                                timeAgo = 'Hace unos segundos';
+                            } else if (minutesDiff < 60) {
+                                timeAgo = `Hace ${minutesDiff} minuto${minutesDiff > 1 ? 's' : ''}`;
+                            } else {
+                                timeAgo = `Hace ${hoursDiff} hora${hoursDiff > 1 ? 's' : ''}`;
+                            }
                             
                             if (isActive) {
                                 statusIndicator.className = 'user-status-indicator status-online';
                                 statusText.className = 'status-text online-text';
                                 statusText.textContent = '⚠️ Este usuario está EN USO actualmente';
+                                lastUpdateText.textContent = `Última actualización: ${timeAgo}`;
                             } else {
                                 statusIndicator.className = 'user-status-indicator status-offline';
                                 statusText.className = 'status-text offline-text';
                                 statusText.textContent = '✅ Usuario disponible';
+                                lastUpdateText.textContent = `Última conexión: ${timeAgo}`;
                             }
                         } else {
                             statusIndicator.className = 'user-status-indicator status-offline';
                             statusText.className = 'status-text offline-text';
                             statusText.textContent = '✅ Usuario disponible';
+                            lastUpdateText.textContent = 'Nunca se ha conectado';
                         }
                     })
                     .catch((error) => {
@@ -367,6 +395,7 @@
                         statusIndicator.className = 'user-status-indicator status-offline';
                         statusText.className = 'status-text offline-text';
                         statusText.textContent = '✅ Usuario disponible';
+                        lastUpdateText.textContent = 'Error al verificar';
                     });
             } else {
                 statusContainer.style.display = 'none';
