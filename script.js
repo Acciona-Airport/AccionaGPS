@@ -25,6 +25,7 @@ function setupLogin() {
 
         if (await authenticate(username, password)) {
             localStorage.setItem('currentUser', username);
+            mobileData[username].status = 'online';
             window.location.href = 'index.html';
         } else {
             alert('Credenciales incorrectas');
@@ -127,3 +128,4 @@ function startTracking(mobile) {
 function isLoginPage() {
     return window.location.pathname.includes('login.html');
 }
+
