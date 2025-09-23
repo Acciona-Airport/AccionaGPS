@@ -279,7 +279,6 @@
             "Funcionarios": "funcionarios@gpsacciona.com",
             "Admin": "admin@acciona.com"
         };
-        
         document.getElementById('username').addEventListener('change', function() {
             const username = this.value;
             const autoLoginNotice = document.getElementById('autoLoginNotice');
@@ -297,7 +296,6 @@
                 passwordInput.classList.remove('password-disabled');
             }
         });
-        
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -344,22 +342,6 @@
             if (!vehicleNumber) {
                 alert('Por favor ingrese un número de vehículo');
                 return;
-            }
-            
-            // Actualizar vehicleNames en localStorage y Firebase
-            const savedVehicleNames = localStorage.getItem('vehicleNames') || '{}';
-            const vehicleNames = JSON.parse(savedVehicleNames);
-            vehicleNames[currentUsername] = vehicleNumber;
-            localStorage.setItem('vehicleNames', JSON.stringify(vehicleNames));
-            
-            // Actualizar Firebase si es necesario
-            if (currentUsername !== 'Admin' && currentUsername !== 'Funcionarios') {
-                const database = firebase.database();
-                database.ref('vehicleNames').update({
-                    [currentUsername]: vehicleNumber
-                }).catch((error) => {
-                    console.error('Error al actualizar nombres en Firebase:', error);
-                });
             }
             
             localStorage.setItem('gpsAuth', JSON.stringify({
