@@ -207,17 +207,21 @@
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(211, 47, 47, 0.3);
         }
+        .user-status-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
         .user-status-indicator {
-            display: inline-block;
             width: 12px;
             height: 12px;
             border-radius: 50%;
-            margin-left: 8px;
             border: 2px solid white;
+            box-shadow: 0 0 3px rgba(0,0,0,0.3);
         }
         .status-online {
             background-color: var(--online-color);
-            box-shadow: 0 0 5px rgba(39, 174, 96, 0.5);
         }
         .status-offline {
             background-color: var(--offline-color);
@@ -227,19 +231,17 @@
             background-color: var(--checking-color);
             animation: pulse 1.5s infinite;
         }
-        .user-option {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 5px 0;
-        }
-        .user-option-info {
+        .mobile-user-label {
             display: flex;
             align-items: center;
             gap: 8px;
+            font-weight: 500;
         }
-        select option {
-            padding: 10px;
+        .status-info {
+            font-size: 11px;
+            color: #666;
+            margin-left: 20px;
+            font-style: italic;
         }
     </style>
 </head>
@@ -254,35 +256,34 @@
         <form id="loginForm">
             <div class="form-group">
                 <label for="username">Usuario</label>
+                
+                <div class="user-status-container">
+                    <div class="user-status-indicator status-checking" id="status-movil1"></div>
+                    <div class="mobile-user-label">Móvil 1</div>
+                </div>
+                <div class="user-status-container">
+                    <div class="user-status-indicator status-checking" id="status-movil2"></div>
+                    <div class="mobile-user-label">Móvil 2</div>
+                </div>
+                <div class="user-status-container">
+                    <div class="user-status-indicator status-checking" id="status-movil3"></div>
+                    <div class="mobile-user-label">Móvil 3</div>
+                </div>
+                <div class="user-status-container">
+                    <div class="user-status-indicator status-checking" id="status-movil4"></div>
+                    <div class="mobile-user-label">Móvil 4</div>
+                </div>
+                
                 <select id="username" required>
                     <option value="">Seleccione usuario...</option>
                     <option value="Funcionarios">Funcionarios</option>
-                    <option value="Movil1">
-                        <div class="user-option">
-                            <span>Móvil 1</span>
-                            <span class="user-status-indicator status-checking" id="status-movil1" title="Verificando estado..."></span>
-                        </div>
-                    </option>
-                    <option value="Movil2">
-                        <div class="user-option">
-                            <span>Móvil 2</span>
-                            <span class="user-status-indicator status-checking" id="status-movil2" title="Verificando estado..."></span>
-                        </div>
-                    </option>
-                    <option value="Movil3">
-                        <div class="user-option">
-                            <span>Móvil 3</span>
-                            <span class="user-status-indicator status-checking" id="status-movil3" title="Verificando estado..."></span>
-                        </div>
-                    </option>
-                    <option value="Movil4">
-                        <div class="user-option">
-                            <span>Móvil 4</span>
-                            <span class="user-status-indicator status-checking" id="status-movil4" title="Verificando estado..."></span>
-                        </div>
-                    </option>
+                    <option value="Movil1">Móvil 1</option>
+                    <option value="Movil2">Móvil 2</option>
+                    <option value="Movil3">Móvil 3</option>
+                    <option value="Movil4">Móvil 4</option>
                     <option value="Admin">Admin</option>
                 </select>
+                <div class="status-info" id="statusInfo">Verificando estado de los usuarios...</div>
             </div>
             
             <div class="form-group">
@@ -337,12 +338,12 @@
 
         function checkMobileUsersStatus() {
             const mobileUsers = ['Movil1', 'Movil2', 'Movil3', 'Movil4'];
+            let onlineCount = 0;
             
             mobileUsers.forEach(user => {
                 const statusElement = document.getElementById(`status-${user.toLowerCase()}`);
                 if (statusElement) {
                     statusElement.className = 'user-status-indicator status-checking';
-                    statusElement.title = 'Verificando estado...';
                 }
                 
                 firebase.database().ref(`activeUsers/${user}`).on('value', (snapshot) => {
@@ -353,13 +354,32 @@
                         if (userData && userData.isActive) {
                             statusElement.className = 'user-status-indicator status-online';
                             statusElement.title = `En uso por: ${userData.vehicleNumber || 'Usuario'}`;
+                            onlineCount++;
                         } else {
                             statusElement.className = 'user-status-indicator status-offline';
                             statusElement.title = 'Disponible';
                         }
                     }
+                    
+                    updateStatusInfo(onlineCount);
                 });
             });
+        }
+
+        function updateStatusInfo(onlineCount) {
+            const statusInfo = document.getElementById('statusInfo');
+            if (statusInfo) {
+                if (onlineCount === 0) {
+                    statusInfo.textContent = 'Todos los móviles están disponibles';
+                    statusInfo.style.color = '#27ae60';
+                } else if (onlineCount === 4) {
+                    statusInfo.textContent = 'Todos los móviles están en uso';
+                    statusInfo.style.color = '#e74c3c';
+                } else {
+                    statusInfo.textContent = `${onlineCount} móvil(es) en uso, ${4-onlineCount} disponible(s)`;
+                    statusInfo.style.color = '#f39c12';
+                }
+            }
         }
 
         document.addEventListener('DOMContentLoaded', function() {
