@@ -2795,6 +2795,12 @@
         }
         
         database.ref('vehicles').off();
+ if (currentUserId.startsWith('Movil')) {
+        firebase.database().ref(`activeUsers/${currentUserId}`).update({
+            isActive: false,
+            logoutTime: new Date().toISOString()
+        });
+    }        
         firebase.auth().signOut();
         localStorage.removeItem('gpsAuth');
         localStorage.removeItem('panelState');
@@ -2803,4 +2809,5 @@
     </script>
 </body>
 </html>
+
 
