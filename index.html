@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>App GPS | Acciona</title>
+    <title>Monitor GPS | Acciona</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -819,8 +819,9 @@
    </style>
 </head>
 <body>
-     <div id="map"></div>
+    <div id="map"></div>
     <div class="map-touch-overlay" id="mapTouchOverlay"></div>
+    
     
     <div class="weather-widget" id="weatherWidget">
         <div class="weather-icon" id="weatherIcon">🌡️</div>
@@ -1018,12 +1019,13 @@
                         </div>
                     </div>
                     
+                    
                     <button class="export-excel-btn" id="downloadExcelBtn">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                             <path d="M5.884 6.68a.5.5 0 1 0-.768.64L7.349 10l-2.233 2.68a.5.5 0 0 0 .768.64L8 10.781l2.116 2.54a.5.5 0 0 0 .768-.641L8.651 10l2.233-2.68a.5.5 0 0 0-.768-.64L8 9.219l-2.116-2.54z"/>
                             <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/>
                         </svg>
-                        Descargar ult.Semana .xls
+                        Descargar Datos del Día
                     </button>
                 </div>
                 
@@ -1210,12 +1212,14 @@
         let currentRouteLayer = null;
         let vehicleNames = {};
         
+        
         const positionHistory = {
             Movil1: [],
             Movil2: [],
             Movil3: [],
             Movil4: []
         };
+        
         
         const PUDALUEL_COORDS = [-33.3931, -70.7858];
         
@@ -1291,78 +1295,19 @@
             }
         };
 
-        // Funciones para mapear condiciones climáticas a español
-        function mapVisualCrossingIconToEmoji(iconName) {
-            const iconMap = {
-                'clear-day': '☀️',
-                'clear-night': '🌙',
-                'partly-cloudy-day': '⛅',
-                'partly-cloudy-night': '🌙',
-                'cloudy': '☁️',
-                'rain': '🌧️',
-                'snow': '❄️',
-                'sleet': '🌨️',
-                'wind': '💨',
-                'fog': '🌫️',
-                'thunderstorm': '⛈️',
-                'hail': '🌨️',
-                'tornado': '🌪️'
-            };
-            return iconMap[iconName] || '🌡️';
-        }
-
-        function translateWeatherCondition(condition) {
-            if (!condition) return 'Condiciones variables';
-            
-            const translationMap = {
-                'partly cloudy': 'Parcialmente nublado',
-                'partly-cloudy': 'Parcialmente nublado',
-                'partly-cloudy-day': 'Parcialmente nublado',
-                'partly-cloudy-night': 'Parcialmente nublado',
-                'clear': 'Despejado',
-                'clear day': 'Despejado',
-                'clear-night': 'Despejado',
-                'sunny': 'Soleado',
-                'mostly sunny': 'Mayormente soleado',
-                'cloudy': 'Nublado',
-                'overcast': 'Cubierto',
-                'rain': 'Lluvia',
-                'light rain': 'Lluvia ligera',
-                'heavy rain': 'Lluvia intensa',
-                'showers': 'Chubascos',
-                'drizzle': 'Llovizna',
-                'snow': 'Nieve',
-                'light snow': 'Nieve ligera',
-                'heavy snow': 'Nieve intensa',
-                'sleet': 'Aguanieve',
-                'wind': 'Ventoso',
-                'windy': 'Ventoso',
-                'fog': 'Niebla',
-                'foggy': 'Neblinoso',
-                'mist': 'Neblina',
-                'haze': 'Bruma',
-                'thunderstorm': 'Tormenta eléctrica',
-                'thunder': 'Truenos',
-                'hail': 'Granizo',
-                'tornado': 'Tornado'
-            };
-            
-            const normalizedCondition = condition.toLowerCase().replace(/-/g, ' ').trim();
-            return translationMap[normalizedCondition] || condition;
-        }
-
+        
         const VISUAL_CROSSING_API = {
             name: "VisualCrossing",
             url: (lat, lon) => `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${lat}%2C${lon}?unitGroup=us&key=WHNF6WFYLLBQL3CVLTT62R34P&contentType=json`,
             parser: data => {
                 if (!data || !data.currentConditions) return null;
                 return {
-                    temp: Math.round((data.currentConditions.temp - 32) * 5/9),
-                    feels_like: Math.round((data.currentConditions.feelslike - 32) * 5/9),
+                    temp: Math.round((data.currentConditions.temp - 32) * 5/9), 
+                    feels_like: Math.round((data.currentConditions.feelslike - 32) * 5/9), 
                     description: data.currentConditions.conditions,
                     icon: data.currentConditions.icon,
                     humidity: data.currentConditions.humidity,
-                    wind: data.currentConditions.windspeed * 1.60934,
+                    wind: data.currentConditions.windspeed * 1.60934, 
                     uv: data.currentConditions.uvindex,
                     pressure: data.currentConditions.pressure,
                     cloudcover: data.currentConditions.cloudcover,
@@ -1373,7 +1318,7 @@
 
         const OPEN_METEO_API = {
             name: "Open-Meteo",
-            url: (lat, lon) => `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature,precipitation,rain,showers,snowfall,weather_code,wind_speed_10m,relative_humidity_2m&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m&timezone=auto`,
+            url: (lat, lon) => `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,rain,precipitation_probability,snowfall,snow_depth,showers,precipitation,relative_humidity_2m,visibility,wind_speed_10m,wind_speed_80m,temperature_80m,temperature_120m,shortwave_radiation&current=temperature_2m,precipitation,rain,showers,snowfall,weather_code,apparent_temperature,wind_speed_10m`,
             parser: data => {
                 if (!data || !data.current) return null;
                 return {
@@ -1427,36 +1372,36 @@
 
         function getWeatherCodeIcon(code) {
             const iconMap = {
-                0: "☀️",     // Clear sky
-                1: "🌤️",     // Mainly clear
-                2: "⛅",     // Partly cloudy
-                3: "☁️",     // Overcast
-                45: "🌫️",    // Fog
-                48: "🌫️",    // Depositing rime fog
-                51: "🌧️",    // Light drizzle
-                53: "🌧️",    // Moderate drizzle
-                55: "🌧️",    // Dense drizzle
-                56: "🌧️",    // Light freezing drizzle
-                57: "🌧️",    // Dense freezing drizzle
-                61: "🌧️",    // Slight rain
-                63: "🌧️",    // Moderate rain
-                65: "🌧️",    // Heavy rain
-                66: "🌧️",    // Light freezing rain
-                67: "🌧️",    // Heavy freezing rain
-                71: "❄️",     // Slight snow fall
-                73: "❄️",     // Moderate snow fall
-                75: "❄️",     // Heavy snow fall
-                77: "❄️",     // Snow grains
-                80: "🌦️",     // Slight rain showers
-                81: "🌦️",     // Moderate rain showers
-                82: "🌦️",     // Violent rain showers
-                85: "❄️",     // Slight snow showers
-                86: "❄️",     // Heavy snow showers
-                95: "⛈️",     // Thunderstorm
-                96: "⛈️",     // Thunderstorm with slight hail
-                99: "⛈️"      // Thunderstorm with heavy hail
+                0: "☀️",
+                1: "🌤️",
+                2: "⛅",
+                3: "☁️",
+                45: "🌫️",
+                48: "🌫️",
+                51: "🌧️",
+                53: "🌧️",
+                55: "🌧️",
+                56: "🌧️",
+                57: "🌧️",
+                61: "🌧️",
+                63: "🌧️",
+                65: "🌧️",
+                66: "🌧️",
+                67: "🌧️",
+                71: "❄️",
+                73: "❄️",
+                75: "❄️",
+                77: "❄️",
+                80: "🌦️",
+                81: "🌦️",
+                82: "🌦️",
+                85: "❄️",
+                86: "❄️",
+                95: "⛈️",
+                96: "⛈️",
+                99: "⛈️"
             };
-             return iconMap[code] || "🌡️";
+            return iconMap[code] || "🌡️";
         }
 
         firebase.auth().onAuthStateChanged((user) => {
@@ -1598,7 +1543,7 @@
     
     tempElement.textContent = `${weatherData.temp}°C`;
     descElement.textContent = weatherData.description;
-   iconElement.textContent = mapVisualCrossingIconToEmoji(weatherData.icon);
+    iconElement.textContent = weatherData.icon;
     feelsLikeElement.textContent = `Sensación: ${weatherData.feels_like}°C`;
             
             
@@ -2803,5 +2748,3 @@
     </script>
 </body>
 </html>
-
-
