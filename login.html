@@ -12,7 +12,7 @@
             --red-dark: #d32f2f;
             --gray-light: #f5f5f5;
             --online-color: #27ae60;
-            --offline-color: #e74c3c;
+            --offline-color: #95a5a6;
             --checking-color: #f39c12;
         }
         * {
@@ -334,12 +334,13 @@
             "Admin": "admin@acciona.com"
         };
 
-        // Misma lógica que usa el dashboard para detectar conexión
+        // EXACTAMENTE la misma lógica que usa el dashboard para detectar conexión
+        const TEN_MINUTES = 10 * 60 * 1000; // 10 minutos (mismo que el dashboard)
+
         function isVehicleOnline(vehicleData) {
             if (!vehicleData || !vehicleData.lastUpdate) return false;
             
             const now = Date.now();
-            const TEN_MINUTES = 10 * 60 * 1000; // 10 minutos (mismo que el dashboard)
             const timeDiff = now - vehicleData.lastUpdate;
             
             return timeDiff < TEN_MINUTES;
@@ -358,7 +359,7 @@
                 statusText.textContent = 'Verificando estado...';
                 lastUpdateText.textContent = '';
                 
-                // Verificar usando la misma lógica del dashboard
+                // Verificar usando la MISMA lógica exacta del dashboard
                 firebase.database().ref(`vehicles/${username}`).once('value')
                     .then((snapshot) => {
                         const vehicleData = snapshot.val();
@@ -371,7 +372,7 @@
                             const minutesDiff = Math.floor(timeDiff / (60 * 1000));
                             const hoursDiff = Math.floor(timeDiff / (60 * 60 * 1000));
                             
-                            // Formatear la última actualización
+                            // Formatear la última actualización (igual que en el dashboard)
                             let timeAgo = '';
                             if (minutesDiff < 1) {
                                 timeAgo = 'Hace unos segundos';
@@ -381,22 +382,23 @@
                                 timeAgo = `Hace ${hoursDiff} hora${hoursDiff > 1 ? 's' : ''}`;
                             }
                             
+                            // USAR EXACTAMENTE LOS MISMOS TÉRMINOS QUE EL DASHBOARD
                             if (isOnline) {
                                 statusIndicator.className = 'user-status-indicator status-online';
                                 statusText.className = 'status-text online-text';
-                                statusText.textContent = '⚠️ Este usuario está EN USO actualmente';
+                                statusText.textContent = '⚠️ Este usuario está EN RUTA actualmente';
                                 lastUpdateText.textContent = `Conectado: ${timeAgo}`;
                             } else {
                                 statusIndicator.className = 'user-status-indicator status-offline';
                                 statusText.className = 'status-text offline-text';
-                                statusText.textContent = '✅ Usuario disponible';
+                                statusText.textContent = '✅ Usuario DISPONIBLE';
                                 lastUpdateText.textContent = `Desconectado: ${timeAgo}`;
                             }
                         } else {
-                            // No hay datos del vehículo
+                            // No hay datos del vehículo (nunca se ha conectado)
                             statusIndicator.className = 'user-status-indicator status-offline';
                             statusText.className = 'status-text offline-text';
-                            statusText.textContent = '✅ Usuario disponible';
+                            statusText.textContent = '✅ Usuario DISPONIBLE';
                             lastUpdateText.textContent = 'Nunca se ha conectado';
                         }
                     })
@@ -405,7 +407,7 @@
                         // Si hay error, asumir que está disponible
                         statusIndicator.className = 'user-status-indicator status-offline';
                         statusText.className = 'status-text offline-text';
-                        statusText.textContent = '✅ Usuario disponible';
+                        statusText.textContent = '✅ Usuario DISPONIBLE';
                         lastUpdateText.textContent = 'Estado no disponible';
                     });
             } else {
