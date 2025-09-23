@@ -2779,36 +2779,59 @@
         }
     }
     
-    function logout() {
-        if (gpsInterval) clearInterval(gpsInterval);
-        if (locationUpdateInterval) clearInterval(locationUpdateInterval);
-        if (viewerUpdateInterval) clearInterval(viewerUpdateInterval);
-        
-        if (backgroundGeolocationWatchId !== null) {
-            navigator.geolocation.clearWatch(backgroundGeolocationWatchId);
-        }
-        
-        if (wakeLock !== null) {
-            wakeLock.release().then(() => {
-                wakeLock = null;
-            });
-        }
-        
-        database.ref('vehicles').off();
- if (currentUserId.startsWith('Movil')) {
+   function logout() {
+    // Detener todos los intervalos
+    if (gpsInterval) clearInterval(gpsInterval);
+    if (locationUpdateInterval) clearInterval(locationUpdateInterval);
+    if (viewerUpdateInterval) clearInterval(viewerUpdateInterval);
+    if (weatherUpdateInterval) clearInterval(weatherUpdateInterval);
+    
+    // Limpiar el watch de geolocalización
+    if (backgroundGeolocationWatchId !== null) {
+        navigator.geolocation.clearWatch(backgroundGeolocationWatchId);
+    }
+    
+    // Liberar el wake lock
+    if (wakeLock !== null) {
+        wakeLock.release().then(() => {
+            wakeLock = null;
+        });
+    }
+    
+    // ACTUALIZAR ESTADO DEL USUARIO EN FIREBASE - NUEVA PARTE
+    if (currentUserId && currentUserId.startsWith('Movil')) {
         firebase.database().ref(`activeUsers/${currentUserId}`).update({
             isActive: false,
-            logoutTime: new Date().toISOString()
+            logoutTime: new Date().toISOString(),
+            lastSeen: new Date().toISOString()
+        }).then(() => {
+            console.log('Estado actualizado en Firebase: usuario desconectado');
+        }).catch((error) => {
+            console.error('Error al actualizar estado en Firebase:', error);
         });
-    }        
-        firebase.auth().signOut();
-        localStorage.removeItem('gpsAuth');
-        localStorage.removeItem('panelState');
-        window.location.href = 'login.html';
     }
+    
+    // Limpiar listeners de Firebase
+    database.ref('vehicles').off();
+    
+    // Cerrar sesión de Firebase Auth
+    firebase.auth().signOut().then(() => {
+        console.log('Sesión cerrada exitosamente');
+    }).catch((error) => {
+        console.error('Error al cerrar sesión:', error);
+    });
+    
+    // Limpiar localStorage
+    localStorage.removeItem('gpsAuth');
+    localStorage.removeItem('panelState');
+    
+    // Redirigir al login
+    window.location.href = 'login.html';
+}
     </script>
 </body>
 </html>
+
 
 
 
