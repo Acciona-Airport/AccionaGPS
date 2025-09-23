@@ -337,14 +337,25 @@
                 statusText.className = 'status-text checking-text';
                 statusText.textContent = 'Verificando estado...';
                 
-                firebase.database().ref(`activeUsers/${username}`).once('value')
+                // Verificar en vehicles para ver si está activo
+                firebase.database().ref(`vehicles/${username}`).once('value')
                     .then((snapshot) => {
-                        const userData = snapshot.val();
+                        const vehicleData = snapshot.val();
+                        const now = Date.now();
                         
-                        if (userData && userData.isActive) {
-                            statusIndicator.className = 'user-status-indicator status-online';
-                            statusText.className = 'status-text online-text';
-                            statusText.textContent = `⚠️ Este usuario está en uso por: ${userData.vehicleNumber || 'otro dispositivo'}`;
+                        if (vehicleData && vehicleData.lastUpdate) {
+                            // Considerar activo si se actualizó en los últimos 10 minutos
+                            const isActive = (now - vehicleData.lastUpdate) < (10 * 60 * 1000);
+                            
+                            if (isActive) {
+                                statusIndicator.className = 'user-status-indicator status-online';
+                                statusText.className = 'status-text online-text';
+                                statusText.textContent = '⚠️ Este usuario está EN USO actualmente';
+                            } else {
+                                statusIndicator.className = 'user-status-indicator status-offline';
+                                statusText.className = 'status-text offline-text';
+                                statusText.textContent = '✅ Usuario disponible';
+                            }
                         } else {
                             statusIndicator.className = 'user-status-indicator status-offline';
                             statusText.className = 'status-text offline-text';
@@ -401,14 +412,6 @@
                 .then((userCredential) => {
                     currentUsername = username;
                     
-                    if (username.startsWith('Movil')) {
-                        firebase.database().ref(`activeUsers/${username}`).set({
-                            isActive: true,
-                            loginTime: new Date().toISOString(),
-                            uid: userCredential.user.uid
-                        });
-                    }
-                    
                     if (username === 'Funcionarios' || username === 'Admin') {
                         localStorage.setItem('gpsAuth', JSON.stringify({
                             username,
@@ -445,10 +448,6 @@
                 isViewer: false,
                 uid: firebase.auth().currentUser.uid
             }));
-            
-            firebase.database().ref(`activeUsers/${currentUsername}`).update({
-                vehicleNumber: vehicleNumber
-            });
             
             window.location.href = 'index.html';
         });
