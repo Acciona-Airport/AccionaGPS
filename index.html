@@ -2754,7 +2754,7 @@
                     iconElement.className = `user-icon ${status === 'online' ? 'online' : 'offline'}`;
                 }
             } 
-            else if (isViewer || currentUserId === 'Funcionarios') {
+           } else if (isViewer || currentUserId === 'Funcionarios' || currentUserId === 'Admin') {
                 const element = document.getElementById(`${mobileId.toLowerCase()}-status`);
                 const iconElement = document.getElementById(`${mobileId.toLowerCase()}-icon`);
                 
@@ -2813,3 +2813,4 @@
     </script>
 </body>
 </html>
+
