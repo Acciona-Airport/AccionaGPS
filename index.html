@@ -1737,7 +1737,7 @@
             const displayName = (currentUserId === 'Funcionarios') ? 'Yo' : (vehicleNames[currentUserId] || currentUserId);
             document.getElementById('current-user-name').textContent = displayName;
             
-                        if (currentUserId === 'Funcionarios') {
+            if (currentUserId === 'Funcionarios') {
                 document.getElementById('refreshContainer').style.display = 'none';
             }
             
@@ -1750,15 +1750,14 @@
                 document.getElementById('downloadExcelBtn').style.display = 'flex';
             }
             
-            // ✅ CORRECCIÓN: Unificar la lógica para Admin, Funcionarios y Viewers
-            if (isViewer || currentUserId === 'Funcionarios' || currentUserId === 'Admin') {
+                if (isViewer || currentUserId === 'Funcionarios' || currentUserId === 'Admin') {
                 document.getElementById('other-vehicles-container').style.display = 'block';
                 updateVehicleNamesInUI();
                 initializeAllMarkers();
-                startMonitoring(); // ✅ Ahora se ejecuta para Admin también
+               startMonitoring(); // ✅ Ahora también para Admin
             } else {
-                initializeCurrentUserMarker();
-                startGPSTracking(currentUserId);
+               initializeCurrentUserMarker();
+               startGPSTracking(currentUserId);
             }
             
             document.getElementById('weatherWidget').addEventListener('click', toggleWeatherWidget);
@@ -2814,4 +2813,3 @@
     </script>
 </body>
 </html>
-
