@@ -35,13 +35,11 @@
             --shift3-color: #e67e22;
             --transparency: 0.35;
             
-            
             --uv-low: #27ae60;
             --uv-moderate: #f39c12;
             --uv-high: #e67e22;
             --uv-very-high: #e74c3c;
             --uv-extreme: #9b59b6;
-            
             
             --distance-close: #27ae60;
             --distance-medium: #f39c12;
@@ -225,7 +223,6 @@
             }
         }
 
-        
         .control-panel-container {
             position: fixed;
             top: 15px;
@@ -769,7 +766,6 @@
             color: #666;
         }
         
-        
         .download-btn {
             background: var(--blue-primary);
             color: white;
@@ -816,10 +812,7 @@
     </style>
 </head>
 <body>
-   </style>
-</head>
-<body>
-     <div id="map"></div>
+    <div id="map"></div>
     <div class="map-touch-overlay" id="mapTouchOverlay"></div>
     
     <div class="weather-widget" id="weatherWidget">
@@ -996,6 +989,42 @@
                             </div>
                         </div>
                     </div>
+                    
+                    <div class="lap-counter" id="movil5Laps">
+                        <h5>Móvil 5</h5>
+                        <div class="lap-stats">
+                            <div class="lap-stat shift1">
+                                <div class="lap-count" id="movil5Shift1">0</div>
+                                <div class="lap-label">06:00 - 13:00</div>
+                            </div>
+                            <div class="lap-stat shift2">
+                                <div class="lap-count" id="movil5Shift2">0</div>
+                                <div class="lap-label">13:00 - 22:00</div>
+                            </div>
+                            <div class="lap-stat shift3">
+                                <div class="lap-count" id="movil5Shift3">0</div>
+                                <div class="lap-label">22:00 - 06:00</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="lap-counter" id="movil6Laps">
+                        <h5>Móvil 6</h5>
+                        <div class="lap-stats">
+                            <div class="lap-stat shift1">
+                                <div class="lap-count" id="movil6Shift1">0</div>
+                                <div class="lap-label">06:00 - 13:00</div>
+                            </div>
+                            <div class="lap-stat shift2">
+                                <div class="lap-count" id="movil6Shift2">0</div>
+                                <div class="lap-label">13:00 - 22:00</div>
+                            </div>
+                            <div class="lap-stat shift3">
+                                <div class="lap-count" id="movil6Shift3">0</div>
+                                <div class="lap-label">22:00 - 06:00</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="dashboard-content" id="metricsContent">
@@ -1124,6 +1153,36 @@
                     <div class="vehicle-distance" id="movil4-distance">
                         <span>Distancia:</span>
                         <span class="distance-indicator">--</span>
+                     </div>
+                </div>
+                
+                <div class="vehicle-card">
+                    <div class="vehicle-name">
+                        <div id="movil5-icon" class="vehicle-icon offline"></div>
+                        <span id="movil5-name">Móvil 5</span>
+                    </div>
+                    <div class="vehicle-status">
+                        <span>Estado:</span>
+                        <span id="movil5-status" class="offline">Desconectado</span>
+                    </div>
+                    <div class="vehicle-distance" id="movil5-distance">
+                        <span>Distancia:</span>
+                        <span class="distance-indicator">--</span>
+                    </div>
+                </div>
+
+                <div class="vehicle-card">
+                    <div class="vehicle-name">
+                        <div id="movil6-icon" class="vehicle-icon offline"></div>
+                        <span id="movil6-name">Móvil 6</span>
+                    </div>
+                    <div class="vehicle-status">
+                        <span>Estado:</span>
+                        <span id="movil6-status" class="offline">Desconectado</span>
+                    </div>
+                    <div class="vehicle-distance" id="movil6-distance">
+                        <span>Distancia:</span>
+                        <span class="distance-indicator">--</span>
                     </div>
                 </div>
             </div>
@@ -1214,7 +1273,9 @@
             Movil1: [],
             Movil2: [],
             Movil3: [],
-            Movil4: []
+            Movil4: [],
+            Movil5: [],
+            Movil6: []
         };
         
         const PUDALUEL_COORDS = [-33.3931, -70.7858];
@@ -1225,7 +1286,9 @@
             Movil1: { shift1: 0, shift2: 0, shift3: 0, lastLapTime: null, isNearStart: false, lastResetDate: null },
             Movil2: { shift1: 0, shift2: 0, shift3: 0, lastLapTime: null, isNearStart: false, lastResetDate: null },
             Movil3: { shift1: 0, shift2: 0, shift3: 0, lastLapTime: null, isNearStart: false, lastResetDate: null },
-            Movil4: { shift1: 0, shift2: 0, shift3: 0, lastLapTime: null, isNearStart: false, lastResetDate: null }
+            Movil4: { shift1: 0, shift2: 0, shift3: 0, lastLapTime: null, isNearStart: false, lastResetDate: null },
+            Movil5: { shift1: 0, shift2: 0, shift3: 0, lastLapTime: null, isNearStart: false, lastResetDate: null },
+            Movil6: { shift1: 0, shift2: 0, shift3: 0, lastLapTime: null, isNearStart: false, lastResetDate: null }
         };
         let startPointMarker = null;
         
@@ -1291,7 +1354,6 @@
             }
         };
 
-        // Funciones para mapear condiciones climáticas a español
         function mapVisualCrossingIconToEmoji(iconName) {
             const iconMap = {
                 'clear-day': '☀️',
@@ -1427,34 +1489,34 @@
 
         function getWeatherCodeIcon(code) {
             const iconMap = {
-                0: "☀️",     // Clear sky
-                1: "🌤️",     // Mainly clear
-                2: "⛅",     // Partly cloudy
-                3: "☁️",     // Overcast
-                45: "🌫️",    // Fog
-                48: "🌫️",    // Depositing rime fog
-                51: "🌧️",    // Light drizzle
-                53: "🌧️",    // Moderate drizzle
-                55: "🌧️",    // Dense drizzle
-                56: "🌧️",    // Light freezing drizzle
-                57: "🌧️",    // Dense freezing drizzle
-                61: "🌧️",    // Slight rain
-                63: "🌧️",    // Moderate rain
-                65: "🌧️",    // Heavy rain
-                66: "🌧️",    // Light freezing rain
-                67: "🌧️",    // Heavy freezing rain
-                71: "❄️",     // Slight snow fall
-                73: "❄️",     // Moderate snow fall
-                75: "❄️",     // Heavy snow fall
-                77: "❄️",     // Snow grains
-                80: "🌦️",     // Slight rain showers
-                81: "🌦️",     // Moderate rain showers
-                82: "🌦️",     // Violent rain showers
-                85: "❄️",     // Slight snow showers
-                86: "❄️",     // Heavy snow showers
-                95: "⛈️",     // Thunderstorm
-                96: "⛈️",     // Thunderstorm with slight hail
-                99: "⛈️"      // Thunderstorm with heavy hail
+                0: "☀️",
+                1: "🌤️",
+                2: "⛅",
+                3: "☁️",
+                45: "🌫️",
+                48: "🌫️",
+                51: "🌧️",
+                53: "🌧️",
+                55: "🌧️",
+                56: "🌧️",
+                57: "🌧️",
+                61: "🌧️",
+                63: "🌧️",
+                65: "🌧️",
+                66: "🌧️",
+                67: "🌧️",
+                71: "❄️",
+                73: "❄️",
+                75: "❄️",
+                77: "❄️",
+                80: "🌦️",
+                81: "🌦️",
+                82: "🌦️",
+                85: "❄️",
+                86: "❄️",
+                95: "⛈️",
+                96: "⛈️",
+                99: "⛈️"
             };
              return iconMap[code] || "🌡️";
         }
@@ -1477,7 +1539,6 @@
                 initMap();
                 setupUI();
                 
-                
                 startWeatherUpdates();
                 
                 if (!isViewer && !auth.vehicleNumber) {
@@ -1489,19 +1550,12 @@
             }
         });
 
-        
         function startWeatherUpdates() {
-            
             getWeatherData();
-            
-            
             weatherUpdateInterval = setInterval(getWeatherData, 600000);
-            
-            
             updateNextUpdateTime();
         }
 
-        
         function updateNextUpdateTime() {
             const now = new Date();
             const nextUpdate = new Date(now.getTime() + 600000);
@@ -1510,11 +1564,9 @@
             document.getElementById('weatherUpdating').textContent = `Próxima actualización: ${nextUpdateStr}`;
         }
 
-        
         async function getWeatherData() {
             const lat = PUDALUEL_COORDS[0];
             const lon = PUDALUEL_COORDS[1];
-            
             
             document.getElementById('weatherWidget').classList.add('loading');
             document.getElementById('weatherDesc').textContent = 'Actualizando...';
@@ -1533,7 +1585,6 @@
                 if (!weatherData) {
                     throw new Error("No se pudieron obtener datos del clima");
                 }
-                
                 
                 updateWeatherWidget(weatherData);
                 
@@ -1556,7 +1607,6 @@
                         throw new Error("No se pudieron obtener datos del clima");
                     }
                     
-                    
                     updateWeatherWidget(weatherData);
                     
                 } catch (fallbackError) {
@@ -1573,84 +1623,78 @@
             }
         }
 
-        
         function updateWeatherWidget(weatherData) {
-    if (!weatherData) {
-        document.getElementById('weatherDesc').textContent = 'Error al cargar';
-        document.getElementById('weatherTemp').textContent = '--°C';
-        document.getElementById('weatherFeelsLike').textContent = 'Sensación: --°C';
-        document.getElementById('weatherIcon').textContent = '☀️';
-        document.getElementById('weatherSources').textContent = 'Error en servicios';
-        return;
-    }
-    
-    const tempElement = document.getElementById('weatherTemp');
-    const descElement = document.getElementById('weatherDesc');
-    const feelsLikeElement = document.getElementById('weatherFeelsLike');
-    const iconElement = document.getElementById('weatherIcon');
-    const uvElement = document.getElementById('weatherUv');
-    const warningElement = document.getElementById('weatherWarning');
-    const sourcesElement = document.getElementById('weatherSources');
-    const humidityElement = document.getElementById('weatherHumidity');
-    const windElement = document.getElementById('weatherWind');
-    const cloudsElement = document.getElementById('weatherClouds');
-    const pressureElement = document.getElementById('weatherPressure');
-    
-    tempElement.textContent = `${weatherData.temp}°C`;
-    descElement.textContent = weatherData.description;
-   iconElement.textContent = mapVisualCrossingIconToEmoji(weatherData.icon);
-    feelsLikeElement.textContent = `Sensación: ${weatherData.feels_like}°C`;
+            if (!weatherData) {
+                document.getElementById('weatherDesc').textContent = 'Error al cargar';
+                document.getElementById('weatherTemp').textContent = '--°C';
+                document.getElementById('weatherFeelsLike').textContent = 'Sensación: --°C';
+                document.getElementById('weatherIcon').textContent = '☀️';
+                document.getElementById('weatherSources').textContent = 'Error en servicios';
+                return;
+            }
             
+            const tempElement = document.getElementById('weatherTemp');
+            const descElement = document.getElementById('weatherDesc');
+            const feelsLikeElement = document.getElementById('weatherFeelsLike');
+            const iconElement = document.getElementById('weatherIcon');
+            const uvElement = document.getElementById('weatherUv');
+            const warningElement = document.getElementById('weatherWarning');
+            const sourcesElement = document.getElementById('weatherSources');
+            const humidityElement = document.getElementById('weatherHumidity');
+            const windElement = document.getElementById('weatherWind');
+            const cloudsElement = document.getElementById('weatherClouds');
+            const pressureElement = document.getElementById('weatherPressure');
             
-    if (weatherData.humidity !== undefined) {
-        humidityElement.textContent = `${Math.round(weatherData.humidity)}%`;
-    } else {
-        humidityElement.textContent = '--%';
-    }
+            tempElement.textContent = `${weatherData.temp}°C`;
+            descElement.textContent = weatherData.description;
+            iconElement.textContent = mapVisualCrossingIconToEmoji(weatherData.icon);
+            feelsLikeElement.textContent = `Sensación: ${weatherData.feels_like}°C`;
             
-    if (weatherData.wind !== undefined) {
-        windElement.textContent = `${Math.round(weatherData.wind)} km/h`;
-    } else {
-        windElement.textContent = '-- km/h';
-    }
+            if (weatherData.humidity !== undefined) {
+                humidityElement.textContent = `${Math.round(weatherData.humidity)}%`;
+            } else {
+                humidityElement.textContent = '--%';
+            }
             
-    if (weatherData.cloudcover !== undefined) {
-        cloudsElement.textContent = `${Math.round(weatherData.cloudcover)}%`;
-    } else {
-        cloudsElement.textContent = '--%';
-    }
+            if (weatherData.wind !== undefined) {
+                windElement.textContent = `${Math.round(weatherData.wind)} km/h`;
+            } else {
+                windElement.textContent = '-- km/h';
+            }
             
-    if (weatherData.pressure !== undefined) {
-        pressureElement.textContent = `${Math.round(weatherData.pressure)} hPa`;
-    } else {
-        pressureElement.textContent = '-- hPa';
-    }
+            if (weatherData.cloudcover !== undefined) {
+                cloudsElement.textContent = `${Math.round(weatherData.cloudcover)}%`;
+            } else {
+                cloudsElement.textContent = '--%';
+            }
             
+            if (weatherData.pressure !== undefined) {
+                pressureElement.textContent = `${Math.round(weatherData.pressure)} hPa`;
+            } else {
+                pressureElement.textContent = '-- hPa';
+            }
             
-    if (weatherData.uv !== undefined && weatherData.uv > 0) {
-        const uvIndex = weatherData.uv;
-        uvElement.innerHTML = `<span>Índice UV: ${uvIndex} - ${getUvLevel(uvIndex)}</span>`;
-        uvElement.className = `weather-uv ${getUvClass(uvIndex)}`;
+            if (weatherData.uv !== undefined && weatherData.uv > 0) {
+                const uvIndex = weatherData.uv;
+                uvElement.innerHTML = `<span>Índice UV: ${uvIndex} - ${getUvLevel(uvIndex)}</span>`;
+                uvElement.className = `weather-uv ${getUvClass(uvIndex)}`;
                 
-                
-        if (uvIndex >= 6) {
-            const warningLines = getUvWarning(uvIndex);
-            warningElement.style.display = 'block';
-            warningElement.innerHTML = warningLines.join('<br>');
-        } else {
-            warningElement.style.display = 'none';
-        }
-    } else {
-        uvElement.innerHTML = '<span>Índice UV: No disponible</span>';
-        uvElement.className = 'weather-uv';
-        warningElement.style.display = 'none';
-    }
+                if (uvIndex >= 6) {
+                    const warningLines = getUvWarning(uvIndex);
+                    warningElement.style.display = 'block';
+                    warningElement.innerHTML = warningLines.join('<br>');
+                } else {
+                    warningElement.style.display = 'none';
+                }
+            } else {
+                uvElement.innerHTML = '<span>Índice UV: No disponible</span>';
+                uvElement.className = 'weather-uv';
+                warningElement.style.display = 'none';
+            }
             
-            
-    sourcesElement.textContent = `Fuente: ${weatherData.source}`;
+            sourcesElement.textContent = `Fuente: ${weatherData.source}`;
         }
 
-        
         function getUvLevel(uvIndex) {
             if (uvIndex >= 0 && uvIndex <= 2) return 'Bajo';
             if (uvIndex >= 3 && uvIndex <= 5) return 'Moderado';
@@ -1659,7 +1703,6 @@
             return 'Extremo';
         }
 
-        
         function getUvClass(uvIndex) {
             if (uvIndex >= 0 && uvIndex <= 2) return 'uv-low';
             if (uvIndex >= 3 && uvIndex <= 5) return 'uv-moderate';
@@ -1668,7 +1711,6 @@
             return 'uv-extreme';
         }
 
-        
         function getUvWarning(uvIndex) {
             if (uvIndex >= 6 && uvIndex <= 7) {
                 return ['⚠️ Protección necesaria.', 'Use ERP, gorro y protector solar.'];
@@ -1680,7 +1722,6 @@
             return [];
         }
 
-        
         function toggleWeatherWidget() {
             const widget = document.getElementById('weatherWidget');
             widget.classList.toggle('expanded');
@@ -1696,7 +1737,6 @@
             const displayName = (currentUserId === 'Funcionarios') ? 'Yo' : (vehicleNames[currentUserId] || currentUserId);
             document.getElementById('current-user-name').textContent = displayName;
             
-            
             if (currentUserId === 'Funcionarios') {
                 document.getElementById('refreshContainer').style.display = 'none';
             }
@@ -1706,9 +1746,8 @@
                 loadLapCounters();
                 setupDashboardTabs();
                 
-                
                 document.getElementById('downloadExcelBtn').addEventListener('click', downloadExcelData);
-                document.getElementById('downloadExcelBtn').style.display = 'flex'; 
+                document.getElementById('downloadExcelBtn').style.display = 'flex';
             }
             
             if (isViewer || currentUserId === 'Funcionarios') {
@@ -1720,7 +1759,6 @@
                 initializeCurrentUserMarker();
                 startGPSTracking(currentUserId);
             }
-            
             
             document.getElementById('weatherWidget').addEventListener('click', toggleWeatherWidget);
         }
@@ -1747,11 +1785,9 @@
             if (savedLapCounters) {
                 const savedData = JSON.parse(savedLapCounters);
                 
-                
                 const today = new Date().toDateString();
                 Object.keys(savedData).forEach(vehicle => {
                     if (savedData[vehicle].lastResetDate !== today) {
-                        
                         savedData[vehicle].shift1 = 0;
                         savedData[vehicle].shift2 = 0;
                         savedData[vehicle].shift3 = 0;
@@ -1764,7 +1800,6 @@
                     updateLapCounterUI(vehicle);
                 });
             } else {
-                
                 const today = new Date().toDateString();
                 Object.keys(lapCounters).forEach(vehicle => {
                     lapCounters[vehicle].lastResetDate = today;
@@ -1791,11 +1826,9 @@
             });
             document.getElementById('totalLaps').textContent = totalLaps;
             
-            
             let activeCount = 0;
             Object.keys(vehicleCache).forEach(vehicle => {
                 if (vehicleCache[vehicle] && vehicleCache[vehicle].status === 'online') {
-                    
                     const lastUpdate = vehicleCache[vehicle].lastUpdate || 0;
                     const isOnline = (Date.now() - lastUpdate) < TEN_MINUTES;
                     if (isOnline) {
@@ -1805,11 +1838,9 @@
             });
             document.getElementById('activeVehicles').textContent = activeCount;
             
-            
             const now = new Date();
             const chileTime = new Date(now.toLocaleString("en-US", {timeZone: "America/Santiago"}));
             document.getElementById('lastUpdate').textContent = chileTime.toLocaleTimeString('es-CL');
-            
             
             let totalDistance = 0;
             Object.keys(lapCounters).forEach(vehicle => {
@@ -1823,27 +1854,19 @@
         }
         
         function downloadExcelData() {
-            
-             const coordinateData = getCoordinateDataForLast10Days();
+            const coordinateData = getCoordinateDataForLast10Days();
             
             if (coordinateData.length === 0) {
                 showNotification("No hay datos para exportar", 3000);
                 return;
             }
             
-            
             const wb = XLSX.utils.book_new();
-            
-            
             const ws = XLSX.utils.json_to_sheet(coordinateData);
-            
-            
             XLSX.utils.book_append_sheet(wb, ws, "Coordenadas");
-            
             
             const today = new Date();
             const fileName = `coordenadas_${today.getDate()}-${today.getMonth()+1}-${today.getFullYear()}.xlsx`;
-            
             
             XLSX.writeFile(wb, fileName);
             
@@ -1851,21 +1874,18 @@
         }
         
         function getCoordinateDataForLast10Days() {
-            
             const storedData = localStorage.getItem('coordinateData');
             
             if (!storedData) return [];
             
             const allData = JSON.parse(storedData);
             
-            
             const tenDaysAgo = new Date();
             tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
 
             const filteredData = allData.filter(item => {
-            return new Date(item.timestamp) >= tenDaysAgo;
+                return new Date(item.timestamp) >= tenDaysAgo;
             });
-            
             
             return filteredData.map(item => {
                 const date = new Date(item.timestamp);
@@ -1885,10 +1905,8 @@
         }
         
         function storeCoordinateData(vehicleId, coords, status, laps) {
-            
             const storedData = localStorage.getItem('coordinateData');
             let coordinateData = storedData ? JSON.parse(storedData) : [];
-            
             
             coordinateData.push({
                 vehicleId: vehicleId,
@@ -1900,14 +1918,12 @@
                 timestamp: new Date().toISOString()
             });
             
-            
-                const tenDaysAgo = new Date();
-                tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
+            const tenDaysAgo = new Date();
+            tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
 
-                coordinateData = coordinateData.filter(item => {
+            coordinateData = coordinateData.filter(item => {
                 return new Date(item.timestamp) >= tenDaysAgo;
             });
-            
             
             localStorage.setItem('coordinateData', JSON.stringify(coordinateData));
         }
@@ -1928,7 +1944,7 @@
         }
         
         function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371000; 
+            const R = 6371000;
             const dLat = (lat2 - lat1) * Math.PI / 180;
             const dLon = (lon2 - lon1) * Math.PI / 180;
             const a = 
@@ -1944,24 +1960,19 @@
             const hour = now.getHours();
             let shift;
             
-            
             let adjustedHour = hour;
             let currentDate = now.toDateString();
             
             if (hour >= 22) {
-                
                 shift = 'shift3';
             } else if (hour < 6) {
-                
                 shift = 'shift3';
-                
                 currentDate = new Date(now.getTime() - 6 * 60 * 60 * 1000).toDateString();
             } else if (hour >= 6 && hour < 13) {
                 shift = 'shift1';
             } else {
                 shift = 'shift2';
             }
-            
             
             if (lapCounters[vehicle].lastResetDate !== currentDate) {
                 lapCounters[vehicle].shift1 = 0;
@@ -1981,7 +1992,7 @@
         }
         
         function updateVehicleNamesInUI() {
-            for (let i = 1; i <= 4; i++) {
+            for (let i = 1; i <= 6; i++) {
                 const mobileId = 'Movil' + i;
                 const element = document.getElementById(`${mobileId.toLowerCase()}-name`);
                 if (element && vehicleNames[mobileId]) {
@@ -1995,9 +2006,9 @@
                 zoomControl: false,
                 tap: false,
                 dragging: true,
-                preferCanvas: true, 
-                fadeAnimation: false, 
-                markerZoomAnimation: false 
+                preferCanvas: true,
+                fadeAnimation: false,
+                markerZoomAnimation: false
             }).setView(SCL_COORDS, ZOOM_INICIAL);
             
             L.control.zoom({
@@ -2025,9 +2036,9 @@
             currentTileLayer = L.tileLayer(provider.url, {
                 attribution: provider.attribution,
                 maxZoom: provider.maxZoom,
-                updateWhenIdle: true, 
-                reuseTiles: true, 
-                detectRetina: false 
+                updateWhenIdle: true,
+                reuseTiles: true,
+                detectRetina: false
             }).addTo(map);
             
             localStorage.setItem('mapProvider', providerKey);
@@ -2064,7 +2075,6 @@
             document.getElementById('routeSelector').addEventListener('change', function(e) {
                 showRoute(e.target.value);
             });
-            
             
             document.getElementById('forceLocationBtn').addEventListener('click', function() {
                 forceLocationUpdate();
@@ -2169,7 +2179,7 @@
         }
         
         function initializeAllMarkers() {
-            const mobileIds = ['Movil1', 'Movil2', 'Movil3', 'Movil4'];
+            const mobileIds = ['Movil1', 'Movil2', 'Movil3', 'Movil4', 'Movil5', 'Movil6'];
             mobileIds.forEach(mobileId => {
                 createMarker(mobileId, INACTIVE_COORDS, false);
                 lastUpdateTimes[mobileId] = Date.now();
@@ -2228,7 +2238,6 @@
                 `${coords[0].toFixed(6)}, ${coords[1].toFixed(6)}`;
             document.getElementById('accuracyValue').textContent = 
                 accuracy ? `${accuracy.toFixed(1)} metros` : 'Desconocida';
-            
             
             const now = new Date();
             const chileTime = new Date(now.toLocaleString("en-US", {timeZone: "America/Santiago"}));
@@ -2420,7 +2429,6 @@
                 document.getElementById('accuracyValue').textContent = `${accuracy.toFixed(1)} metros`;
             }
             
-            
             const now = new Date();
             const chileTime = new Date(now.toLocaleString("en-US", {timeZone: "America/Santiago"}));
             document.getElementById('lastUpdateValue').textContent = chileTime.toLocaleTimeString('es-CL');
@@ -2503,7 +2511,6 @@
                                     const coords = [vehicle.coords.lat, vehicle.coords.lng];
                                     checkLapCompletion(mobileId, coords);
                                     
-                                    
                                     const laps = lapCounters[mobileId] ? 
                                         lapCounters[mobileId].shift1 + lapCounters[mobileId].shift2 + lapCounters[mobileId].shift3 : 0;
                                     storeCoordinateData(mobileId, coords, vehicle.status, laps);
@@ -2545,7 +2552,6 @@
                     updateMarker(mobileId, coords, isOnline);
                     updateStatus(mobileId, isOnline ? 'online' : 'offline');
                     
-                    
                     if (currentUserId === 'Funcionarios' && lastKnownPosition && isOnline) {
                         calculateAndDisplayDistance(mobileId, coords);
                     }
@@ -2559,44 +2565,34 @@
             }
         }
         
-        
         function calculateAndDisplayDistance(mobileId, mobileCoords) {
             if (!lastKnownPosition) return;
-            
             
             const distance = calculateDistance(
                 lastKnownPosition[0], lastKnownPosition[1],
                 mobileCoords[0], mobileCoords[1]
             );
             
-            
             const estimatedTimeMinutes = Math.round((distance / 1000) / 30 * 60);
             
-            
             const trend = calculateDistanceTrend(mobileId, mobileCoords);
-            
             
             updateDistanceUI(mobileId, distance, estimatedTimeMinutes, trend);
         }
         
-        
         function calculateDistanceTrend(mobileId, currentCoords) {
-            
             positionHistory[mobileId].push({
                 coords: currentCoords,
                 timestamp: Date.now()
             });
             
-            
             if (positionHistory[mobileId].length > 5) {
                 positionHistory[mobileId].shift();
             }
             
-            
             if (positionHistory[mobileId].length < 2 || !lastKnownPosition) {
                 return 'stable';
             }
-            
             
             const previousPosition = positionHistory[mobileId][positionHistory[mobileId].length - 2];
             const previousDistance = calculateDistance(
@@ -2609,8 +2605,7 @@
                 currentCoords[0], currentCoords[1]
             );
             
-            
-            if (currentDistance < previousDistance - 10) { 
+            if (currentDistance < previousDistance - 10) {
                 return 'approaching';
             } else if (currentDistance > previousDistance + 10) {
                 return 'moving-away';
@@ -2619,14 +2614,12 @@
             }
         }
         
-        
         function updateDistanceUI(mobileId, distance, estimatedTimeMinutes, trend) {
             const distanceElement = document.getElementById(`${mobileId.toLowerCase()}-distance`);
             if (!distanceElement) return;
             
             const distanceIndicator = distanceElement.querySelector('.distance-indicator');
             if (!distanceIndicator) return;
-            
             
             let formattedDistance;
             let distanceClass;
@@ -2643,14 +2636,12 @@
                 }
             }
             
-            
             let trendIcon = '';
             if (trend === 'approaching') {
-                trendIcon = '↓'; 
+                trendIcon = '↓';
             } else if (trend === 'moving-away') {
-                trendIcon = '↑'; 
+                trendIcon = '↑';
             }
-            
             
             distanceIndicator.innerHTML = `
                 ${formattedDistance} 
@@ -2835,3 +2826,5 @@
 
 
 
+
+                
