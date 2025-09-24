@@ -286,6 +286,8 @@
                     <option value="Movil2">Móvil 2</option>
                     <option value="Movil3">Móvil 3</option>
                     <option value="Movil4">Móvil 4</option>
+                    <option value="Movil5">Móvil 5</option>
+                    <option value="Movil6">Móvil 6</option>
                     <option value="Admin">Admin</option>
                 </select>
                 <div class="selected-user-status" id="selectedUserStatus">
@@ -327,7 +329,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     
     <script>
-        // Configuración de Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyDT85qotm1EpAJzJzCFeoNwGyo-VKhM6dk",
             authDomain: "gpsaccionascl2025.firebaseapp.com",
@@ -338,14 +339,12 @@
             appId: "1:742246618721:web:72d0046987416800f07c20"
         };
         
-        // Inicializar Firebase
         firebase.initializeApp(firebaseConfig);
         
-        // Constantes y variables globales
         const FUNCIONARIOS_PASSWORD = "123456";
         const ADMIN_PASSWORD = "Admin234452";
         const TEN_MINUTES = 10 * 60 * 1000;
-        const CACHE_DURATION = 10 * 60 * 1000; // 10 minutos de caché
+        const CACHE_DURATION = 10 * 60 * 1000;
         
         let currentUsername = "";
         let ghostAuthUser = null;
@@ -359,11 +358,12 @@
             "Movil2": "movil2@gpsacciona.com", 
             "Movil3": "movil3@gpsacciona.com",
             "Movil4": "movil4@gpsacciona.com",
+            "Movil5": "movil5@gpsacciona.com",
+            "Movil6": "movil6@gpsacciona.com",
             "Funcionarios": "funcionarios@gpsacciona.com",
             "Admin": "admin@acciona.com"
         };
 
-        // Función para verificar si un vehículo está en línea
         function isVehicleOnline(vehicleData) {
             if (!vehicleData || !vehicleData.lastUpdate) return false;
             const now = Date.now();
@@ -371,7 +371,6 @@
             return timeDiff < TEN_MINUTES;
         }
 
-        // Función para formatear el tiempo transcurrido
         function formatTimeAgo(timestamp) {
             if (!timestamp) return 'Nunca';
             
@@ -392,16 +391,13 @@
             }
         }
 
-        // Función para realizar autenticación fantasma
         function performGhostAuthentication() {
             return new Promise((resolve, reject) => {
-                // Si ya hay una autenticación fantasma activa, la reutilizamos
                 if (ghostAuthUser) {
                     resolve(ghostAuthUser);
                     return;
                 }
                 
-                // Realizar autenticación fantasma
                 firebase.auth().signInWithEmailAndPassword(
                     userEmails["Funcionarios"], 
                     FUNCIONARIOS_PASSWORD
@@ -415,7 +411,6 @@
             });
         }
 
-        // Función para verificar el estado de un usuario móvil específico
         function checkUserStatus(username) {
             const statusContainer = document.getElementById('selectedUserStatus');
             const statusIndicator = document.getElementById('userStatusIndicator');
@@ -429,21 +424,18 @@
                 statusText.textContent = 'Verificando estado...';
                 lastUpdateText.textContent = '';
                 
-                // Usar datos en caché si están disponibles y son recientes
                 if (userStatusCache.data[username] && 
                     (Date.now() - userStatusCache.timestamp) < CACHE_DURATION) {
                     updateUserStatusFromCache(username, statusIndicator, statusText, lastUpdateText);
                     return;
                 }
                 
-                // Si no hay caché válido, obtener datos nuevos
                 performGhostAuthentication().then(() => {
                     return firebase.database().ref(`vehicles/${username}`).once('value');
                 }).then((snapshot) => {
                     const vehicleData = snapshot.val();
                     updateUserStatusDisplay(username, vehicleData, statusIndicator, statusText, lastUpdateText);
                     
-                    // Actualizar caché
                     userStatusCache.data[username] = vehicleData;
                     userStatusCache.timestamp = Date.now();
                 }).catch((error) => {
@@ -459,13 +451,11 @@
             }
         }
 
-        // Función para actualizar el estado del usuario desde la caché
         function updateUserStatusFromCache(username, statusIndicator, statusText, lastUpdateText) {
             const vehicleData = userStatusCache.data[username];
             updateUserStatusDisplay(username, vehicleData, statusIndicator, statusText, lastUpdateText);
         }
 
-        // Función para actualizar la visualización del estado del usuario
         function updateUserStatusDisplay(username, vehicleData, statusIndicator, statusText, lastUpdateText) {
             const now = Date.now();
             
@@ -495,7 +485,6 @@
             }
         }
 
-        // Event Listeners
         document.getElementById('username').addEventListener('change', function() {
             const username = this.value;
             const autoLoginNotice = document.getElementById('autoLoginNotice');
@@ -513,7 +502,6 @@
                 passwordInput.removeAttribute('readonly');
                 passwordInput.classList.remove('password-disabled');
                 
-                // Verificar estado del usuario
                 checkUserStatus(username);
             } else {
                 autoLoginNotice.style.display = 'none';
@@ -538,15 +526,12 @@
                 return;
             }
 
-            // Mostrar indicador de carga
             loginButton.disabled = true;
             loginSpinner.style.display = 'inline-block';
             
             const email = userEmails[username];
             
-            // Para Funcionarios, intentar reutilizar la autenticación fantasma si existe
             if (username === 'Funcionarios' && ghostAuthUser) {
-                // Usar la autenticación fantasma existente
                 currentUsername = username;
                 
                 localStorage.setItem('gpsAuth', JSON.stringify({
@@ -559,7 +544,6 @@
                 return;
             }
             
-            // Para otros usuarios, realizar autenticación normal
             firebase.auth().signInWithEmailAndPassword(email, password)
                 .then((userCredential) => {
                     currentUsername = username;
@@ -580,7 +564,6 @@
                     errorElement.textContent = 'Usuario o contraseña incorrectos';
                     errorElement.style.display = 'block';
                     
-                    // Ocultar indicador de carga
                     loginButton.disabled = false;
                     loginSpinner.style.display = 'none';
                     
@@ -614,7 +597,6 @@
             }
         });
 
-        // Inicialización al cargar la página
         window.addEventListener('load', function() {
             const usernameSelect = document.getElementById('username');
             if (usernameSelect.value === 'Funcionarios') {
@@ -624,7 +606,6 @@
                 document.getElementById('password').classList.add('password-disabled');
             }
             
-            // Intentar cargar datos de caché del almacenamiento local si existen
             const cachedData = localStorage.getItem('userStatusCache');
             if (cachedData) {
                 try {
@@ -637,7 +618,6 @@
                 }
             }
             
-            // Guardar caché en el almacenamiento local cuando se actualice
             const originalCache = userStatusCache;
             userStatusCache = new Proxy(originalCache, {
                 set(target, property, value) {
