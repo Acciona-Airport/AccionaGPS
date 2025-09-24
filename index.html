@@ -2537,36 +2537,40 @@
         }
         
         function updateMarkersFromCache() {
-            const now = Date.now();
-            Object.keys(vehicleCache).forEach(mobileId => {
-                const vehicle = vehicleCache[mobileId];
-                if (vehicle) {
-                    const isOnline = (now - vehicle.lastUpdate) < TEN_MINUTES;
-                    const coords = isOnline ? [vehicle.coords.lat, vehicle.coords.lng] : INACTIVE_COORDS;
+    const now = Date.now();
+    
+    // ✅ ARREGLO SIMPLE: Procesar los 6 móviles
+    const mobileIds = ['Movil1', 'Movil2', 'Movil3', 'Movil4', 'Movil5', 'Movil6'];
+    
+    mobileIds.forEach(mobileId => {
+        const vehicle = vehicleCache[mobileId];
+        if (vehicle) {
+            const isOnline = (now - vehicle.lastUpdate) < TEN_MINUTES;
+            const coords = isOnline ? [vehicle.coords.lat, vehicle.coords.lng] : INACTIVE_COORDS;
 
-                    if (vehicle.displayName && vehicle.displayName !== mobileId) {
-                        vehicleNames[mobileId] = vehicle.displayName;
-                        localStorage.setItem('vehicleNames', JSON.stringify(vehicleNames));
-                        const nameElement = document.getElementById(`${mobileId.toLowerCase()}-name`);
-                        if (nameElement) {
-                            nameElement.textContent = vehicle.displayName;
-                        }
-                    }
-
-                    updateMarker(mobileId, coords, isOnline);
-                    updateStatus(mobileId, isOnline ? 'online' : 'offline');
-                    
-                    if (currentUserId === 'Funcionarios' && lastKnownPosition && isOnline) {
-                        calculateAndDisplayDistance(mobileId, coords);
-                    }
-                }
-            });
+            updateMarker(mobileId, coords, isOnline);
+            updateStatus(mobileId, isOnline ? 'online' : 'offline');
             
-            updateVehicleNamesInUI();
+            // Guardar datos para Admin (esto incluye Movil5 y Movil6)
+            if (currentUserId === 'Admin') {
+                const laps = lapCounters[mobileId] ? lapCounters[mobileId].shift1 + lapCounters[mobileId].shift2 + lapCounters[mobileId].shift3 : 0;
+                storeCoordinateData(mobileId, coords, isOnline ? 'online' : 'offline', laps);
+            }
+        } else {
+            // Si el móvil no está en cache, guardarlo como offline
+            updateMarker(mobileId, INACTIVE_COORDS, false);
+            updateStatus(mobileId, 'offline');
             
             if (currentUserId === 'Admin') {
-                updateMetrics();
+                const laps = lapCounters[mobileId] ? lapCounters[mobileId].shift1 + lapCounters[mobileId].shift2 + lapCounters[mobileId].shift3 : 0;
+                storeCoordinateData(mobileId, INACTIVE_COORDS, 'offline', laps);
             }
+        }
+    });
+    
+    updateVehicleNamesInUI();
+    if (currentUserId === 'Admin') updateMetrics();
+}
         }
         
         function calculateAndDisplayDistance(mobileId, mobileCoords) {
@@ -2817,6 +2821,7 @@
     </script>
 </body>
 </html>
+
 
 
 
