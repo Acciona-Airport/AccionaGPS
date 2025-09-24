@@ -1740,16 +1740,25 @@
             if (currentUserId === 'Funcionarios') {
                 document.getElementById('refreshContainer').style.display = 'none';
             }
-
-             if (isViewer || currentUserId === 'Funcionarios' || currentUserId === 'Admin') {
-    document.getElementById('other-vehicles-container').style.display = 'block';
-    updateVehicleNamesInUI();
-    initializeAllMarkers();
-    startMonitoring();
-} else {
-    initializeCurrentUserMarker();
-    startGPSTracking(currentUserId);
-}
+            
+            if (currentUserId === 'Admin') {
+                document.getElementById('adminDashboard').style.display = 'block';
+                loadLapCounters();
+                setupDashboardTabs();
+                
+                document.getElementById('downloadExcelBtn').addEventListener('click', downloadExcelData);
+                document.getElementById('downloadExcelBtn').style.display = 'flex';
+            }
+            
+                if (isViewer || currentUserId === 'Funcionarios' || currentUserId === 'Admin') {
+                document.getElementById('other-vehicles-container').style.display = 'block';
+                updateVehicleNamesInUI();
+                initializeAllMarkers();
+               startMonitoring(); // ✅ Ahora también para Admin
+            } else {
+               initializeCurrentUserMarker();
+               startGPSTracking(currentUserId);
+            }
             
             document.getElementById('weatherWidget').addEventListener('click', toggleWeatherWidget);
         }
@@ -2804,7 +2813,3 @@
     </script>
 </body>
 </html>
-
-
-
-
