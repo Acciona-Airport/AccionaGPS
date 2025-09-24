@@ -1740,6 +1740,13 @@
             if (currentUserId === 'Funcionarios') {
                 document.getElementById('refreshContainer').style.display = 'none';
             }
+
+             if (isViewer || currentUserId === 'Funcionarios' || currentUserId === 'Admin') {
+        document.getElementById('other-vehicles-container').style.display = 'block';
+        updateVehicleNamesInUI();
+        initializeAllMarkers(); // ✅ Ahora se ejecuta INMEDIATAMENTE para Admin también
+        startMonitoring();
+    }
             
             if (currentUserId === 'Admin') {
                 document.getElementById('adminDashboard').style.display = 'block';
@@ -2814,5 +2821,6 @@
     </script>
 </body>
 </html>
+
 
 
