@@ -2679,7 +2679,6 @@
                                 .setPopupContent(`<b>${vehicleNames[mobileId] || mobileId}</b><br>Desconectado<br>Última actualización: ${new Date(lastUpdate).toLocaleTimeString()}`);
                         }
                         
-                        
                         if (currentUserId === 'Funcionarios') {
                             const distanceElement = document.getElementById(`${mobileId.toLowerCase()}-distance`);
                             if (distanceElement) {
@@ -2717,7 +2716,7 @@
             .bindPopup(`<b>${displayName}</b><br>${isOnline ? 'En ruta' : 'Desconectado'}`);
         }
         
-         function updateMarker(mobileId, coords, isOnline) {
+        function updateMarker(mobileId, coords, isOnline) {
             const displayName = vehicleNames[mobileId] || mobileId;
             
             if (!markers[mobileId]) {
@@ -2726,105 +2725,91 @@
                 const container = L.divIcon({
                     className: 'vehicle-marker-container',
                     html: `
-                                            <div class="vehicle-marker ${isOnline ? 'online' : 'offline'}"></div>
-                    <div class="vehicle-label">${displayName}</div>
-                `,
-                iconSize: [32, 42],
-                iconAnchor: [16, 16],
-                popupAnchor: [0, 16]
+                        <div class="vehicle-marker ${isOnline ? 'online' : 'offline'}"></div>
+                        <div class="vehicle-label">${displayName}</div>
+                    `,
+                    iconSize: [32, 42],
+                    iconAnchor: [16, 16],
+                    popupAnchor: [0, 16]
+                });
+                
+                markers[mobileId]
+                    .setLatLng(coords)
+                    .setIcon(container)
+                    .setPopupContent(`<b>${displayName}</b><br>${isOnline ? 'En ruta' : 'Desconectado'}<br>Última actualización: ${new Date().toLocaleTimeString()}`);
+            }
+        }
+        
+        function updateStatus(mobileId, status) {
+            if (mobileId === currentUserId) {
+                const element = document.getElementById('current-user-status');
+                const iconElement = document.getElementById('current-user-icon');
+                
+                if (element) {
+                    element.textContent = status === 'online' ? 'En ruta' : 'Desconectado';
+                    element.className = status === 'online' ? 'online' : 'offline';
+                }
+                
+                if (iconElement) {
+                    iconElement.className = `user-icon ${status === 'online' ? 'online' : 'offline'}`;
+                }
+            } 
+            else if (isViewer || currentUserId === 'Funcionarios') {
+                const element = document.getElementById(`${mobileId.toLowerCase()}-status`);
+                const iconElement = document.getElementById(`${mobileId.toLowerCase()}-icon`);
+                
+                if (element) {
+                    element.textContent = status === 'online' ? 'En ruta' : 'Desconectado';
+                    element.className = status === 'online' ? 'online' : 'offline';
+                }
+                
+                if (iconElement) {
+                    iconElement.className = `vehicle-icon ${status === 'online' ? 'online' : 'offline'}`;
+                }
+            }
+        }
+        
+        function logout() {
+            if (gpsInterval) clearInterval(gpsInterval);
+            if (locationUpdateInterval) clearInterval(locationUpdateInterval);
+            if (viewerUpdateInterval) clearInterval(viewerUpdateInterval);
+            if (weatherUpdateInterval) clearInterval(weatherUpdateInterval);
+            
+            if (backgroundGeolocationWatchId !== null) {
+                navigator.geolocation.clearWatch(backgroundGeolocationWatchId);
+            }
+            
+            if (wakeLock !== null) {
+                wakeLock.release().then(() => {
+                    wakeLock = null;
+                });
+            }
+            
+            if (currentUserId && currentUserId.startsWith('Movil')) {
+                firebase.database().ref(`activeUsers/${currentUserId}`).update({
+                    isActive: false,
+                    logoutTime: new Date().toISOString(),
+                    lastSeen: new Date().toISOString()
+                }).then(() => {
+                    console.log('Estado actualizado en Firebase: usuario desconectado');
+                }).catch((error) => {
+                    console.error('Error al actualizar estado en Firebase:', error);
+                });
+            }
+            
+            database.ref('vehicles').off();
+            
+            firebase.auth().signOut().then(() => {
+                console.log('Sesión cerrada exitosamente');
+            }).catch((error) => {
+                console.error('Error al cerrar sesión:', error);
             });
             
-            markers[mobileId]
-                .setLatLng(coords)
-                .setIcon(container)
-                .setPopupContent(`<b>${displayName}</b><br>${isOnline ? 'En ruta' : 'Desconectado'}<br>Última actualización: ${new Date().toLocaleTimeString()}`);
+            localStorage.removeItem('gpsAuth');
+            localStorage.removeItem('panelState');
+            
+            window.location.href = 'login.html';
         }
-    }
-    
-    function updateStatus(mobileId, status) {
-        if (mobileId === currentUserId) {
-            const element = document.getElementById('current-user-status');
-            const iconElement = document.getElementById('current-user-icon');
-            
-            if (element) {
-                element.textContent = status === 'online' ? 'En ruta' : 'Desconectado';
-                element.className = status === 'online' ? 'online' : 'offline';
-            }
-            
-            if (iconElement) {
-                iconElement.className = `user-icon ${status === 'online' ? 'online' : 'offline'}`;
-            }
-        } 
-        else if (isViewer || currentUserId === 'Funcionarios') {
-            const element = document.getElementById(`${mobileId.toLowerCase()}-status`);
-            const iconElement = document.getElementById(`${mobileId.toLowerCase()}-icon`);
-            
-            if (element) {
-                element.textContent = status === 'online' ? 'En ruta' : 'Desconectado';
-                element.className = status === 'online' ? 'online' : 'offline';
-            }
-            
-            if (iconElement) {
-                iconElement.className = `vehicle-icon ${status === 'online' ? 'online' : 'offline'}`;
-            }
-        }
-    }
-    
-   function logout() {
-    // Detener todos los intervalos
-    if (gpsInterval) clearInterval(gpsInterval);
-    if (locationUpdateInterval) clearInterval(locationUpdateInterval);
-    if (viewerUpdateInterval) clearInterval(viewerUpdateInterval);
-    if (weatherUpdateInterval) clearInterval(weatherUpdateInterval);
-    
-    // Limpiar el watch de geolocalización
-    if (backgroundGeolocationWatchId !== null) {
-        navigator.geolocation.clearWatch(backgroundGeolocationWatchId);
-    }
-    
-    // Liberar el wake lock
-    if (wakeLock !== null) {
-        wakeLock.release().then(() => {
-            wakeLock = null;
-        });
-    }
-    
-    // ACTUALIZAR ESTADO DEL USUARIO EN FIREBASE - NUEVA PARTE
-    if (currentUserId && currentUserId.startsWith('Movil')) {
-        firebase.database().ref(`activeUsers/${currentUserId}`).update({
-            isActive: false,
-            logoutTime: new Date().toISOString(),
-            lastSeen: new Date().toISOString()
-        }).then(() => {
-            console.log('Estado actualizado en Firebase: usuario desconectado');
-        }).catch((error) => {
-            console.error('Error al actualizar estado en Firebase:', error);
-        });
-    }
-    
-    // Limpiar listeners de Firebase
-    database.ref('vehicles').off();
-    
-    // Cerrar sesión de Firebase Auth
-    firebase.auth().signOut().then(() => {
-        console.log('Sesión cerrada exitosamente');
-    }).catch((error) => {
-        console.error('Error al cerrar sesión:', error);
-    });
-    
-    // Limpiar localStorage
-    localStorage.removeItem('gpsAuth');
-    localStorage.removeItem('panelState');
-    
-    // Redirigir al login
-    window.location.href = 'login.html';
-}
     </script>
 </body>
 </html>
-
-
-
-
-
-                
