@@ -1750,14 +1750,14 @@
                 document.getElementById('downloadExcelBtn').style.display = 'flex';
             }
             
-                if (isViewer || currentUserId === 'Funcionarios' || currentUserId === 'Admin') {
+            if (isViewer || currentUserId === 'Funcionarios' || currentUserId === 'Admin') {
                 document.getElementById('other-vehicles-container').style.display = 'block';
                 updateVehicleNamesInUI();
                 initializeAllMarkers();
-               startMonitoring(); // ✅ Ahora también para Admin
+                startMonitoring();
             } else {
-               initializeCurrentUserMarker();
-               startGPSTracking(currentUserId);
+                initializeCurrentUserMarker();
+                startGPSTracking(currentUserId);
             }
             
             document.getElementById('weatherWidget').addEventListener('click', toggleWeatherWidget);
@@ -2057,7 +2057,7 @@
             refreshBtn.addEventListener('click', function() {
                 refreshBtn.classList.add('loading');
                 
-                if (isViewer || currentUserId === 'Funcionarios') {
+                if (isViewer || currentUserId === 'Funcionarios' || currentUserId === 'Admin') {
                     fetchVehicleData();
                 }
                 
@@ -2184,6 +2184,10 @@
                 createMarker(mobileId, INACTIVE_COORDS, false);
                 lastUpdateTimes[mobileId] = Date.now();
             });
+            
+            if (currentUserId === 'Admin') {
+                fetchVehicleData();
+            }
         }
         
         function initializeCurrentUserMarker() {
@@ -2636,7 +2640,7 @@
                 }
             }
             
-            let trendIcon = '';
+          let trendIcon = '';
             if (trend === 'approaching') {
                 trendIcon = '↓';
             } else if (trend === 'moving-away') {
@@ -2813,3 +2817,6 @@
     </script>
 </body>
 </html>
+
+
+
