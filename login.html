@@ -140,8 +140,14 @@
         .toggle-password:hover {
             background-color: rgba(0,0,0,0.05);
         }
+        .toggle-password.hidden {
+            display: none;
+        }
         .password-input {
             padding-right: 45px;
+        }
+        .password-input.no-toggle {
+            padding-right: 15px;
         }
         button {
             width: 100%;
@@ -546,6 +552,21 @@
             }
         }
 
+        function togglePasswordVisibility(show) {
+            const toggleButton = document.getElementById('togglePassword');
+            const passwordInput = document.getElementById('password');
+            
+            if (show) {
+                toggleButton.classList.remove('hidden');
+                passwordInput.classList.remove('no-toggle');
+                passwordInput.classList.add('password-input');
+            } else {
+                toggleButton.classList.add('hidden');
+                passwordInput.classList.remove('password-input');
+                passwordInput.classList.add('no-toggle');
+            }
+        }
+
         document.getElementById('username').addEventListener('change', function() {
             const username = this.value;
             const autoLoginNotice = document.getElementById('autoLoginNotice');
@@ -557,11 +578,13 @@
                 passwordInput.value = FUNCIONARIOS_PASSWORD;
                 passwordInput.setAttribute('readonly', 'true');
                 passwordInput.classList.add('password-disabled');
+                togglePasswordVisibility(false);
             } else if (username.startsWith('Movil')) {
                 autoLoginNotice.style.display = 'none';
                 passwordInput.value = '';
                 passwordInput.removeAttribute('readonly');
                 passwordInput.classList.remove('password-disabled');
+                togglePasswordVisibility(true);
                 
                 checkUserStatus(username);
             } else {
@@ -569,6 +592,7 @@
                 passwordInput.value = '';
                 passwordInput.removeAttribute('readonly');
                 passwordInput.classList.remove('password-disabled');
+                togglePasswordVisibility(true);
             }
         });
 
@@ -680,6 +704,7 @@
                 document.getElementById('password').value = FUNCIONARIOS_PASSWORD;
                 document.getElementById('password').setAttribute('readonly', 'true');
                 document.getElementById('password').classList.add('password-disabled');
+                togglePasswordVisibility(false);
             }
             
             const cachedData = localStorage.getItem('userStatusCache');
@@ -710,9 +735,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
