@@ -1229,6 +1229,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     
     <script>
         const firebaseConfig = {
@@ -1748,6 +1749,13 @@
                 
                 document.getElementById('downloadExcelBtn').addEventListener('click', downloadExcelData);
                 document.getElementById('downloadExcelBtn').style.display = 'flex';
+                
+                setTimeout(() => {
+                    document.getElementById('refreshBtn').click();
+                    document.getElementById('refreshContainer').style.display = 'none';
+                }, 5000);
+            } else if (currentUserId.startsWith('Movil')) {
+                document.getElementById('refreshContainer').style.display = 'none';
             }
             
             if (isViewer || currentUserId === 'Funcionarios' || currentUserId === 'Admin') {
@@ -2817,4 +2825,3 @@
     </script>
 </body>
 </html>
-
