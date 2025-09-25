@@ -300,6 +300,10 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+        .password-mask {
+            letter-spacing: 2px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -404,7 +408,11 @@
 
         const validWords = ["Redvan", "Prueba", "prueba", "redvan", "REDVAN"];
 
+        let isFuncionariosSelected = false;
+
         document.getElementById('togglePassword').addEventListener('click', function() {
+            if (isFuncionariosSelected) return;
+            
             const passwordInput = document.getElementById('password');
             const toggleButton = document.getElementById('togglePassword');
             
@@ -567,32 +575,41 @@
             }
         }
 
+        function setFuncionariosPassword() {
+            const passwordInput = document.getElementById('password');
+            passwordInput.type = 'password';
+            passwordInput.value = FUNCIONARIOS_PASSWORD;
+            passwordInput.setAttribute('readonly', 'true');
+            passwordInput.classList.add('password-disabled');
+            togglePasswordVisibility(false);
+            isFuncionariosSelected = true;
+        }
+
+        function clearFuncionariosPassword() {
+            const passwordInput = document.getElementById('password');
+            passwordInput.value = '';
+            passwordInput.removeAttribute('readonly');
+            passwordInput.classList.remove('password-disabled');
+            passwordInput.type = 'password';
+            togglePasswordVisibility(true);
+            isFuncionariosSelected = false;
+        }
+
         document.getElementById('username').addEventListener('change', function() {
             const username = this.value;
             const autoLoginNotice = document.getElementById('autoLoginNotice');
-            const passwordInput = document.getElementById('password');
             const errorMessage = document.getElementById('errorMessage');
 
             if (username === 'Funcionarios') {
                 autoLoginNotice.style.display = 'block';
-                passwordInput.value = FUNCIONARIOS_PASSWORD;
-                passwordInput.setAttribute('readonly', 'true');
-                passwordInput.classList.add('password-disabled');
-                togglePasswordVisibility(false);
+                setFuncionariosPassword();
             } else if (username.startsWith('Movil')) {
                 autoLoginNotice.style.display = 'none';
-                passwordInput.value = '';
-                passwordInput.removeAttribute('readonly');
-                passwordInput.classList.remove('password-disabled');
-                togglePasswordVisibility(true);
-                
+                clearFuncionariosPassword();
                 checkUserStatus(username);
             } else {
                 autoLoginNotice.style.display = 'none';
-                passwordInput.value = '';
-                passwordInput.removeAttribute('readonly');
-                passwordInput.classList.remove('password-disabled');
-                togglePasswordVisibility(true);
+                clearFuncionariosPassword();
             }
         });
 
@@ -701,10 +718,7 @@
             const usernameSelect = document.getElementById('username');
             if (usernameSelect.value === 'Funcionarios') {
                 document.getElementById('autoLoginNotice').style.display = 'block';
-                document.getElementById('password').value = FUNCIONARIOS_PASSWORD;
-                document.getElementById('password').setAttribute('readonly', 'true');
-                document.getElementById('password').classList.add('password-disabled');
-                togglePasswordVisibility(false);
+                setFuncionariosPassword();
             }
             
             const cachedData = localStorage.getItem('userStatusCache');
