@@ -95,6 +95,7 @@
         .form-group {
             margin-bottom: 20px;
             text-align: left;
+            position: relative;
         }
         label {
             display: block;
@@ -114,6 +115,20 @@
             border-color: var(--red-primary);
             outline: none;
             box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.2);
+        }
+        .password-container {
+            position: relative;
+        }
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #666;
+            font-size: 18px;
         }
         button {
             width: 100%;
@@ -301,7 +316,10 @@
             
             <div class="form-group">
                 <label for="password">Contraseña</label>
-                <input type="password" id="password" required>
+                <div class="password-container">
+                    <input type="password" id="password" required>
+                    <button type="button" class="toggle-password" id="togglePassword">👁️</button>
+                </div>
             </div>
             
             <div class="auto-login-notice" id="autoLoginNotice">
@@ -319,7 +337,8 @@
     <div class="vehicle-number-modal" id="vehicleNumberModal">
         <div class="vehicle-number-form">
             <h2>Ingrese número de vehículo</h2>
-            <input type="text" class="vehicle-number-input" id="vehicleNumberInput" placeholder="Ej: 6142" maxlength="10">
+            <input type="text" class="vehicle-number-input" id="vehicleNumberInput" placeholder="Ej: 6142 o Redvan" maxlength="10">
+            <div class="error-message" id="vehicleError" style="display: none;"></div>
             <button class="vehicle-number-submit" id="vehicleNumberSubmit">Continuar</button>
         </div>
     </div>
@@ -363,6 +382,35 @@
             "Funcionarios": "funcionarios@gpsacciona.com",
             "Admin": "admin@acciona.com"
         };
+
+        const validWords = ["Redvan", "Prueba", "prueba", "redvan", "REDVAN"];
+
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const toggleButton = document.getElementById('togglePassword');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleButton.textContent = '🔒';
+            } else {
+                passwordInput.type = 'password';
+                toggleButton.textContent = '👁️';
+            }
+        });
+
+        function validateVehicleNumber(input) {
+            const value = input.trim();
+            
+            if (validWords.includes(value)) {
+                return true;
+            }
+            
+            if (/^\d+$/.test(value)) {
+                return true;
+            }
+            
+            return false;
+        }
 
         function isVehicleOnline(vehicleData) {
             if (!vehicleData || !vehicleData.lastUpdate) return false;
@@ -575,11 +623,21 @@
 
         document.getElementById('vehicleNumberSubmit').addEventListener('click', function() {
             const vehicleNumber = document.getElementById('vehicleNumberInput').value.trim();
+            const vehicleError = document.getElementById('vehicleError');
             
             if (!vehicleNumber) {
-                alert('Por favor ingrese un número de vehículo');
+                vehicleError.textContent = 'Por favor ingrese un número de vehículo';
+                vehicleError.style.display = 'block';
                 return;
             }
+            
+            if (!validateVehicleNumber(vehicleNumber)) {
+                vehicleError.textContent = 'Ingrese un número de equipo correcto Ej:6142, si es carrusel Redvan, ingrese "Redvan"';
+                vehicleError.style.display = 'block';
+                return;
+            }
+            
+            vehicleError.style.display = 'none';
             
             localStorage.setItem('gpsAuth', JSON.stringify({
                 username: currentUsername,
@@ -595,6 +653,11 @@
             if (e.key === 'Enter') {
                 document.getElementById('vehicleNumberSubmit').click();
             }
+        });
+
+        document.getElementById('vehicleNumberInput').addEventListener('input', function(e) {
+            const vehicleError = document.getElementById('vehicleError');
+            vehicleError.style.display = 'none';
         });
 
         window.addEventListener('load', function() {
