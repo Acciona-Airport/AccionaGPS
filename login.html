@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -95,7 +96,6 @@
         .form-group {
             margin-bottom: 20px;
             text-align: left;
-            position: relative;
         }
         label {
             display: block;
@@ -121,7 +121,7 @@
         }
         .toggle-password {
             position: absolute;
-            right: 15px;
+            right: 12px;
             top: 50%;
             transform: translateY(-50%);
             background: none;
@@ -129,6 +129,20 @@
             cursor: pointer;
             color: #666;
             font-size: 18px;
+            padding: 5px;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        .toggle-password:hover {
+            background-color: rgba(0,0,0,0.05);
+        }
+        .password-input {
+            padding-right: 45px;
         }
         button {
             width: 100%;
@@ -317,7 +331,7 @@
             <div class="form-group">
                 <label for="password">Contraseña</label>
                 <div class="password-container">
-                    <input type="password" id="password" required>
+                    <input type="password" id="password" class="password-input" required>
                     <button type="button" class="toggle-password" id="togglePassword">👁️</button>
                 </div>
             </div>
@@ -697,3 +711,4 @@
     </script>
 </body>
 </html>
+```
